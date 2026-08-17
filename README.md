@@ -17,9 +17,14 @@ tìm đúng khoa theo cách họ tự mô tả, và **dẫn đường** tới n�
    ```
 3. **Mở app từ RobotOS Home**, tuyệt đối không dùng `am start` — dùng `am start` thì `RobotApi`
    trả `handleApiDisabled`, mất cả dẫn đường lẫn giọng nói mà app không báo lỗi gì.
-4. Quét bản đồ và đặt 8 điểm theo
-   **[hướng dẫn đặt điểm bản đồ](huong-dan-dat-ten-diem-ban-do.html)** — mở file HTML đó bằng
-   trình duyệt, có sơ đồ và danh sách kiểm, in ra mang theo được.
+4. Quét bản đồ và đặt 8 điểm theo **hướng dẫn đặt điểm bản đồ**:
+   - Bản dễ nhìn, có sơ đồ và danh sách kiểm, in ra mang theo được:
+     [`huong-dan-dat-ten-diem-ban-do.html`](huong-dan-dat-ten-diem-ban-do.html)
+     — ⚠ GitHub **không hiển thị** file HTML, nó chỉ hiện mã nguồn. Bấm nút **Download raw file**
+     (mũi tên tải xuống ở góc phải) rồi mở bằng Chrome. Hoặc tải cả kho về bằng
+     **Code → Download ZIP**, giải nén, nháy đúp file đó.
+   - Bản chữ đọc thẳng trên GitHub được:
+     [`huong-dan-dat-ten-diem-ban-do.md`](huong-dan-dat-ten-diem-ban-do.md)
 
 **Muốn xem app trông thế nào mà chưa có robot:** mở `demo/thu-nghiem.html` bằng Chrome
 (có giả lập robot, bấm được nút dẫn đường) — đọc [HUONG-DAN-THU-NGHIEM.md](HUONG-DAN-THU-NGHIEM.md).
