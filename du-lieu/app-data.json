@@ -1,0 +1,642 @@
+{
+ "don_vi": "Bệnh viện Việt Nam – Thụy Điển Uông Bí",
+ "khu_vuc": "Khu lễ tân",
+ "nguon": "Tài liệu hướng dẫn robot lễ tân do bệnh viện cung cấp — 10-project/Benh-vien-Uong-Bi/01-khao-sat/",
+ "cap_nhat": "11/08/2026",
+ "diem": {
+  "tiep-don": {
+   "ten": "Quầy tiếp đón · Đăng ký khám",
+   "diem_ban_do": "Tiep don",
+   "mau": "#B5651D"
+  },
+  "vien-phi": {
+   "ten": "Phòng thu viện phí",
+   "diem_ban_do": "Vien phi",
+   "mau": "#B8860B"
+  },
+  "nha-thuoc": {
+   "ten": "Nhà thuốc bệnh viện",
+   "diem_ban_do": "Nha thuoc",
+   "mau": "#1F6F5C"
+  },
+  "can-tin": {
+   "ten": "Căn tin",
+   "diem_ban_do": "Can tin",
+   "mau": "#7A5AA6"
+  },
+  "nha-ve-sinh": {
+   "ten": "Nhà vệ sinh",
+   "diem_ban_do": "Nha ve sinh",
+   "mau": "#2B5C9B"
+  },
+  "truoc-hanh-lang": {
+   "ten": "Đầu hành lang",
+   "diem_ban_do": "Truoc hanh lang",
+   "mau": "#0E5A63"
+  }
+ },
+ "diem_ve_cho": "Sanh cho",
+ "toa": [
+  {
+   "ma": "DI",
+   "ten": "Nhà DI",
+   "so_tang": 5,
+   "thu_tu": 1,
+   "thu_tu_chu": "đầu tiên"
+  },
+  {
+   "ma": "DII",
+   "ten": "Nhà DII",
+   "so_tang": 5,
+   "thu_tu": 2,
+   "thu_tu_chu": "thứ hai"
+  },
+  {
+   "ma": "DIII",
+   "ten": "Nhà DIII",
+   "so_tang": 8,
+   "thu_tu": 3,
+   "thu_tu_chu": "thứ ba"
+  }
+ ],
+ "nhom": [
+  {
+   "ma": "me-be",
+   "ten": "Mẹ và bé",
+   "icon": "👶",
+   "goi_y": "Đi đẻ, khám thai, trẻ sơ sinh"
+  },
+  {
+   "ma": "tre-em",
+   "ten": "Trẻ em",
+   "icon": "🧒",
+   "goi_y": "Đưa con đi khám, bé sốt, bé ho"
+  },
+  {
+   "ma": "mat-tai-rang",
+   "ten": "Mắt · Tai mũi họng · Răng",
+   "icon": "👁️",
+   "goi_y": "Đau mắt, viêm họng, đau răng"
+  },
+  {
+   "ma": "noi-khoa",
+   "ten": "Khám bên trong (nội khoa)",
+   "icon": "🫁",
+   "goi_y": "Đau bụng, dạ dày, ho, khó thở, thận"
+  },
+  {
+   "ma": "ngoai-khoa",
+   "ten": "Phải mổ (ngoại khoa)",
+   "icon": "🔪",
+   "goi_y": "Mổ ruột thừa, sỏi thận, chấn thương đầu"
+  },
+  {
+   "ma": "xuong-khop",
+   "ten": "Xương khớp · Thần kinh · Đông y",
+   "icon": "🦴",
+   "goi_y": "Đau lưng, thoát vị đĩa đệm, châm cứu"
+  },
+  {
+   "ma": "cap-cuu",
+   "ten": "CẤP CỨU",
+   "icon": "🚨",
+   "goi_y": "Nguy kịch, cần cấp cứu ngay"
+  },
+  {
+   "ma": "tien-ich",
+   "ten": "Viện phí · Thuốc · Tiện ích",
+   "icon": "💳",
+   "goi_y": "Đóng tiền, lấy thuốc, căn tin, nhà vệ sinh"
+  },
+  {
+   "ma": "hanh-chinh",
+   "ten": "Hành chính · Khác",
+   "icon": "🏛️",
+   "goi_y": "Phòng ban, giải phẫu bệnh, xin giấy tờ"
+  }
+ ],
+ "quy_trinh_kham": {
+  "tieu_de": "Quý vị đến khám lần đầu, chưa có phiếu",
+  "diem": "tiep-don",
+  "buoc": [
+   [
+    "Đăng ký khám",
+    "Tới quầy tiếp đón, lấy số, xuất trình căn cước và thẻ bảo hiểm y tế nếu có."
+   ],
+   [
+    "Vào khám",
+    "Nhân viên ghi phiếu khám có mã phòng, quý vị mang phiếu tới đúng phòng đó."
+   ],
+   [
+    "Xét nghiệm, chiếu chụp",
+    "Bác sĩ chỉ định thì quý vị làm theo phiếu, xong quay lại phòng khám."
+   ],
+   [
+    "Đóng tiền, lấy thuốc",
+    "Đóng viện phí tại phòng thu, rồi tới nhà thuốc lấy thuốc theo đơn."
+   ]
+  ],
+  "doc": "Quý vị đến khám lần đầu thì mời tới quầy tiếp đón trước. Ở đó quý vị lấy số, xuất trình căn cước và thẻ bảo hiểm y tế. Nhân viên sẽ ghi phiếu khám có mã phòng. Quý vị mang phiếu đó tới đúng phòng khám. Khám xong, đóng tiền tại phòng thu viện phí, rồi tới nhà thuốc lấy thuốc. Bây giờ tôi dẫn quý vị tới quầy tiếp đón."
+ },
+ "dich": [
+  {
+   "id": 1,
+   "ten": "Khoa Phụ Sản",
+   "nhom": "me-be",
+   "loai": "ngoai-khu",
+   "diem": "truoc-hanh-lang",
+   "ghi_chu": "Sản phụ khoa, sinh đẻ",
+   "ma": [
+    "D1",
+    "D2",
+    "D11",
+    "D12",
+    "D21",
+    "D22"
+   ],
+   "vi_tri": [
+    {
+     "toa": "DI",
+     "toa_ten": "Nhà DI",
+     "tang": 1,
+     "ma": [
+      "D1",
+      "D2"
+     ],
+     "doc": "Khoa Phụ Sản ở tầng một, toà nhà đê một. Phòng đê một hoặc đê hai. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.",
+     "chi_duong": "Đã tới nơi. Xin mời quý vị đi thẳng. Toà nhà đầu tiên, đó là toà đê một. Quý vị vào đó, lên tầng một, vào Khoa Phụ Sản. Tìm phòng đê một hoặc đê hai. Chúc quý vị mau khoẻ."
+    },
+    {
+     "toa": "DII",
+     "toa_ten": "Nhà DII",
+     "tang": 1,
+     "ma": [
+      "D11",
+      "D12"
+     ],
+     "doc": "Khoa Phụ Sản ở tầng một, toà nhà đê hai. Phòng đê mười một hoặc đê mười hai. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.",
+     "chi_duong": "Đã tới nơi. Xin mời quý vị đi thẳng. Toà nhà thứ hai, đó là toà đê hai. Quý vị vào đó, lên tầng một, vào Khoa Phụ Sản. Tìm phòng đê mười một hoặc đê mười hai. Chúc quý vị mau khoẻ."
+    },
+    {
+     "toa": "DIII",
+     "toa_ten": "Nhà DIII",
+     "tang": 1,
+     "ma": [
+      "D21",
+      "D22"
+     ],
+     "doc": "Khoa Phụ Sản ở tầng một, toà nhà đê ba. Phòng đê hai mươi một hoặc đê hai mươi hai. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.",
+     "chi_duong": "Đã tới nơi. Xin mời quý vị đi thẳng. Toà nhà thứ ba, đó là toà đê ba. Quý vị vào đó, lên tầng một, vào Khoa Phụ Sản. Tìm phòng đê hai mươi một hoặc đê hai mươi hai. Chúc quý vị mau khoẻ."
+    }
+   ],
+   "doc": "Khoa Phụ Sản có ở ba toà. Quý vị đang theo dõi ở toà nào ạ?",
+   "tim": "khoa phu san san phu khoa sinh de d1 d2 d11 d12 d21 d22 de sinh con sinh de kham thai bau chua thai san phu khoa mang thai sieu am thai chuyen da vo oi dau de san khoa"
+  },
+  {
+   "id": 2,
+   "ten": "Khoa Sơ Sinh",
+   "nhom": "me-be",
+   "loai": "ngoai-khu",
+   "diem": "truoc-hanh-lang",
+   "ghi_chu": "Chăm sóc trẻ sơ sinh",
+   "ma": [
+    "D14"
+   ],
+   "vi_tri": [
+    {
+     "toa": "DII",
+     "toa_ten": "Nhà DII",
+     "tang": 2,
+     "ma": [
+      "D14"
+     ],
+     "doc": "Khoa Sơ Sinh ở tầng hai, toà nhà đê hai. Phòng đê mười bốn. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.",
+     "chi_duong": "Đã tới nơi. Xin mời quý vị đi thẳng. Toà nhà thứ hai, đó là toà đê hai. Quý vị vào đó, lên tầng hai, vào Khoa Sơ Sinh. Tìm phòng đê mười bốn. Chúc quý vị mau khoẻ."
+    }
+   ],
+   "doc": "Khoa Sơ Sinh ở tầng hai, toà nhà đê hai. Phòng đê mười bốn. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.",
+   "tim": "khoa so sinh cham soc tre so sinh d14 tre so sinh em be moi de be moi sinh long ap so sinh vang da tre thieu thang"
+  },
+  {
+   "id": 3,
+   "ten": "Khoa Nhi",
+   "nhom": "tre-em",
+   "loai": "ngoai-khu",
+   "diem": "truoc-hanh-lang",
+   "ghi_chu": "Nhi khoa, trẻ em",
+   "ma": [
+    "D3",
+    "D4",
+    "D13"
+   ],
+   "vi_tri": [
+    {
+     "toa": "DI",
+     "toa_ten": "Nhà DI",
+     "tang": 2,
+     "ma": [
+      "D3",
+      "D4"
+     ],
+     "doc": "Khoa Nhi ở tầng hai, toà nhà đê một. Phòng đê ba hoặc đê bốn. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.",
+     "chi_duong": "Đã tới nơi. Xin mời quý vị đi thẳng. Toà nhà đầu tiên, đó là toà đê một. Quý vị vào đó, lên tầng hai, vào Khoa Nhi. Tìm phòng đê ba hoặc đê bốn. Chúc quý vị mau khoẻ."
+    },
+    {
+     "toa": "DII",
+     "toa_ten": "Nhà DII",
+     "tang": 2,
+     "ma": [
+      "D13"
+     ],
+     "doc": "Khoa Nhi ở tầng hai, toà nhà đê hai. Phòng đê mười ba. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.",
+     "chi_duong": "Đã tới nơi. Xin mời quý vị đi thẳng. Toà nhà thứ hai, đó là toà đê hai. Quý vị vào đó, lên tầng hai, vào Khoa Nhi. Tìm phòng đê mười ba. Chúc quý vị mau khoẻ."
+    }
+   ],
+   "doc": "Khoa Nhi có ở hai toà. Quý vị đang theo dõi ở toà nào ạ?",
+   "tim": "khoa nhi nhi khoa tre em d3 d4 d13 tre em con nho em be chau be nhi khoa be sot be ho be tieu chay dua con di kham kham cho con tre nho"
+  },
+  {
+   "id": 4,
+   "ten": "Khoa Mắt",
+   "nhom": "mat-tai-rang",
+   "loai": "ngoai-khu",
+   "diem": "truoc-hanh-lang",
+   "ghi_chu": "Nhãn khoa",
+   "ma": [
+    "D9"
+   ],
+   "vi_tri": [
+    {
+     "toa": "DI",
+     "toa_ten": "Nhà DI",
+     "tang": 5,
+     "ma": [
+      "D9"
+     ],
+     "doc": "Khoa Mắt ở tầng năm, toà nhà đê một. Phòng đê chín. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.",
+     "chi_duong": "Đã tới nơi. Xin mời quý vị đi thẳng. Toà nhà đầu tiên, đó là toà đê một. Quý vị vào đó, lên tầng năm, vào Khoa Mắt. Tìm phòng đê chín. Chúc quý vị mau khoẻ."
+    }
+   ],
+   "doc": "Khoa Mắt ở tầng năm, toà nhà đê một. Phòng đê chín. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.",
+   "tim": "khoa mat nhan khoa d9 mat dau mat mo mat can thi vien duc thuy tinh the mong thit nhan khoa do mat ngua mat kham mat do kinh"
+  },
+  {
+   "id": 5,
+   "ten": "Khoa Tai Mũi Họng",
+   "nhom": "mat-tai-rang",
+   "loai": "ngoai-khu",
+   "diem": "truoc-hanh-lang",
+   "ghi_chu": "Tai, mũi, họng (TMH)",
+   "ma": [
+    "D10"
+   ],
+   "vi_tri": [
+    {
+     "toa": "DI",
+     "toa_ten": "Nhà DI",
+     "tang": 5,
+     "ma": [
+      "D10"
+     ],
+     "doc": "Khoa Tai Mũi Họng ở tầng năm, toà nhà đê một. Phòng đê mười. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.",
+     "chi_duong": "Đã tới nơi. Xin mời quý vị đi thẳng. Toà nhà đầu tiên, đó là toà đê một. Quý vị vào đó, lên tầng năm, vào Khoa Tai Mũi Họng. Tìm phòng đê mười. Chúc quý vị mau khoẻ."
+    }
+   ],
+   "doc": "Khoa Tai Mũi Họng ở tầng năm, toà nhà đê một. Phòng đê mười. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.",
+   "tim": "khoa tai mui hong tai mui hong tmh d10 tai mui hong tmh viem hong u tai ngat mui viem xoang amidan khan tieng chay mau cam diec noi soi tai mui hong"
+  },
+  {
+   "id": 6,
+   "ten": "Khoa Răng Hàm Mặt",
+   "nhom": "mat-tai-rang",
+   "loai": "ngoai-khu",
+   "diem": "truoc-hanh-lang",
+   "ghi_chu": "Nha khoa, hàm mặt",
+   "ma": [
+    "D7"
+   ],
+   "vi_tri": [
+    {
+     "toa": "DI",
+     "toa_ten": "Nhà DI",
+     "tang": 4,
+     "ma": [
+      "D7"
+     ],
+     "doc": "Khoa Răng Hàm Mặt ở tầng bốn, toà nhà đê một. Phòng đê bảy. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.",
+     "chi_duong": "Đã tới nơi. Xin mời quý vị đi thẳng. Toà nhà đầu tiên, đó là toà đê một. Quý vị vào đó, lên tầng bốn, vào Khoa Răng Hàm Mặt. Tìm phòng đê bảy. Chúc quý vị mau khoẻ."
+    }
+   ],
+   "doc": "Khoa Răng Hàm Mặt ở tầng bốn, toà nhà đê một. Phòng đê bảy. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.",
+   "tim": "khoa rang ham mat nha khoa ham mat d7 rang dau rang nho rang sau rang ham mat nha khoa nieng rang chua rang han rang lam rang loi sung"
+  },
+  {
+   "id": 7,
+   "ten": "Khoa Nội Tiêu Hóa",
+   "nhom": "noi-khoa",
+   "loai": "ngoai-khu",
+   "diem": "truoc-hanh-lang",
+   "ghi_chu": "Tiêu hóa nội khoa",
+   "ma": [
+    "D8"
+   ],
+   "vi_tri": [
+    {
+     "toa": "DI",
+     "toa_ten": "Nhà DI",
+     "tang": 4,
+     "ma": [
+      "D8"
+     ],
+     "doc": "Khoa Nội Tiêu Hóa ở tầng bốn, toà nhà đê một. Phòng đê tám. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.",
+     "chi_duong": "Đã tới nơi. Xin mời quý vị đi thẳng. Toà nhà đầu tiên, đó là toà đê một. Quý vị vào đó, lên tầng bốn, vào Khoa Nội Tiêu Hóa. Tìm phòng đê tám. Chúc quý vị mau khoẻ."
+    }
+   ],
+   "doc": "Khoa Nội Tiêu Hóa ở tầng bốn, toà nhà đê một. Phòng đê tám. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.",
+   "tim": "khoa noi tieu hoa tieu hoa noi khoa d8 dau bung da day dai trang tieu hoa o chua tao bon gan noi soi da day viem loet da day roi loan tieu hoa dau da day"
+  },
+  {
+   "id": 8,
+   "ten": "Khoa Nội Phổi – Tiết Niệu – Hô Hấp",
+   "nhom": "noi-khoa",
+   "loai": "ngoai-khu",
+   "diem": "truoc-hanh-lang",
+   "ghi_chu": "Hô hấp, phổi, tiết niệu",
+   "ma": [
+    "D17",
+    "D18"
+   ],
+   "vi_tri": [
+    {
+     "toa": "DII",
+     "toa_ten": "Nhà DII",
+     "tang": 4,
+     "ma": [
+      "D17",
+      "D18"
+     ],
+     "doc": "Khoa Nội Phổi – Tiết Niệu – Hô Hấp ở tầng bốn, toà nhà đê hai. Phòng đê mười bảy hoặc đê mười tám. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.",
+     "chi_duong": "Đã tới nơi. Xin mời quý vị đi thẳng. Toà nhà thứ hai, đó là toà đê hai. Quý vị vào đó, lên tầng bốn, vào Khoa Nội Phổi – Tiết Niệu – Hô Hấp. Tìm phòng đê mười bảy hoặc đê mười tám. Chúc quý vị mau khoẻ."
+    }
+   ],
+   "doc": "Khoa Nội Phổi – Tiết Niệu – Hô Hấp ở tầng bốn, toà nhà đê hai. Phòng đê mười bảy hoặc đê mười tám. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.",
+   "tim": "khoa noi phoi tiet nieu ho hap ho hap phoi tiet nieu d17 d18 ho kho tho phoi hen suyen viem phoi ho hap than tieu buot soi than tiet nieu tuc nguc lao phoi kho tho ve dem di tieu nhieu"
+  },
+  {
+   "id": 9,
+   "ten": "Khoa Ngoại Thận – Tiết Niệu",
+   "nhom": "ngoai-khoa",
+   "loai": "ngoai-khu",
+   "diem": "truoc-hanh-lang",
+   "ghi_chu": "Phẫu thuật thận, tiết niệu",
+   "ma": [
+    "D5"
+   ],
+   "vi_tri": [
+    {
+     "toa": "DI",
+     "toa_ten": "Nhà DI",
+     "tang": 3,
+     "ma": [
+      "D5"
+     ],
+     "doc": "Khoa Ngoại Thận – Tiết Niệu ở tầng ba, toà nhà đê một. Phòng đê năm. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.",
+     "chi_duong": "Đã tới nơi. Xin mời quý vị đi thẳng. Toà nhà đầu tiên, đó là toà đê một. Quý vị vào đó, lên tầng ba, vào Khoa Ngoại Thận – Tiết Niệu. Tìm phòng đê năm. Chúc quý vị mau khoẻ."
+    }
+   ],
+   "doc": "Khoa Ngoại Thận – Tiết Niệu ở tầng ba, toà nhà đê một. Phòng đê năm. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.",
+   "tim": "khoa ngoai than tiet nieu phau thuat than tiet nieu d5 mo than soi than tan soi mo tiet nieu phi dai tuyen tien liet ngoai than soi nieu quan soi bang quang"
+  },
+  {
+   "id": 10,
+   "ten": "Khoa Ngoại Tiêu Hóa – Tổng Hợp",
+   "nhom": "ngoai-khoa",
+   "loai": "ngoai-khu",
+   "diem": "truoc-hanh-lang",
+   "ghi_chu": "Ngoại tiêu hóa tổng hợp",
+   "ma": [
+    "D6"
+   ],
+   "vi_tri": [
+    {
+     "toa": "DI",
+     "toa_ten": "Nhà DI",
+     "tang": 3,
+     "ma": [
+      "D6"
+     ],
+     "doc": "Khoa Ngoại Tiêu Hóa – Tổng Hợp ở tầng ba, toà nhà đê một. Phòng đê sáu. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.",
+     "chi_duong": "Đã tới nơi. Xin mời quý vị đi thẳng. Toà nhà đầu tiên, đó là toà đê một. Quý vị vào đó, lên tầng ba, vào Khoa Ngoại Tiêu Hóa – Tổng Hợp. Tìm phòng đê sáu. Chúc quý vị mau khoẻ."
+    }
+   ],
+   "doc": "Khoa Ngoại Tiêu Hóa – Tổng Hợp ở tầng ba, toà nhà đê một. Phòng đê sáu. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.",
+   "tim": "khoa ngoai tieu hoa tong hop ngoai tieu hoa tong hop d6 mo ruot thua mo bung thoat vi tri mo da day ngoai tong hop phau thuat mo noi soi o bung cat tui mat"
+  },
+  {
+   "id": 11,
+   "ten": "Khoa Ngoại Thần Kinh",
+   "nhom": "ngoai-khoa",
+   "loai": "ngoai-khu",
+   "diem": "truoc-hanh-lang",
+   "ghi_chu": "Ngoại thần kinh, não bộ",
+   "ma": [
+    "D16"
+   ],
+   "vi_tri": [
+    {
+     "toa": "DII",
+     "toa_ten": "Nhà DII",
+     "tang": 3,
+     "ma": [
+      "D16"
+     ],
+     "doc": "Khoa Ngoại Thần Kinh ở tầng ba, toà nhà đê hai. Phòng đê mười sáu. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.",
+     "chi_duong": "Đã tới nơi. Xin mời quý vị đi thẳng. Toà nhà thứ hai, đó là toà đê hai. Quý vị vào đó, lên tầng ba, vào Khoa Ngoại Thần Kinh. Tìm phòng đê mười sáu. Chúc quý vị mau khoẻ."
+    }
+   ],
+   "doc": "Khoa Ngoại Thần Kinh ở tầng ba, toà nhà đê hai. Phòng đê mười sáu. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.",
+   "tim": "khoa ngoai than kinh ngoai than kinh nao bo d16 chan thuong so nao mo nao u nao cot song ngoai than kinh nga dap dau chan thuong dau mo cot song"
+  },
+  {
+   "id": 12,
+   "ten": "Khoa Tâm Thần Kinh – Cơ Xương Khớp",
+   "nhom": "xuong-khop",
+   "loai": "ngoai-khu",
+   "diem": "truoc-hanh-lang",
+   "ghi_chu": "Tâm thần, xương khớp",
+   "ma": [
+    "D19",
+    "D20"
+   ],
+   "vi_tri": [
+    {
+     "toa": "DII",
+     "toa_ten": "Nhà DII",
+     "tang": 5,
+     "ma": [
+      "D19",
+      "D20"
+     ],
+     "doc": "Khoa Tâm Thần Kinh – Cơ Xương Khớp ở tầng năm, toà nhà đê hai. Phòng đê mười chín hoặc đê hai mươi. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.",
+     "chi_duong": "Đã tới nơi. Xin mời quý vị đi thẳng. Toà nhà thứ hai, đó là toà đê hai. Quý vị vào đó, lên tầng năm, vào Khoa Tâm Thần Kinh – Cơ Xương Khớp. Tìm phòng đê mười chín hoặc đê hai mươi. Chúc quý vị mau khoẻ."
+    }
+   ],
+   "doc": "Khoa Tâm Thần Kinh – Cơ Xương Khớp ở tầng năm, toà nhà đê hai. Phòng đê mười chín hoặc đê hai mươi. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.",
+   "tim": "khoa tam than kinh co xuong khop tam than xuong khop d19 d20 dau lung thoat vi dia dem khop dau khop tai bien dot quy mat ngu tam than than kinh dau vai gay te chan te tay gut viem khop dau dau hoa mat chong mat run tay"
+  },
+  {
+   "id": 13,
+   "ten": "Khoa Y Học Cổ Truyền",
+   "nhom": "xuong-khop",
+   "loai": "ngoai-khu",
+   "diem": "truoc-hanh-lang",
+   "ghi_chu": "Y học cổ truyền, châm cứu",
+   "ma": [
+    "D15"
+   ],
+   "vi_tri": [
+    {
+     "toa": "DII",
+     "toa_ten": "Nhà DII",
+     "tang": 3,
+     "ma": [
+      "D15"
+     ],
+     "doc": "Khoa Y Học Cổ Truyền ở tầng ba, toà nhà đê hai. Phòng đê mười năm. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.",
+     "chi_duong": "Đã tới nơi. Xin mời quý vị đi thẳng. Toà nhà thứ hai, đó là toà đê hai. Quý vị vào đó, lên tầng ba, vào Khoa Y Học Cổ Truyền. Tìm phòng đê mười năm. Chúc quý vị mau khoẻ."
+    }
+   ],
+   "doc": "Khoa Y Học Cổ Truyền ở tầng ba, toà nhà đê hai. Phòng đê mười năm. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.",
+   "tim": "khoa y hoc co truyen y hoc co truyen cham cuu d15 dong y cham cuu thuoc nam thuoc bac bam huyet xoa bop phuc hoi chuc nang y hoc co truyen keo gian cot song"
+  },
+  {
+   "id": 14,
+   "ten": "Khoa Hồi Sức Cấp Cứu Nội",
+   "nhom": "cap-cuu",
+   "loai": "cap-cuu",
+   "diem": null,
+   "ghi_chu": "Cấp cứu nội khoa",
+   "ma": [
+    "D23",
+    "D24"
+   ],
+   "vi_tri": [
+    {
+     "toa": "DIII",
+     "toa_ten": "Nhà DIII",
+     "tang": 2,
+     "ma": [
+      "D23",
+      "D24"
+     ],
+     "doc": "Khoa Hồi Sức Cấp Cứu Nội ở tầng hai, toà nhà đê ba. Phòng đê hai mươi ba hoặc đê hai mươi bốn. Quý vị cần cấp cứu thì xin đi ngay, đừng chờ tôi dẫn. Xin mời đi thẳng, toà nhà thứ ba, đó là toà đê ba, rồi lên tầng hai.",
+     "chi_duong": "Đã tới nơi. Xin mời quý vị đi thẳng. Toà nhà thứ ba, đó là toà đê ba. Quý vị vào đó, lên tầng hai, vào Khoa Hồi Sức Cấp Cứu Nội. Tìm phòng đê hai mươi ba hoặc đê hai mươi bốn. Chúc quý vị mau khoẻ."
+    }
+   ],
+   "doc": "Khoa Hồi Sức Cấp Cứu Nội ở tầng hai, toà nhà đê ba. Phòng đê hai mươi ba hoặc đê hai mươi bốn. Quý vị cần cấp cứu thì xin đi ngay, đừng chờ tôi dẫn. Xin mời đi thẳng, toà nhà thứ ba, đó là toà đê ba, rồi lên tầng hai.",
+   "tim": "khoa hoi suc cap cuu noi cap cuu noi khoa d23 d24 cap cuu nguy kich hoi suc ngat xiu ngat xiu choang dot quy cap cuu noi kho tho nang bat tinh co giat tai nan khan cap nguy hiem sap chet"
+  },
+  {
+   "id": 15,
+   "ten": "Khoa Giải Phẫu Bệnh",
+   "nhom": "hanh-chinh",
+   "loai": "ngoai-khu",
+   "diem": "truoc-hanh-lang",
+   "ghi_chu": "Giải phẫu, sinh thiết bệnh lý",
+   "ma": [],
+   "vi_tri": [
+    {
+     "toa": "DIII",
+     "toa_ten": "Nhà DIII",
+     "tang": 2,
+     "ma": [],
+     "doc": "Khoa Giải Phẫu Bệnh ở tầng hai, toà nhà đê ba. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.",
+     "chi_duong": "Đã tới nơi. Xin mời quý vị đi thẳng. Toà nhà thứ ba, đó là toà đê ba. Quý vị vào đó, lên tầng hai, vào Khoa Giải Phẫu Bệnh. Chúc quý vị mau khoẻ."
+    }
+   ],
+   "doc": "Khoa Giải Phẫu Bệnh ở tầng hai, toà nhà đê ba. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.",
+   "tim": "khoa giai phau benh giai phau sinh thiet benh ly sinh thiet giai phau benh xet nghiem mo te bao ket qua sinh thiet"
+  },
+  {
+   "id": 16,
+   "ten": "Các Phòng Ban Hành Chính",
+   "nhom": "hanh-chinh",
+   "loai": "ngoai-khu",
+   "diem": "truoc-hanh-lang",
+   "ghi_chu": "Kế hoạch tổng hợp, điều dưỡng, chăm sóc khách hàng, marketing, truyền thông",
+   "ma": [],
+   "vi_tri": [
+    {
+     "toa": "DIII",
+     "toa_ten": "Nhà DIII",
+     "tang": 3,
+     "ma": [],
+     "doc": "Các Phòng Ban Hành Chính ở tầng ba, toà nhà đê ba. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.",
+     "chi_duong": "Đã tới nơi. Xin mời quý vị đi thẳng. Toà nhà thứ ba, đó là toà đê ba. Quý vị vào đó, lên tầng ba, vào Các Phòng Ban Hành Chính. Chúc quý vị mau khoẻ."
+    }
+   ],
+   "doc": "Các Phòng Ban Hành Chính ở tầng ba, toà nhà đê ba. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.",
+   "tim": "cac phong ban hanh chinh ke hoach tong hop dieu duong cham soc khach hang marketing truyen thong hanh chinh ke hoach tong hop dieu duong cham soc khach hang marketing truyen thong giam doc ban lanh dao xin giay to xac nhan phong ban"
+  },
+  {
+   "id": 17,
+   "ten": "Quầy tiếp đón · Đăng ký khám",
+   "nhom": "tien-ich",
+   "loai": "trong-khu",
+   "diem": "tiep-don",
+   "ghi_chu": "Lấy số, xuất trình bảo hiểm, đăng ký khám",
+   "ma": [],
+   "vi_tri": [],
+   "doc": "Quầy tiếp đón ở ngay trong khu lễ tân. Quý vị tới đó lấy số, xuất trình thẻ bảo hiểm và đăng ký khám. Tôi dẫn quý vị tới nơi.",
+   "tim": "quay tiep don dang ky kham lay so xuat trinh bao hiem dang ky kham dang ky kham lay so kham lan dau bao hiem bhyt the bao hiem tiep don phieu kham dat lich chua co phieu moi den kham"
+  },
+  {
+   "id": 18,
+   "ten": "Phòng thu viện phí",
+   "nhom": "tien-ich",
+   "loai": "trong-khu",
+   "diem": "vien-phi",
+   "ghi_chu": "Đóng tiền, thanh toán viện phí, lấy hoá đơn",
+   "ma": [],
+   "vi_tri": [],
+   "doc": "Phòng thu viện phí ở trong khu lễ tân. Tôi dẫn quý vị tới nơi.",
+   "tim": "phong thu vien phi dong tien thanh toan vien phi lay hoa don dong tien thanh toan vien phi thu ngan nop tien hoa don thanh toan vien phi tra tien quyet toan bao hiem"
+  },
+  {
+   "id": 19,
+   "ten": "Nhà thuốc bệnh viện",
+   "nhom": "tien-ich",
+   "loai": "trong-khu",
+   "diem": "nha-thuoc",
+   "ghi_chu": "Lấy thuốc theo đơn, mua thuốc",
+   "ma": [],
+   "vi_tri": [],
+   "doc": "Nhà thuốc bệnh viện ở trong khu lễ tân. Quý vị nhớ mang theo đơn thuốc. Tôi dẫn quý vị tới nơi.",
+   "tim": "nha thuoc benh vien lay thuoc theo don mua thuoc lay thuoc mua thuoc nha thuoc quay thuoc don thuoc hieu thuoc linh thuoc thuoc bao hiem"
+  },
+  {
+   "id": 20,
+   "ten": "Căn tin",
+   "nhom": "tien-ich",
+   "loai": "trong-khu",
+   "diem": "can-tin",
+   "ghi_chu": "Ăn uống, nước, đồ dùng cho người nhà",
+   "ma": [],
+   "vi_tri": [],
+   "doc": "Căn tin ở trong khu lễ tân. Tôi dẫn quý vị tới nơi.",
+   "tim": "can tin an uong nuoc do dung cho nguoi nha an uong nuoc com can tin cang tin quan an do an mua nuoc chao chay"
+  },
+  {
+   "id": 21,
+   "ten": "Nhà vệ sinh",
+   "nhom": "tien-ich",
+   "loai": "trong-khu",
+   "diem": "nha-ve-sinh",
+   "ghi_chu": "Nhà vệ sinh khu lễ tân",
+   "ma": [],
+   "vi_tri": [],
+   "doc": "Nhà vệ sinh ở trong khu lễ tân. Tôi dẫn quý vị tới nơi.",
+   "tim": "nha ve sinh nha ve sinh khu le tan nha ve sinh wc toilet di ve sinh nha xi rua tay di nang di nhe"
+  }
+ ]
+}

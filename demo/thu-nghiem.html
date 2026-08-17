@@ -1,0 +1,2486 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<!-- width=1920: ép WebView của robot bố cục ở đúng khung 1920px rồi thu nhỏ cho vừa
+     màn hình. Để device-width thì khung chỉ còn 548px, cỡ chữ tính ra 4,5px và bị
+     Chrome nâng lên sàn 8px — chữ tràn hết ra ngoài thẻ.
+     Trình duyệt trên máy tính bỏ qua thẻ này nên bản demo không đổi gì. -->
+<meta name="viewport" content="width=1920">
+<title>[BẢN THỬ] Robot lễ tân — Bệnh viện Việt Nam – Thụy Điển Uông Bí</title>
+<style>
+/* ═══════════════════════════════════════════════════════════════════════
+   Thang đo: thiết kế cho màn hình NGANG 1920×1080 của robot Nova,
+   tự co giãn khi mở trên cửa sổ trình duyệt máy tính.
+   Cỡ chữ gốc còn được đặt lại bằng JS trong datCoChu() — xem chú thích ở đó.
+
+   ⚠ VỀ MÀU: giao diện dùng tông XANH Y TẾ, KHÔNG dùng đỏ Roboworld làm màu chính.
+     Lý do là an toàn chứ không phải thẩm mỹ: màn CẤP CỨU đỏ toàn khung chỉ có sức
+     cảnh báo khi phần còn lại của app KHÔNG đỏ. Đỏ ở đây được giữ riêng cho cấp cứu.
+   ═══════════════════════════════════════════════════════════════════════ */
+:root{
+  --xanh:#0E5A63; --xanh-dam:#083C42; --xanh-tuoi:#12857A; --xanh-nhat:#E3F1F0;
+  --do-cc:#D02020; --do-cc-dam:#7A0E0E;      /* CHỈ dùng cho cấp cứu */
+  --cam:#B5651D; --cam-nhat:#FBEEE0;         /* băng "khám lần đầu" */
+  --nen:#F3F5F5; --the:#fff; --vien:#DDE4E4;
+  --chu:#15201F; --chu-nhat:#61716F;
+  --bong:0 .25rem 1.25rem rgba(10,40,40,.10);
+  --bong-cao:0 1rem 3rem rgba(10,40,40,.22);
+}
+html{font-size:16px}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{
+  font-family:"Segoe UI","Be Vietnam Pro",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif;
+  background:var(--nen);color:var(--chu);
+  width:100vw;height:100vh;overflow:hidden;font-size:1rem;line-height:1.45;
+}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
+::-webkit-scrollbar{width:.75rem}
+::-webkit-scrollbar-thumb{background:#C2CFCE;border-radius:1rem}
+::-webkit-scrollbar-track{background:transparent}
+
+.man-hinh{position:absolute;inset:0;display:none;flex-direction:column}
+.man-hinh.hien{display:flex}
+
+/* ═══════════ Thanh đầu ═══════════ */
+.dau{
+  height:5.25rem;flex:none;display:flex;align-items:center;gap:1rem;
+  padding:0 1.75rem;background:linear-gradient(100deg,var(--xanh-dam),var(--xanh-tuoi));
+  color:#fff;box-shadow:var(--bong);z-index:5;
+}
+.dau .dau-icon{font-size:2.2rem;line-height:1}
+.dau .ten{flex:1;min-width:0}
+.dau .ten b{display:block;font-size:1.5rem;font-weight:700}
+.dau .ten span{display:block;font-size:.95rem;opacity:.82;margin-top:.1rem}
+.nut-dau{
+  display:flex;align-items:center;gap:.5rem;padding:.6rem 1.1rem;border-radius:2rem;
+  background:rgba(255,255,255,.16);font-size:1rem;font-weight:600;transition:background .15s;
+}
+.nut-dau:hover{background:rgba(255,255,255,.3)}
+
+/* ═══════════ Ô tìm kiếm ═══════════ */
+.khu-tim{padding:1.1rem 2.25rem .5rem;flex:none}
+.o-tim{
+  display:flex;align-items:center;gap:1rem;background:var(--the);
+  border:.2rem solid var(--vien);border-radius:5rem;padding:.6rem .7rem .6rem 1.6rem;
+  box-shadow:var(--bong);transition:border-color .15s;
+}
+.o-tim:focus-within{border-color:var(--xanh)}
+.o-tim .kinh{font-size:1.7rem;opacity:.4}
+.o-tim input{flex:1;border:0;outline:0;background:none;font:inherit;font-size:1.45rem;
+  color:var(--chu);min-width:0}
+.o-tim input::placeholder{color:#9AABA9}
+.nut-mic{
+  width:4rem;height:4rem;border-radius:50%;flex:none;display:none;place-items:center;
+  background:linear-gradient(150deg,var(--xanh-tuoi),var(--xanh));color:#fff;font-size:1.8rem;
+  box-shadow:0 .3rem .9rem rgba(14,90,99,.4);transition:transform .12s;user-select:none;
+}
+.nut-mic.co{display:grid}
+.nut-mic:active,.nut-mic.dang-nghe{transform:scale(.93)}
+.nut-mic.dang-nghe{animation:tho-mic 1s ease-in-out infinite}
+@keyframes tho-mic{0%,100%{box-shadow:0 0 0 0 rgba(18,133,122,.55)}50%{box-shadow:0 0 0 1.1rem rgba(18,133,122,0)}}
+.goi-y-tim{display:flex;gap:.55rem;flex-wrap:wrap;padding:.7rem .4rem 0;font-size:.92rem;
+  color:var(--chu-nhat);align-items:center}
+.chip{padding:.38rem .9rem;border-radius:2rem;background:var(--the);
+  border:.1rem solid var(--vien);font-size:.92rem;transition:.15s}
+.chip:hover{border-color:var(--xanh);color:var(--xanh)}
+
+/* ═══════════ Băng "tôi đến khám lần đầu" ═══════════
+   Đặt ngay trên lưới nhóm, chiếm hết bề ngang. Đây là nhu cầu đông nhất ở sảnh
+   bệnh viện: người chưa có phiếu, chưa biết mã phòng nào cả. */
+.bang-moi{
+  margin:.75rem 2.25rem .25rem;flex:none;display:flex;align-items:center;gap:1.4rem;
+  padding:1.05rem 1.9rem;border-radius:1.15rem;text-align:left;
+  background:linear-gradient(100deg,var(--cam),#D98324);color:#fff;
+  box-shadow:0 .35rem 1.1rem rgba(181,101,29,.35);transition:transform .13s;
+}
+.bang-moi:hover{transform:translateY(-.18rem)}
+.bang-moi .bm-icon{font-size:2.6rem;line-height:1;flex:none}
+.bang-moi .bm-chu{flex:1;min-width:0}
+.bang-moi .bm-chu b{display:block;font-size:1.55rem;font-weight:800}
+.bang-moi .bm-chu span{display:block;font-size:1.02rem;opacity:.92;margin-top:.15rem}
+.bang-moi .bm-mui{font-size:2.4rem;opacity:.85;flex:none}
+
+/* ═══════════ Lưới nhóm ═══════════ */
+.khu-noi-dung{flex:1;min-height:0;display:flex;flex-direction:column}
+.thanh-nhom{display:none;align-items:center;gap:1rem;padding:.5rem 2.25rem 0;flex:none}
+.thanh-nhom.hien{display:flex}
+.thanh-nhom h2{font-size:1.35rem;font-weight:700;flex:1;min-width:0;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.thanh-nhom .dem-kq{font-size:1rem;color:var(--chu-nhat);font-weight:600;flex:none}
+.luoi{
+  flex:1;min-height:0;overflow-y:auto;padding:.7rem 2.25rem 1rem;
+  display:grid;grid-template-columns:repeat(5,1fr);gap:.95rem;
+  grid-auto-rows:minmax(8.6rem,1fr);
+}
+.luoi.an{display:none}
+.the-nhom{
+  background:var(--the);border-radius:1.15rem;padding:1rem 1.15rem;
+  border:.15rem solid var(--vien);box-shadow:var(--bong);
+  display:flex;flex-direction:column;justify-content:center;gap:.42rem;
+  text-align:left;min-height:8.6rem;
+  transition:transform .13s,border-color .13s,box-shadow .13s;
+}
+.the-nhom:hover{transform:translateY(-.22rem);border-color:var(--xanh);box-shadow:var(--bong-cao)}
+.the-nhom .bieu-tuong{font-size:2.6rem;line-height:1}
+.the-nhom .ten{font-size:1.32rem;font-weight:700;line-height:1.22}
+.the-nhom .goi-y{font-size:.98rem;color:var(--chu-nhat);line-height:1.32}
+.the-nhom .dem{align-self:flex-start;font-size:.85rem;font-weight:700;color:var(--xanh);
+  background:var(--xanh-nhat);padding:.22rem .7rem;border-radius:2rem;margin-top:.25rem}
+/* Ô cấp cứu là ô DUY NHẤT màu đỏ trong toàn bộ lưới — để mắt bắt được ngay */
+.the-nhom.cc{background:linear-gradient(150deg,var(--do-cc),var(--do-cc-dam));
+  border-color:var(--do-cc);color:#fff}
+.the-nhom.cc .goi-y{color:rgba(255,255,255,.86)}
+.the-nhom.cc .dem{background:rgba(255,255,255,.2);color:#fff}
+.the-nhom.ma-phong{background:var(--xanh-dam);border-color:var(--xanh-dam);color:#fff}
+.the-nhom.ma-phong .goi-y{color:rgba(255,255,255,.82)}
+.the-nhom.ma-phong .dem{background:rgba(255,255,255,.18);color:#fff}
+
+/* ═══════════ Danh sách kết quả ═══════════ */
+.ds{flex:1;min-height:0;overflow-y:auto;padding:.5rem 2.25rem 1rem;display:none;
+  grid-template-columns:repeat(2,1fr);gap:.85rem;align-content:start}
+.ds.hien{display:grid}
+.muc{
+  display:flex;align-items:center;gap:1.1rem;background:var(--the);
+  border:.15rem solid var(--vien);border-radius:1rem;padding:1rem 1.2rem;
+  box-shadow:var(--bong);text-align:left;transition:.13s;
+}
+.muc:hover{border-color:var(--xanh);transform:translateX(.2rem)}
+.the-vt{
+  flex:none;width:6.2rem;border-radius:.75rem;color:#fff;padding:.5rem .3rem;
+  text-align:center;line-height:1.1;
+}
+.the-vt small{display:block;font-size:.72rem;opacity:.85;letter-spacing:.06em}
+.the-vt b{display:block;font-size:1.5rem;font-weight:800;margin-top:.1rem}
+.the-vt i{display:block;font-size:.85rem;font-style:normal;opacity:.9;margin-top:.05rem}
+.muc .noi{flex:1;min-width:0}
+.muc .noi .t{font-size:1.28rem;font-weight:700;line-height:1.22}
+.muc .noi .l{font-size:.95rem;color:var(--chu-nhat);margin-top:.15rem;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.muc .mui-ten{font-size:1.9rem;color:#B7C4C3;flex:none}
+.rong{grid-column:1/-1;text-align:center;padding:3.5rem 1rem;color:var(--chu-nhat);font-size:1.25rem}
+.rong b{display:block;font-size:1.6rem;color:var(--chu);margin-bottom:.6rem}
+
+/* ═══════════ Thanh dưới ═══════════ */
+.chan{flex:none;padding:.7rem 2.25rem 1.1rem;display:flex;gap:.9rem;align-items:center}
+.nut-chat{
+  flex:1;display:none;align-items:center;justify-content:center;gap:.8rem;
+  padding:1rem;border-radius:1.1rem;font-size:1.35rem;font-weight:700;color:#fff;
+  background:linear-gradient(100deg,#2B5C9B,#4C86C4);
+  box-shadow:0 .35rem 1.1rem rgba(43,92,155,.32);transition:transform .13s;
+}
+.nut-chat.co{display:flex}
+.nut-chat:hover{transform:translateY(-.15rem)}
+.nut-phu{
+  padding:1rem 1.6rem;border-radius:1.1rem;background:var(--the);
+  border:.15rem solid var(--vien);font-size:1.15rem;font-weight:600;color:var(--chu-nhat);
+}
+.nut-phu:hover{border-color:var(--xanh);color:var(--xanh)}
+
+/* ═══════════ Màn chi tiết — 2 cột ═══════════ */
+.ct{flex:1;min-height:0;display:grid;grid-template-columns:38fr 62fr;gap:1.4rem;
+  padding:1.2rem 2.25rem 1.2rem}
+.ct-trai,.ct-phai{min-height:0;overflow-y:auto;display:flex;flex-direction:column;gap:1rem}
+.bang-vt{
+  border-radius:1.35rem;color:#fff;padding:1.5rem 1.6rem;text-align:center;
+  box-shadow:var(--bong-cao);
+}
+.bang-vt .nhan{font-size:1.02rem;opacity:.88;letter-spacing:.09em;font-weight:600}
+.bang-vt .toa{font-size:4.6rem;font-weight:800;line-height:1;margin:.35rem 0 .2rem}
+.bang-vt .tang{font-size:1.9rem;font-weight:700}
+.bang-vt .ma-ds{display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap;margin-top:.85rem}
+.bang-vt .ma-ds span{
+  background:rgba(255,255,255,.22);border:.12rem solid rgba(255,255,255,.5);
+  border-radius:.6rem;padding:.3rem .9rem;font-size:1.5rem;font-weight:800;
+}
+.bang-vt .bo-phan{font-size:1.05rem;opacity:.9;margin-top:.7rem;line-height:1.3}
+.the-trang{background:var(--the);border:.15rem solid var(--vien);border-radius:1.15rem;
+  padding:1.15rem 1.35rem;box-shadow:var(--bong)}
+.the-trang h4{font-size:1.15rem;color:var(--xanh);margin-bottom:.6rem;
+  letter-spacing:.03em;text-transform:uppercase}
+.the-trang ol,.the-trang ul{padding-left:1.4rem;font-size:1.12rem;line-height:1.55}
+.the-trang ol li,.the-trang ul li{margin-bottom:.45rem}
+.ct-ten{font-size:2.5rem;font-weight:800;line-height:1.14}
+.ct-mo{font-size:1.2rem;color:var(--chu-nhat);margin-top:.35rem}
+.nut-to{
+  display:flex;align-items:center;justify-content:center;gap:.85rem;
+  padding:1.25rem;border-radius:1.15rem;font-size:1.5rem;font-weight:800;color:#fff;
+  background:linear-gradient(100deg,var(--xanh-dam),var(--xanh-tuoi));
+  box-shadow:0 .4rem 1.2rem rgba(14,90,99,.32);transition:transform .13s;flex:none;
+}
+.nut-to:hover{transform:translateY(-.15rem)}
+.nut-to.phu{background:var(--the);color:var(--xanh);border:.18rem solid var(--xanh);
+  box-shadow:none;font-size:1.28rem;padding:1rem}
+.nut-to.tat{opacity:.45;pointer-events:none}
+.ly-do{font-size:1rem;color:var(--do-cc);text-align:center;font-weight:600}
+
+/* Sơ đồ 3 toà + khu lễ tân */
+.so-do{display:flex;gap:.55rem;align-items:stretch;margin-top:.2rem}
+.sd-o{
+  flex:1;border-radius:.85rem;border:.18rem dashed #C3D0CF;background:#fff;
+  padding:.75rem .4rem;text-align:center;color:var(--chu-nhat);
+}
+.sd-o b{display:block;font-size:1.15rem;color:var(--chu)}
+.sd-o small{display:block;font-size:.8rem;margin-top:.15rem}
+.sd-o.dang{background:var(--xanh);border-style:solid;border-color:var(--xanh);color:#fff}
+.sd-o.dang b{color:#fff}
+.sd-o.le-tan{border-color:var(--cam);background:var(--cam-nhat)}
+.sd-o.le-tan.dang{background:var(--cam);border-color:var(--cam);color:#fff}
+
+/* ═══════════ Màn hỏi lại toà nhà ═══════════ */
+.toa-khung{flex:1;min-height:0;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:2rem;padding:2rem 3rem}
+.toa-hoi{font-size:2.6rem;font-weight:800;text-align:center;line-height:1.2}
+.toa-phu{font-size:1.35rem;color:var(--chu-nhat);text-align:center;margin-top:-1.2rem}
+.toa-luoi{display:flex;gap:1.5rem;width:100%;max-width:78rem}
+.toa-nut{
+  flex:1;background:var(--the);border:.22rem solid var(--vien);border-radius:1.4rem;
+  padding:2rem 1.2rem;box-shadow:var(--bong);transition:.13s;
+}
+.toa-nut:hover{border-color:var(--xanh);transform:translateY(-.3rem);box-shadow:var(--bong-cao)}
+.toa-nut .tn-toa{font-size:3.4rem;font-weight:800;color:var(--xanh);line-height:1}
+.toa-nut .tn-tang{font-size:1.5rem;font-weight:700;margin-top:.5rem}
+.toa-nut .tn-ma{font-size:1.15rem;color:var(--chu-nhat);margin-top:.3rem}
+
+/* ═══════════ Màn chờ & màn dẫn — video biểu cảm ═══════════
+   Nền ĐEN TUYỀN trùng nền video nên viền letterbox (video 1280×800 trên màn
+   1920×1080) không lộ. Hai thẻ <video> chồng nhau thay phiên: thẻ đang phát mang
+   lớp .tren, thẻ kia âm thầm nạp clip kế — chuyển clip không chớp đen. */
+#mh-cho,#mh-dan,#mh-chat{background:#000}
+.bc{position:absolute;left:0;top:0;width:100%;height:100%;object-fit:contain;
+  background:#000;opacity:0;transition:opacity .14s linear;pointer-events:none}
+.bc.tren{opacity:1}
+.cho-tren{position:absolute;top:1.4rem;left:2rem;z-index:2;color:#fff;text-shadow:0 .1rem .6rem #000}
+.cho-tren b{display:block;font-size:1.5rem;font-weight:700}
+.cho-tren span{display:block;font-size:1rem;opacity:.72;margin-top:.15rem}
+.cho-duoi{position:absolute;left:0;right:0;bottom:1.6rem;text-align:center;z-index:2}
+/* Nền đục chứ không trong suốt: pill này đè lên miệng robot ở vài clip, nền mờ thì
+   chữ trắng chồng lên miệng trắng, đọc không ra. */
+.cho-moi{display:inline-block;padding:.85rem 2.4rem;border-radius:3rem;color:#fff;
+  background:rgba(0,0,0,.62);border:.12rem solid rgba(255,255,255,.45);
+  font-size:1.4rem;font-weight:700;animation:tho 2.4s ease-in-out infinite}
+@keyframes tho{0%,100%{opacity:.55;transform:translateY(0)}50%{opacity:1;transform:translateY(-.35rem)}}
+
+#mh-dan .bc{width:56%}
+.dan-noi{position:absolute;right:0;top:0;width:44%;height:100%;z-index:2;color:#fff;
+  display:flex;flex-direction:column;align-items:flex-start;justify-content:center;
+  gap:1.3rem;padding:0 3.2rem 0 .5rem}
+.dan-cau{font-size:3.3rem;font-weight:800;line-height:1.1}
+.dan-den{font-size:1.5rem;opacity:.88}
+.dan-den b{display:block;font-size:2.5rem;color:#7FE3D6;margin-top:.25rem;line-height:1.15}
+.dan-tin{min-height:2.1rem;font-size:1.25rem;color:#7FE3D6;font-weight:600}
+.dan-dung{margin-top:.4rem;padding:1rem 2.4rem;border-radius:3rem;color:#fff;
+  background:rgba(255,255,255,.16);border:.12rem solid rgba(255,255,255,.42);
+  font-size:1.3rem;font-weight:700}
+.dan-dung:hover{background:rgba(255,255,255,.3)}
+
+/* ═══════════ Màn CHỈ ĐƯỜNG — bật khi robot đã tới trước toà DI ═══════════
+   Đây là màn quan trọng nhất của app. Người bệnh đứng giữa sân, trước mặt là ba
+   toà nhà giống hệt nhau, và chỉ nhớ được đúng những gì đọc được ở đây. Nên chữ
+   phải to nhất trong toàn bộ app. */
+#mh-chi{background:linear-gradient(160deg,var(--xanh-dam),var(--xanh))}
+.chi-khung{flex:1;min-height:0;display:grid;grid-template-columns:42fr 58fr;
+  gap:2rem;padding:1.6rem 3rem .5rem;color:#fff;align-items:center}
+.chi-trai{text-align:center}
+/* Mũi tên chỉ LÊN, không chỉ sang phải. Trong biển chỉ dẫn, ↑ nghĩa là "đi thẳng"
+   còn → nghĩa là "rẽ phải" — mà ở đây robot đang bảo người bệnh đi thẳng vào toà nhà
+   trước mặt. Chỉ sang phải là chỉ sai hướng. */
+.chi-mui{font-size:11rem;line-height:1;animation:day 1.6s ease-in-out infinite}
+@keyframes day{0%,100%{transform:translateY(.7rem)}50%{transform:translateY(-.7rem)}}
+.chi-di{font-size:3.1rem;font-weight:800;line-height:1.18;margin-top:.8rem}
+.chi-phai{display:flex;flex-direction:column;gap:1.5rem}
+.chi-hang{display:flex;align-items:center;gap:1.5rem}
+.chi-nhan{font-size:1.45rem;opacity:.75;letter-spacing:.08em;font-weight:600;
+  width:9.5rem;flex:none;text-align:right}
+.chi-gt{font-size:5.4rem;font-weight:800;line-height:1.05}
+.chi-gt.nho{font-size:3rem;line-height:1.2}
+.chi-ma{display:flex;gap:.7rem;flex-wrap:wrap}
+.chi-ma span{background:rgba(255,255,255,.2);border:.18rem solid rgba(255,255,255,.6);
+  border-radius:.8rem;padding:.25rem 1.3rem;font-size:4.2rem;font-weight:800}
+.chi-chan{flex:none;padding:0 3rem 1.6rem;display:flex;gap:1rem;align-items:center;color:#fff}
+.chi-dem{flex:1;font-size:1.2rem;opacity:.85}
+.chi-nut{padding:.95rem 2.2rem;border-radius:3rem;background:rgba(255,255,255,.18);
+  border:.12rem solid rgba(255,255,255,.45);font-size:1.25rem;font-weight:700}
+.chi-nut:hover{background:rgba(255,255,255,.32)}
+
+/* ═══════════ Màn CẤP CỨU ═══════════
+   Không có nút dẫn đường ở đây, và đó là chủ ý: robot đi 0,5–0,8 m/s, chậm hơn
+   người đang chạy. Bảo người cấp cứu đi theo robot là làm chậm họ. */
+#mh-cc{background:linear-gradient(155deg,var(--do-cc),var(--do-cc-dam));color:#fff;
+  animation:nhap 1.35s ease-in-out infinite}
+@keyframes nhap{0%,100%{filter:brightness(1)}50%{filter:brightness(1.22)}}
+.cc-khung{flex:1;min-height:0;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:1.1rem;padding:1.5rem 3rem;text-align:center}
+.cc-nhan{font-size:2.4rem;font-weight:800;letter-spacing:.22em}
+.cc-ten{font-size:5.2rem;font-weight:800;line-height:1.08}
+.cc-vt{display:flex;gap:2.5rem;align-items:center;margin-top:.6rem}
+.cc-o{background:rgba(255,255,255,.16);border:.2rem solid rgba(255,255,255,.55);
+  border-radius:1.1rem;padding:.9rem 2.2rem}
+.cc-o small{display:block;font-size:1.2rem;opacity:.88;letter-spacing:.1em}
+.cc-o b{display:block;font-size:4.2rem;font-weight:800;line-height:1.1}
+.cc-loi{font-size:2.2rem;font-weight:700;margin-top:.8rem;line-height:1.35;max-width:72rem}
+.cc-chan{flex:none;padding:0 3rem 1.6rem;display:flex;gap:1rem;justify-content:center}
+
+/* ═══════════ Màn trò chuyện ═══════════ */
+#mh-chat .bc{width:38%}
+.chat-noi{position:absolute;right:0;top:0;width:62%;height:100%;z-index:2;
+  display:flex;flex-direction:column;padding:1.5rem 2.2rem 1.5rem .6rem;gap:.9rem}
+.chat-dau{display:flex;align-items:center;gap:.9rem;color:#fff;flex:none}
+.chat-dau b{flex:1;font-size:1.5rem}
+.chat-ds{flex:1;min-height:0;overflow-y:auto;display:flex;flex-direction:column;gap:.75rem;
+  padding-right:.5rem}
+.bong-chat{max-width:88%;padding:.85rem 1.2rem;border-radius:1.1rem;font-size:1.2rem;line-height:1.4}
+.bong-chat.nguoi{align-self:flex-end;background:#fff;color:var(--chu)}
+.bong-chat.robot{align-self:flex-start;background:rgba(255,255,255,.16);color:#fff;
+  border:.1rem solid rgba(255,255,255,.28)}
+.chat-trang-thai{font-size:1rem;color:rgba(255,255,255,.7);flex:none;min-height:1.4rem}
+.chat-go{display:flex;gap:.7rem;flex:none}
+.chat-go input{flex:1;border:0;outline:0;border-radius:3rem;padding:.9rem 1.4rem;
+  font:inherit;font-size:1.2rem}
+
+/* ═══════════ Bàn phím mã phòng ═══════════ */
+/* ⚠ Tên lớp là "lop-phu", KHÔNG phải "phu". Đã từng đặt là "phu" và nó đè lên
+   modifier .nut-to.phu của nút phụ ở màn chi tiết — cả hai cùng độ ưu tiên, lớp
+   nền khai báo sau nên thắng, và nút "Nghe robot đọc lại" biến mất khỏi màn hình
+   mà không báo lỗi gì. */
+.lop-phu{position:absolute;inset:0;background:rgba(6,26,26,.72);z-index:30;
+  display:none;align-items:center;justify-content:center}
+.lop-phu.hien{display:flex}
+.bp{background:var(--the);border-radius:1.5rem;padding:1.8rem 2rem;width:38rem;
+  box-shadow:var(--bong-cao);display:flex;flex-direction:column;gap:1rem}
+.bp h3{font-size:1.6rem;text-align:center}
+.bp .o-hien{font-size:3.4rem;font-weight:800;text-align:center;color:var(--xanh);
+  background:var(--xanh-nhat);border-radius:.9rem;padding:.6rem;min-height:5.2rem;
+  display:grid;place-items:center;line-height:1.1}
+.bp .o-hien small{display:block;font-size:1.05rem;color:var(--chu-nhat);font-weight:600}
+.bp-luoi{display:grid;grid-template-columns:repeat(3,1fr);gap:.7rem}
+.bp-luoi button{background:var(--nen);border:.15rem solid var(--vien);border-radius:.9rem;
+  padding:1rem;font-size:2rem;font-weight:700;transition:.12s}
+.bp-luoi button:hover{border-color:var(--xanh);color:var(--xanh)}
+.bp-luoi button.rong-nut{background:none;border:0;pointer-events:none}
+
+/* ═══════════ Thanh "robot về chỗ" ═══════════
+   App TTHC dẫn tới quầy rồi robot đứng luôn ở đó — chấp nhận được vì quầy nằm
+   ngay trong phòng. Ở đây robot ra tận đầu hành lang, đứng lại là cả buổi
+   không ai ở sảnh thấy robot đâu. Nên dẫn xong là phải tự về. */
+.ve-cho{
+  position:absolute;left:50%;bottom:1.5rem;transform:translateX(-50%);z-index:35;
+  display:none;align-items:center;gap:1rem;background:rgba(8,40,42,.92);color:#fff;
+  padding:.9rem 1.4rem;border-radius:3rem;box-shadow:var(--bong-cao);
+  border:.12rem solid rgba(255,255,255,.28);
+}
+.ve-cho.hien{display:flex}
+.ve-cho .vc-chu{font-size:1.15rem}
+.ve-cho .vc-chu b{color:#7FE3D6}
+.ve-cho button{padding:.6rem 1.3rem;border-radius:3rem;background:rgba(255,255,255,.18);
+  border:.1rem solid rgba(255,255,255,.4);font-size:1.05rem;font-weight:700}
+.ve-cho button:hover{background:rgba(255,255,255,.32)}
+
+/* ═══════════ Cảnh báo ═══════════ */
+.canh-bao{position:absolute;left:50%;bottom:1.25rem;transform:translateX(-50%);z-index:40;
+  background:var(--do-cc-dam);color:#fff;padding:.8rem 1.5rem;border-radius:2rem;
+  font-size:1.05rem;box-shadow:var(--bong-cao);display:none;max-width:60rem;text-align:center}
+.canh-bao.hien{display:block}
+</style>
+</head>
+<body>
+
+<!-- ══════════ 1. MÀN CHỜ — BIỂU CẢM ══════════
+     App mở lên vào đây, và tự quay về đây khi vắng người. Chạm là sang menu. -->
+<div class="man-hinh hien" id="mh-cho" onclick="thoiCho()">
+  <video class="bc" id="bc-a" muted playsinline preload="auto" poster="bieu-cam/emoji_default.png"></video>
+  <video class="bc" id="bc-b" muted playsinline preload="auto"></video>
+  <div class="cho-tren">
+    <b id="cho-ten-bv">Bệnh viện</b>
+    <span id="cho-khu">Khu lễ tân</span>
+  </div>
+  <div class="cho-duoi">
+    <div class="cho-moi">Chạm vào màn hình — tôi chỉ đường tới khoa</div>
+  </div>
+</div>
+
+<!-- ══════════ 2. MÀN CHÍNH — MENU NHU CẦU ══════════ -->
+<div class="man-hinh" id="mh-chinh">
+  <div class="dau">
+    <div class="dau-icon">🏥</div>
+    <div class="ten"><b id="ten-bv">Bệnh viện</b><span id="ten-phu"></span></div>
+    <button class="nut-dau" onclick="doiCoLon()">🔠 <span id="nhan-co-chu">Chữ to hơn</span></button>
+    <button class="nut-dau" onclick="veManCho()">😊 Biểu cảm</button>
+  </div>
+
+  <div class="khu-tim">
+    <div class="o-tim">
+      <span class="kinh">🔍</span>
+      <input id="o-nhap" type="text" autocomplete="off"
+             placeholder="Quý vị cần khám gì? Gõ tên khoa, mã phòng, hoặc chỗ đau…"
+             oninput="goTim(this.value)">
+      <button class="nut-mic" id="mic1" title="Nói">🎙️</button>
+    </div>
+    <div class="goi-y-tim">
+      <b>Hay được hỏi:</b>
+      <button class="chip" onclick="datTim('đau bụng')">đau bụng</button>
+      <button class="chip" onclick="datTim('đi đẻ')">đi đẻ</button>
+      <button class="chip" onclick="datTim('đưa con đi khám')">đưa con đi khám</button>
+      <button class="chip" onclick="datTim('đau răng')">đau răng</button>
+      <button class="chip" onclick="datTim('lấy thuốc')">lấy thuốc</button>
+      <button class="chip" onclick="datTim('đóng viện phí')">đóng viện phí</button>
+    </div>
+  </div>
+
+  <button class="bang-moi" id="bang-moi" onclick="moKhamLanDau()">
+    <span class="bm-icon">🆕</span>
+    <span class="bm-chu">
+      <b>Tôi đến khám lần đầu, chưa có phiếu</b>
+      <span>Robot dẫn tới quầy tiếp đón và đọc bốn bước đi khám</span>
+    </span>
+    <span class="bm-mui">›</span>
+  </button>
+
+  <div class="khu-noi-dung">
+    <div class="thanh-nhom" id="thanh-nhom">
+      <button class="nut-phu" onclick="veLuoiNhom()">‹ Về danh mục</button>
+      <h2 id="ds-tieu-de"></h2>
+      <span class="dem-kq" id="ds-dem"></span>
+    </div>
+    <div class="luoi" id="luoi-nhom"></div>
+    <div class="ds" id="ds-noi"></div>
+  </div>
+
+  <div class="chan">
+    <button class="nut-chat" id="nut-chat" onclick="moChat()">💬 Trò chuyện với robot</button>
+  </div>
+</div>
+
+<!-- ══════════ 3. MÀN HỎI LẠI TOÀ NHÀ ══════════
+     Bắt buộc theo mục IV tài liệu bệnh viện: khoa Phụ Sản có ở cả ba toà, khoa Nhi
+     ở hai toà. Đoán bừa một toà là dẫn người bệnh đi sai cả trăm mét. -->
+<div class="man-hinh" id="mh-toa">
+  <div class="dau">
+    <div class="dau-icon">🏢</div>
+    <div class="ten"><b>Khoa này có ở nhiều toà nhà</b><span>Chọn đúng toà quý vị đang theo dõi</span></div>
+    <button class="nut-dau" onclick="veTrangChu()">‹ Quay lại</button>
+  </div>
+  <div class="toa-khung">
+    <div class="toa-hoi" id="toa-hoi"></div>
+    <div class="toa-phu">Xem trên phiếu khám hoặc sổ khám bệnh của quý vị — có ghi mã phòng</div>
+    <div class="toa-luoi" id="toa-luoi"></div>
+  </div>
+</div>
+
+<!-- ══════════ 4. MÀN CHI TIẾT ══════════ -->
+<div class="man-hinh" id="mh-ct">
+  <div class="dau">
+    <div class="dau-icon">📍</div>
+    <div class="ten"><b id="ct-dau-ten">—</b><span id="ct-dau-phu"></span></div>
+    <button class="nut-dau" onclick="luiTuChiTiet()">‹ Quay lại</button>
+    <button class="nut-dau" onclick="veManCho()">😊 Biểu cảm</button>
+  </div>
+  <div class="ct">
+    <div class="ct-trai" id="ct-trai"></div>
+    <div class="ct-phai" id="ct-phai"></div>
+  </div>
+</div>
+
+<!-- ══════════ 5. MÀN ĐANG DẪN ĐƯỜNG ══════════
+     ⚠ Suốt quãng đường robot IM LẶNG, chỉ nói đúng câu "Xin mời đi theo tôi" lúc
+     bắt đầu. Diễn biến dọc đường (vật cản, sắp tới) chỉ HIỆN THÀNH CHỮ ở #dan-tin.
+     Lý do: sảnh bệnh viện đã ồn, robot lải nhải dọc đường là át mất tiếng gọi tên
+     bệnh nhân ở quầy. -->
+<div class="man-hinh" id="mh-dan">
+  <video class="bc" id="bc-c" muted playsinline preload="auto"></video>
+  <video class="bc" id="bc-d" muted playsinline preload="auto"></video>
+  <div class="dan-noi">
+    <div class="dan-cau">XIN MỜI<br>ĐI THEO TÔI</div>
+    <div class="dan-den">Tôi đang dẫn quý vị tới<b id="dan-diem">—</b></div>
+    <div class="dan-tin" id="dan-tin"></div>
+    <button class="dan-dung" onclick="dungDanDuongNgay()">⏹ Dừng lại, tôi tự đi</button>
+  </div>
+</div>
+
+<!-- ══════════ 6. MÀN CHỈ ĐƯỜNG (đã tới trước toà DI) ══════════ -->
+<div class="man-hinh" id="mh-chi">
+  <div class="chi-khung">
+    <div class="chi-trai">
+      <div class="chi-mui">⬆️</div>
+      <div class="chi-di" id="chi-di">Mời quý vị đi thẳng</div>
+    </div>
+    <div class="chi-phai">
+      <div class="chi-hang">
+        <span class="chi-nhan">TOÀ NHÀ</span>
+        <span class="chi-gt" id="chi-toa">—</span>
+      </div>
+      <div class="chi-hang">
+        <span class="chi-nhan">TẦNG</span>
+        <span class="chi-gt" id="chi-tang">—</span>
+      </div>
+      <div class="chi-hang" id="chi-hang-ma">
+        <span class="chi-nhan">PHÒNG</span>
+        <span class="chi-ma" id="chi-ma"></span>
+      </div>
+      <div class="chi-hang">
+        <span class="chi-nhan">KHOA</span>
+        <span class="chi-gt nho" id="chi-khoa">—</span>
+      </div>
+    </div>
+  </div>
+  <div class="chi-chan">
+    <span class="chi-dem" id="chi-dem"></span>
+    <button class="chi-nut" onclick="docLai()">🔊 Đọc lại</button>
+    <button class="chi-nut" onclick="veChoNgay()">✔ Cảm ơn, robot về đi</button>
+  </div>
+</div>
+
+<!-- ══════════ 7. MÀN CẤP CỨU ══════════ -->
+<div class="man-hinh" id="mh-cc">
+  <div class="cc-khung">
+    <div class="cc-nhan">🚨 CẤP CỨU</div>
+    <div class="cc-ten" id="cc-ten">—</div>
+    <div class="cc-vt">
+      <div class="cc-o"><small>TOÀ NHÀ</small><b id="cc-toa">—</b></div>
+      <div class="cc-o"><small>TẦNG</small><b id="cc-tang">—</b></div>
+      <div class="cc-o"><small>PHÒNG</small><b id="cc-ma">—</b></div>
+    </div>
+    <div class="cc-loi">Quý vị đi ngay, đừng chờ tôi dẫn.<br>Đi thẳng qua sân, sang toà nhà, lên tầng như trên.</div>
+  </div>
+  <div class="cc-chan">
+    <button class="chi-nut" onclick="docLai()">🔊 Đọc lại</button>
+    <button class="chi-nut" onclick="veTrangChu()">‹ Quay lại</button>
+  </div>
+</div>
+
+<!-- ══════════ 8. MÀN TRÒ CHUYỆN ══════════
+     Nút mic tự ẩn khi Agent SDK chưa bind được — xem coMicRobot(). -->
+<div class="man-hinh" id="mh-chat">
+  <video class="bc" id="bc-e" muted playsinline preload="auto"></video>
+  <video class="bc" id="bc-f" muted playsinline preload="auto"></video>
+  <div class="chat-noi">
+    <div class="chat-dau">
+      <b>💬 Trò chuyện với robot</b>
+      <button class="chi-nut" onclick="xoaHoiThoai()">🗑 Xoá</button>
+      <button class="chi-nut" onclick="dongChat()">✕ Đóng</button>
+    </div>
+    <div class="chat-ds" id="chat-ds"></div>
+    <div class="chat-trang-thai" id="chat-trang-thai"></div>
+    <div class="chat-go">
+      <input id="chat-nhap" type="text" autocomplete="off"
+             placeholder="Gõ câu hỏi rồi bấm Enter…" onkeydown="if(event.key==='Enter')guiChat()">
+      <button class="nut-mic" id="mic2" title="Nói">🎙️</button>
+      <button class="chi-nut" onclick="guiChat()">Gửi</button>
+    </div>
+  </div>
+</div>
+
+<!-- Bàn phím nhập mã phòng -->
+<div class="lop-phu" id="phu-ma" onclick="if(event.target===this)dongBanPhim()">
+  <div class="bp">
+    <h3>Nhập mã phòng ghi trên phiếu khám</h3>
+    <div class="o-hien" id="bp-hien">D<small>Bấm số, ví dụ D3</small></div>
+    <div class="bp-luoi" id="bp-luoi"></div>
+    <button class="nut-to phu" onclick="dongBanPhim()">Đóng</button>
+  </div>
+</div>
+
+<!-- Thanh robot tự về chỗ -->
+<div class="ve-cho" id="ve-cho">
+  <span class="vc-chu">Tôi về sảnh sau <b id="vc-dem">20</b> giây</span>
+  <button onclick="veChoNgay()">Về ngay</button>
+  <button onclick="hoanVeCho()">Khoan, tôi xem tiếp</button>
+</div>
+
+<div class="canh-bao" id="canh-bao"></div>
+
+<script>window.DU_LIEU={
+ "don_vi": "Bệnh viện Việt Nam – Thụy Điển Uông Bí",
+ "khu_vuc": "Khu lễ tân",
+ "nguon": "Tài liệu hướng dẫn robot lễ tân do bệnh viện cung cấp — 10-project/Benh-vien-Uong-Bi/01-khao-sat/",
+ "cap_nhat": "11/08/2026",
+ "diem": {
+  "tiep-don": {
+   "ten": "Quầy tiếp đón · Đăng ký khám",
+   "diem_ban_do": "Tiep don",
+   "mau": "#B5651D"
+  },
+  "vien-phi": {
+   "ten": "Phòng thu viện phí",
+   "diem_ban_do": "Vien phi",
+   "mau": "#B8860B"
+  },
+  "nha-thuoc": {
+   "ten": "Nhà thuốc bệnh viện",
+   "diem_ban_do": "Nha thuoc",
+   "mau": "#1F6F5C"
+  },
+  "can-tin": {
+   "ten": "Căn tin",
+   "diem_ban_do": "Can tin",
+   "mau": "#7A5AA6"
+  },
+  "nha-ve-sinh": {
+   "ten": "Nhà vệ sinh",
+   "diem_ban_do": "Nha ve sinh",
+   "mau": "#2B5C9B"
+  },
+  "truoc-hanh-lang": {
+   "ten": "Đầu hành lang",
+   "diem_ban_do": "Truoc hanh lang",
+   "mau": "#0E5A63"
+  }
+ },
+ "diem_ve_cho": "Sanh cho",
+ "toa": [
+  {
+   "ma": "DI",
+   "ten": "Nhà DI",
+   "so_tang": 5,
+   "thu_tu": 1,
+   "thu_tu_chu": "đầu tiên"
+  },
+  {
+   "ma": "DII",
+   "ten": "Nhà DII",
+   "so_tang": 5,
+   "thu_tu": 2,
+   "thu_tu_chu": "thứ hai"
+  },
+  {
+   "ma": "DIII",
+   "ten": "Nhà DIII",
+   "so_tang": 8,
+   "thu_tu": 3,
+   "thu_tu_chu": "thứ ba"
+  }
+ ],
+ "nhom": [
+  {
+   "ma": "me-be",
+   "ten": "Mẹ và bé",
+   "icon": "👶",
+   "goi_y": "Đi đẻ, khám thai, trẻ sơ sinh"
+  },
+  {
+   "ma": "tre-em",
+   "ten": "Trẻ em",
+   "icon": "🧒",
+   "goi_y": "Đưa con đi khám, bé sốt, bé ho"
+  },
+  {
+   "ma": "mat-tai-rang",
+   "ten": "Mắt · Tai mũi họng · Răng",
+   "icon": "👁️",
+   "goi_y": "Đau mắt, viêm họng, đau răng"
+  },
+  {
+   "ma": "noi-khoa",
+   "ten": "Khám bên trong (nội khoa)",
+   "icon": "🫁",
+   "goi_y": "Đau bụng, dạ dày, ho, khó thở, thận"
+  },
+  {
+   "ma": "ngoai-khoa",
+   "ten": "Phải mổ (ngoại khoa)",
+   "icon": "🔪",
+   "goi_y": "Mổ ruột thừa, sỏi thận, chấn thương đầu"
+  },
+  {
+   "ma": "xuong-khop",
+   "ten": "Xương khớp · Thần kinh · Đông y",
+   "icon": "🦴",
+   "goi_y": "Đau lưng, thoát vị đĩa đệm, châm cứu"
+  },
+  {
+   "ma": "cap-cuu",
+   "ten": "CẤP CỨU",
+   "icon": "🚨",
+   "goi_y": "Nguy kịch, cần cấp cứu ngay"
+  },
+  {
+   "ma": "tien-ich",
+   "ten": "Viện phí · Thuốc · Tiện ích",
+   "icon": "💳",
+   "goi_y": "Đóng tiền, lấy thuốc, căn tin, nhà vệ sinh"
+  },
+  {
+   "ma": "hanh-chinh",
+   "ten": "Hành chính · Khác",
+   "icon": "🏛️",
+   "goi_y": "Phòng ban, giải phẫu bệnh, xin giấy tờ"
+  }
+ ],
+ "quy_trinh_kham": {
+  "tieu_de": "Quý vị đến khám lần đầu, chưa có phiếu",
+  "diem": "tiep-don",
+  "buoc": [
+   [
+    "Đăng ký khám",
+    "Tới quầy tiếp đón, lấy số, xuất trình căn cước và thẻ bảo hiểm y tế nếu có."
+   ],
+   [
+    "Vào khám",
+    "Nhân viên ghi phiếu khám có mã phòng, quý vị mang phiếu tới đúng phòng đó."
+   ],
+   [
+    "Xét nghiệm, chiếu chụp",
+    "Bác sĩ chỉ định thì quý vị làm theo phiếu, xong quay lại phòng khám."
+   ],
+   [
+    "Đóng tiền, lấy thuốc",
+    "Đóng viện phí tại phòng thu, rồi tới nhà thuốc lấy thuốc theo đơn."
+   ]
+  ],
+  "doc": "Quý vị đến khám lần đầu thì mời tới quầy tiếp đón trước. Ở đó quý vị lấy số, xuất trình căn cước và thẻ bảo hiểm y tế. Nhân viên sẽ ghi phiếu khám có mã phòng. Quý vị mang phiếu đó tới đúng phòng khám. Khám xong, đóng tiền tại phòng thu viện phí, rồi tới nhà thuốc lấy thuốc. Bây giờ tôi dẫn quý vị tới quầy tiếp đón."
+ },
+ "dich": [
+  {
+   "id": 1,
+   "ten": "Khoa Phụ Sản",
+   "nhom": "me-be",
+   "loai": "ngoai-khu",
+   "diem": "truoc-hanh-lang",
+   "ghi_chu": "Sản phụ khoa, sinh đẻ",
+   "ma": [
+    "D1",
+    "D2",
+    "D11",
+    "D12",
+    "D21",
+    "D22"
+   ],
+   "vi_tri": [
+    {
+     "toa": "DI",
+     "toa_ten": "Nhà DI",
+     "tang": 1,
+     "ma": [
+      "D1",
+      "D2"
+     ],
+     "doc": "Khoa Phụ Sản ở tầng một, toà nhà đê một. Phòng đê một hoặc đê hai. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.",
+     "chi_duong": "Đã tới nơi. Xin mời quý vị đi thẳng. Toà nhà đầu tiên, đó là toà đê một. Quý vị vào đó, lên tầng một, vào Khoa Phụ Sản. Tìm phòng đê một hoặc đê hai. Chúc quý vị mau khoẻ."
+    },
+    {
+     "toa": "DII",
+     "toa_ten": "Nhà DII",
+     "tang": 1,
+     "ma": [
+      "D11",
+      "D12"
+     ],
+     "doc": "Khoa Phụ Sản ở tầng một, toà nhà đê hai. Phòng đê mười một hoặc đê mười hai. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.",
+     "chi_duong": "Đã tới nơi. Xin mời quý vị đi thẳng. Toà nhà thứ hai, đó là toà đê hai. Quý vị vào đó, lên tầng một, vào Khoa Phụ Sản. Tìm phòng đê mười một hoặc đê mười hai. Chúc quý vị mau khoẻ."
+    },
+    {
+     "toa": "DIII",
+     "toa_ten": "Nhà DIII",
+     "tang": 1,
+     "ma": [
+      "D21",
+      "D22"
+     ],
+     "doc": "Khoa Phụ Sản ở tầng một, toà nhà đê ba. Phòng đê hai mươi một hoặc đê hai mươi hai. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.",
+     "chi_duong": "Đã tới nơi. Xin mời quý vị đi thẳng. Toà nhà thứ ba, đó là toà đê ba. Quý vị vào đó, lên tầng một, vào Khoa Phụ Sản. Tìm phòng đê hai mươi một hoặc đê hai mươi hai. Chúc quý vị mau khoẻ."
+    }
+   ],
+   "doc": "Khoa Phụ Sản có ở ba toà. Quý vị đang theo dõi ở toà nào ạ?",
+   "tim": "khoa phu san san phu khoa sinh de d1 d2 d11 d12 d21 d22 de sinh con sinh de kham thai bau chua thai san phu khoa mang thai sieu am thai chuyen da vo oi dau de san khoa"
+  },
+  {
+   "id": 2,
+   "ten": "Khoa Sơ Sinh",
+   "nhom": "me-be",
+   "loai": "ngoai-khu",
+   "diem": "truoc-hanh-lang",
+   "ghi_chu": "Chăm sóc trẻ sơ sinh",
+   "ma": [
+    "D14"
+   ],
+   "vi_tri": [
+    {
+     "toa": "DII",
+     "toa_ten": "Nhà DII",
+     "tang": 2,
+     "ma": [
+      "D14"
+     ],
+     "doc": "Khoa Sơ Sinh ở tầng hai, toà nhà đê hai. Phòng đê mười bốn. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.",
+     "chi_duong": "Đã tới nơi. Xin mời quý vị đi thẳng. Toà nhà thứ hai, đó là toà đê hai. Quý vị vào đó, lên tầng hai, vào Khoa Sơ Sinh. Tìm phòng đê mười bốn. Chúc quý vị mau khoẻ."
+    }
+   ],
+   "doc": "Khoa Sơ Sinh ở tầng hai, toà nhà đê hai. Phòng đê mười bốn. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.",
+   "tim": "khoa so sinh cham soc tre so sinh d14 tre so sinh em be moi de be moi sinh long ap so sinh vang da tre thieu thang"
+  },
+  {
+   "id": 3,
+   "ten": "Khoa Nhi",
+   "nhom": "tre-em",
+   "loai": "ngoai-khu",
+   "diem": "truoc-hanh-lang",
+   "ghi_chu": "Nhi khoa, trẻ em",
+   "ma": [
+    "D3",
+    "D4",
+    "D13"
+   ],
+   "vi_tri": [
+    {
+     "toa": "DI",
+     "toa_ten": "Nhà DI",
+     "tang": 2,
+     "ma": [
+      "D3",
+      "D4"
+     ],
+     "doc": "Khoa Nhi ở tầng hai, toà nhà đê một. Phòng đê ba hoặc đê bốn. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.",
+     "chi_duong": "Đã tới nơi. Xin mời quý vị đi thẳng. Toà nhà đầu tiên, đó là toà đê một. Quý vị vào đó, lên tầng hai, vào Khoa Nhi. Tìm phòng đê ba hoặc đê bốn. Chúc quý vị mau khoẻ."
+    },
+    {
+     "toa": "DII",
+     "toa_ten": "Nhà DII",
+     "tang": 2,
+     "ma": [
+      "D13"
+     ],
+     "doc": "Khoa Nhi ở tầng hai, toà nhà đê hai. Phòng đê mười ba. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.",
+     "chi_duong": "Đã tới nơi. Xin mời quý vị đi thẳng. Toà nhà thứ hai, đó là toà đê hai. Quý vị vào đó, lên tầng hai, vào Khoa Nhi. Tìm phòng đê mười ba. Chúc quý vị mau khoẻ."
+    }
+   ],
+   "doc": "Khoa Nhi có ở hai toà. Quý vị đang theo dõi ở toà nào ạ?",
+   "tim": "khoa nhi nhi khoa tre em d3 d4 d13 tre em con nho em be chau be nhi khoa be sot be ho be tieu chay dua con di kham kham cho con tre nho"
+  },
+  {
+   "id": 4,
+   "ten": "Khoa Mắt",
+   "nhom": "mat-tai-rang",
+   "loai": "ngoai-khu",
+   "diem": "truoc-hanh-lang",
+   "ghi_chu": "Nhãn khoa",
+   "ma": [
+    "D9"
+   ],
+   "vi_tri": [
+    {
+     "toa": "DI",
+     "toa_ten": "Nhà DI",
+     "tang": 5,
+     "ma": [
+      "D9"
+     ],
+     "doc": "Khoa Mắt ở tầng năm, toà nhà đê một. Phòng đê chín. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.",
+     "chi_duong": "Đã tới nơi. Xin mời quý vị đi thẳng. Toà nhà đầu tiên, đó là toà đê một. Quý vị vào đó, lên tầng năm, vào Khoa Mắt. Tìm phòng đê chín. Chúc quý vị mau khoẻ."
+    }
+   ],
+   "doc": "Khoa Mắt ở tầng năm, toà nhà đê một. Phòng đê chín. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.",
+   "tim": "khoa mat nhan khoa d9 mat dau mat mo mat can thi vien duc thuy tinh the mong thit nhan khoa do mat ngua mat kham mat do kinh"
+  },
+  {
+   "id": 5,
+   "ten": "Khoa Tai Mũi Họng",
+   "nhom": "mat-tai-rang",
+   "loai": "ngoai-khu",
+   "diem": "truoc-hanh-lang",
+   "ghi_chu": "Tai, mũi, họng (TMH)",
+   "ma": [
+    "D10"
+   ],
+   "vi_tri": [
+    {
+     "toa": "DI",
+     "toa_ten": "Nhà DI",
+     "tang": 5,
+     "ma": [
+      "D10"
+     ],
+     "doc": "Khoa Tai Mũi Họng ở tầng năm, toà nhà đê một. Phòng đê mười. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.",
+     "chi_duong": "Đã tới nơi. Xin mời quý vị đi thẳng. Toà nhà đầu tiên, đó là toà đê một. Quý vị vào đó, lên tầng năm, vào Khoa Tai Mũi Họng. Tìm phòng đê mười. Chúc quý vị mau khoẻ."
+    }
+   ],
+   "doc": "Khoa Tai Mũi Họng ở tầng năm, toà nhà đê một. Phòng đê mười. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.",
+   "tim": "khoa tai mui hong tai mui hong tmh d10 tai mui hong tmh viem hong u tai ngat mui viem xoang amidan khan tieng chay mau cam diec noi soi tai mui hong"
+  },
+  {
+   "id": 6,
+   "ten": "Khoa Răng Hàm Mặt",
+   "nhom": "mat-tai-rang",
+   "loai": "ngoai-khu",
+   "diem": "truoc-hanh-lang",
+   "ghi_chu": "Nha khoa, hàm mặt",
+   "ma": [
+    "D7"
+   ],
+   "vi_tri": [
+    {
+     "toa": "DI",
+     "toa_ten": "Nhà DI",
+     "tang": 4,
+     "ma": [
+      "D7"
+     ],
+     "doc": "Khoa Răng Hàm Mặt ở tầng bốn, toà nhà đê một. Phòng đê bảy. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.",
+     "chi_duong": "Đã tới nơi. Xin mời quý vị đi thẳng. Toà nhà đầu tiên, đó là toà đê một. Quý vị vào đó, lên tầng bốn, vào Khoa Răng Hàm Mặt. Tìm phòng đê bảy. Chúc quý vị mau khoẻ."
+    }
+   ],
+   "doc": "Khoa Răng Hàm Mặt ở tầng bốn, toà nhà đê một. Phòng đê bảy. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.",
+   "tim": "khoa rang ham mat nha khoa ham mat d7 rang dau rang nho rang sau rang ham mat nha khoa nieng rang chua rang han rang lam rang loi sung"
+  },
+  {
+   "id": 7,
+   "ten": "Khoa Nội Tiêu Hóa",
+   "nhom": "noi-khoa",
+   "loai": "ngoai-khu",
+   "diem": "truoc-hanh-lang",
+   "ghi_chu": "Tiêu hóa nội khoa",
+   "ma": [
+    "D8"
+   ],
+   "vi_tri": [
+    {
+     "toa": "DI",
+     "toa_ten": "Nhà DI",
+     "tang": 4,
+     "ma": [
+      "D8"
+     ],
+     "doc": "Khoa Nội Tiêu Hóa ở tầng bốn, toà nhà đê một. Phòng đê tám. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.",
+     "chi_duong": "Đã tới nơi. Xin mời quý vị đi thẳng. Toà nhà đầu tiên, đó là toà đê một. Quý vị vào đó, lên tầng bốn, vào Khoa Nội Tiêu Hóa. Tìm phòng đê tám. Chúc quý vị mau khoẻ."
+    }
+   ],
+   "doc": "Khoa Nội Tiêu Hóa ở tầng bốn, toà nhà đê một. Phòng đê tám. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.",
+   "tim": "khoa noi tieu hoa tieu hoa noi khoa d8 dau bung da day dai trang tieu hoa o chua tao bon gan noi soi da day viem loet da day roi loan tieu hoa dau da day"
+  },
+  {
+   "id": 8,
+   "ten": "Khoa Nội Phổi – Tiết Niệu – Hô Hấp",
+   "nhom": "noi-khoa",
+   "loai": "ngoai-khu",
+   "diem": "truoc-hanh-lang",
+   "ghi_chu": "Hô hấp, phổi, tiết niệu",
+   "ma": [
+    "D17",
+    "D18"
+   ],
+   "vi_tri": [
+    {
+     "toa": "DII",
+     "toa_ten": "Nhà DII",
+     "tang": 4,
+     "ma": [
+      "D17",
+      "D18"
+     ],
+     "doc": "Khoa Nội Phổi – Tiết Niệu – Hô Hấp ở tầng bốn, toà nhà đê hai. Phòng đê mười bảy hoặc đê mười tám. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.",
+     "chi_duong": "Đã tới nơi. Xin mời quý vị đi thẳng. Toà nhà thứ hai, đó là toà đê hai. Quý vị vào đó, lên tầng bốn, vào Khoa Nội Phổi – Tiết Niệu – Hô Hấp. Tìm phòng đê mười bảy hoặc đê mười tám. Chúc quý vị mau khoẻ."
+    }
+   ],
+   "doc": "Khoa Nội Phổi – Tiết Niệu – Hô Hấp ở tầng bốn, toà nhà đê hai. Phòng đê mười bảy hoặc đê mười tám. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.",
+   "tim": "khoa noi phoi tiet nieu ho hap ho hap phoi tiet nieu d17 d18 ho kho tho phoi hen suyen viem phoi ho hap than tieu buot soi than tiet nieu tuc nguc lao phoi kho tho ve dem di tieu nhieu"
+  },
+  {
+   "id": 9,
+   "ten": "Khoa Ngoại Thận – Tiết Niệu",
+   "nhom": "ngoai-khoa",
+   "loai": "ngoai-khu",
+   "diem": "truoc-hanh-lang",
+   "ghi_chu": "Phẫu thuật thận, tiết niệu",
+   "ma": [
+    "D5"
+   ],
+   "vi_tri": [
+    {
+     "toa": "DI",
+     "toa_ten": "Nhà DI",
+     "tang": 3,
+     "ma": [
+      "D5"
+     ],
+     "doc": "Khoa Ngoại Thận – Tiết Niệu ở tầng ba, toà nhà đê một. Phòng đê năm. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.",
+     "chi_duong": "Đã tới nơi. Xin mời quý vị đi thẳng. Toà nhà đầu tiên, đó là toà đê một. Quý vị vào đó, lên tầng ba, vào Khoa Ngoại Thận – Tiết Niệu. Tìm phòng đê năm. Chúc quý vị mau khoẻ."
+    }
+   ],
+   "doc": "Khoa Ngoại Thận – Tiết Niệu ở tầng ba, toà nhà đê một. Phòng đê năm. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.",
+   "tim": "khoa ngoai than tiet nieu phau thuat than tiet nieu d5 mo than soi than tan soi mo tiet nieu phi dai tuyen tien liet ngoai than soi nieu quan soi bang quang"
+  },
+  {
+   "id": 10,
+   "ten": "Khoa Ngoại Tiêu Hóa – Tổng Hợp",
+   "nhom": "ngoai-khoa",
+   "loai": "ngoai-khu",
+   "diem": "truoc-hanh-lang",
+   "ghi_chu": "Ngoại tiêu hóa tổng hợp",
+   "ma": [
+    "D6"
+   ],
+   "vi_tri": [
+    {
+     "toa": "DI",
+     "toa_ten": "Nhà DI",
+     "tang": 3,
+     "ma": [
+      "D6"
+     ],
+     "doc": "Khoa Ngoại Tiêu Hóa – Tổng Hợp ở tầng ba, toà nhà đê một. Phòng đê sáu. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.",
+     "chi_duong": "Đã tới nơi. Xin mời quý vị đi thẳng. Toà nhà đầu tiên, đó là toà đê một. Quý vị vào đó, lên tầng ba, vào Khoa Ngoại Tiêu Hóa – Tổng Hợp. Tìm phòng đê sáu. Chúc quý vị mau khoẻ."
+    }
+   ],
+   "doc": "Khoa Ngoại Tiêu Hóa – Tổng Hợp ở tầng ba, toà nhà đê một. Phòng đê sáu. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.",
+   "tim": "khoa ngoai tieu hoa tong hop ngoai tieu hoa tong hop d6 mo ruot thua mo bung thoat vi tri mo da day ngoai tong hop phau thuat mo noi soi o bung cat tui mat"
+  },
+  {
+   "id": 11,
+   "ten": "Khoa Ngoại Thần Kinh",
+   "nhom": "ngoai-khoa",
+   "loai": "ngoai-khu",
+   "diem": "truoc-hanh-lang",
+   "ghi_chu": "Ngoại thần kinh, não bộ",
+   "ma": [
+    "D16"
+   ],
+   "vi_tri": [
+    {
+     "toa": "DII",
+     "toa_ten": "Nhà DII",
+     "tang": 3,
+     "ma": [
+      "D16"
+     ],
+     "doc": "Khoa Ngoại Thần Kinh ở tầng ba, toà nhà đê hai. Phòng đê mười sáu. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.",
+     "chi_duong": "Đã tới nơi. Xin mời quý vị đi thẳng. Toà nhà thứ hai, đó là toà đê hai. Quý vị vào đó, lên tầng ba, vào Khoa Ngoại Thần Kinh. Tìm phòng đê mười sáu. Chúc quý vị mau khoẻ."
+    }
+   ],
+   "doc": "Khoa Ngoại Thần Kinh ở tầng ba, toà nhà đê hai. Phòng đê mười sáu. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.",
+   "tim": "khoa ngoai than kinh ngoai than kinh nao bo d16 chan thuong so nao mo nao u nao cot song ngoai than kinh nga dap dau chan thuong dau mo cot song"
+  },
+  {
+   "id": 12,
+   "ten": "Khoa Tâm Thần Kinh – Cơ Xương Khớp",
+   "nhom": "xuong-khop",
+   "loai": "ngoai-khu",
+   "diem": "truoc-hanh-lang",
+   "ghi_chu": "Tâm thần, xương khớp",
+   "ma": [
+    "D19",
+    "D20"
+   ],
+   "vi_tri": [
+    {
+     "toa": "DII",
+     "toa_ten": "Nhà DII",
+     "tang": 5,
+     "ma": [
+      "D19",
+      "D20"
+     ],
+     "doc": "Khoa Tâm Thần Kinh – Cơ Xương Khớp ở tầng năm, toà nhà đê hai. Phòng đê mười chín hoặc đê hai mươi. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.",
+     "chi_duong": "Đã tới nơi. Xin mời quý vị đi thẳng. Toà nhà thứ hai, đó là toà đê hai. Quý vị vào đó, lên tầng năm, vào Khoa Tâm Thần Kinh – Cơ Xương Khớp. Tìm phòng đê mười chín hoặc đê hai mươi. Chúc quý vị mau khoẻ."
+    }
+   ],
+   "doc": "Khoa Tâm Thần Kinh – Cơ Xương Khớp ở tầng năm, toà nhà đê hai. Phòng đê mười chín hoặc đê hai mươi. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.",
+   "tim": "khoa tam than kinh co xuong khop tam than xuong khop d19 d20 dau lung thoat vi dia dem khop dau khop tai bien dot quy mat ngu tam than than kinh dau vai gay te chan te tay gut viem khop dau dau hoa mat chong mat run tay"
+  },
+  {
+   "id": 13,
+   "ten": "Khoa Y Học Cổ Truyền",
+   "nhom": "xuong-khop",
+   "loai": "ngoai-khu",
+   "diem": "truoc-hanh-lang",
+   "ghi_chu": "Y học cổ truyền, châm cứu",
+   "ma": [
+    "D15"
+   ],
+   "vi_tri": [
+    {
+     "toa": "DII",
+     "toa_ten": "Nhà DII",
+     "tang": 3,
+     "ma": [
+      "D15"
+     ],
+     "doc": "Khoa Y Học Cổ Truyền ở tầng ba, toà nhà đê hai. Phòng đê mười năm. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.",
+     "chi_duong": "Đã tới nơi. Xin mời quý vị đi thẳng. Toà nhà thứ hai, đó là toà đê hai. Quý vị vào đó, lên tầng ba, vào Khoa Y Học Cổ Truyền. Tìm phòng đê mười năm. Chúc quý vị mau khoẻ."
+    }
+   ],
+   "doc": "Khoa Y Học Cổ Truyền ở tầng ba, toà nhà đê hai. Phòng đê mười năm. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.",
+   "tim": "khoa y hoc co truyen y hoc co truyen cham cuu d15 dong y cham cuu thuoc nam thuoc bac bam huyet xoa bop phuc hoi chuc nang y hoc co truyen keo gian cot song"
+  },
+  {
+   "id": 14,
+   "ten": "Khoa Hồi Sức Cấp Cứu Nội",
+   "nhom": "cap-cuu",
+   "loai": "cap-cuu",
+   "diem": null,
+   "ghi_chu": "Cấp cứu nội khoa",
+   "ma": [
+    "D23",
+    "D24"
+   ],
+   "vi_tri": [
+    {
+     "toa": "DIII",
+     "toa_ten": "Nhà DIII",
+     "tang": 2,
+     "ma": [
+      "D23",
+      "D24"
+     ],
+     "doc": "Khoa Hồi Sức Cấp Cứu Nội ở tầng hai, toà nhà đê ba. Phòng đê hai mươi ba hoặc đê hai mươi bốn. Quý vị cần cấp cứu thì xin đi ngay, đừng chờ tôi dẫn. Xin mời đi thẳng, toà nhà thứ ba, đó là toà đê ba, rồi lên tầng hai.",
+     "chi_duong": "Đã tới nơi. Xin mời quý vị đi thẳng. Toà nhà thứ ba, đó là toà đê ba. Quý vị vào đó, lên tầng hai, vào Khoa Hồi Sức Cấp Cứu Nội. Tìm phòng đê hai mươi ba hoặc đê hai mươi bốn. Chúc quý vị mau khoẻ."
+    }
+   ],
+   "doc": "Khoa Hồi Sức Cấp Cứu Nội ở tầng hai, toà nhà đê ba. Phòng đê hai mươi ba hoặc đê hai mươi bốn. Quý vị cần cấp cứu thì xin đi ngay, đừng chờ tôi dẫn. Xin mời đi thẳng, toà nhà thứ ba, đó là toà đê ba, rồi lên tầng hai.",
+   "tim": "khoa hoi suc cap cuu noi cap cuu noi khoa d23 d24 cap cuu nguy kich hoi suc ngat xiu ngat xiu choang dot quy cap cuu noi kho tho nang bat tinh co giat tai nan khan cap nguy hiem sap chet"
+  },
+  {
+   "id": 15,
+   "ten": "Khoa Giải Phẫu Bệnh",
+   "nhom": "hanh-chinh",
+   "loai": "ngoai-khu",
+   "diem": "truoc-hanh-lang",
+   "ghi_chu": "Giải phẫu, sinh thiết bệnh lý",
+   "ma": [],
+   "vi_tri": [
+    {
+     "toa": "DIII",
+     "toa_ten": "Nhà DIII",
+     "tang": 2,
+     "ma": [],
+     "doc": "Khoa Giải Phẫu Bệnh ở tầng hai, toà nhà đê ba. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.",
+     "chi_duong": "Đã tới nơi. Xin mời quý vị đi thẳng. Toà nhà thứ ba, đó là toà đê ba. Quý vị vào đó, lên tầng hai, vào Khoa Giải Phẫu Bệnh. Chúc quý vị mau khoẻ."
+    }
+   ],
+   "doc": "Khoa Giải Phẫu Bệnh ở tầng hai, toà nhà đê ba. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.",
+   "tim": "khoa giai phau benh giai phau sinh thiet benh ly sinh thiet giai phau benh xet nghiem mo te bao ket qua sinh thiet"
+  },
+  {
+   "id": 16,
+   "ten": "Các Phòng Ban Hành Chính",
+   "nhom": "hanh-chinh",
+   "loai": "ngoai-khu",
+   "diem": "truoc-hanh-lang",
+   "ghi_chu": "Kế hoạch tổng hợp, điều dưỡng, chăm sóc khách hàng, marketing, truyền thông",
+   "ma": [],
+   "vi_tri": [
+    {
+     "toa": "DIII",
+     "toa_ten": "Nhà DIII",
+     "tang": 3,
+     "ma": [],
+     "doc": "Các Phòng Ban Hành Chính ở tầng ba, toà nhà đê ba. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.",
+     "chi_duong": "Đã tới nơi. Xin mời quý vị đi thẳng. Toà nhà thứ ba, đó là toà đê ba. Quý vị vào đó, lên tầng ba, vào Các Phòng Ban Hành Chính. Chúc quý vị mau khoẻ."
+    }
+   ],
+   "doc": "Các Phòng Ban Hành Chính ở tầng ba, toà nhà đê ba. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.",
+   "tim": "cac phong ban hanh chinh ke hoach tong hop dieu duong cham soc khach hang marketing truyen thong hanh chinh ke hoach tong hop dieu duong cham soc khach hang marketing truyen thong giam doc ban lanh dao xin giay to xac nhan phong ban"
+  },
+  {
+   "id": 17,
+   "ten": "Quầy tiếp đón · Đăng ký khám",
+   "nhom": "tien-ich",
+   "loai": "trong-khu",
+   "diem": "tiep-don",
+   "ghi_chu": "Lấy số, xuất trình bảo hiểm, đăng ký khám",
+   "ma": [],
+   "vi_tri": [],
+   "doc": "Quầy tiếp đón ở ngay trong khu lễ tân. Quý vị tới đó lấy số, xuất trình thẻ bảo hiểm và đăng ký khám. Tôi dẫn quý vị tới nơi.",
+   "tim": "quay tiep don dang ky kham lay so xuat trinh bao hiem dang ky kham dang ky kham lay so kham lan dau bao hiem bhyt the bao hiem tiep don phieu kham dat lich chua co phieu moi den kham"
+  },
+  {
+   "id": 18,
+   "ten": "Phòng thu viện phí",
+   "nhom": "tien-ich",
+   "loai": "trong-khu",
+   "diem": "vien-phi",
+   "ghi_chu": "Đóng tiền, thanh toán viện phí, lấy hoá đơn",
+   "ma": [],
+   "vi_tri": [],
+   "doc": "Phòng thu viện phí ở trong khu lễ tân. Tôi dẫn quý vị tới nơi.",
+   "tim": "phong thu vien phi dong tien thanh toan vien phi lay hoa don dong tien thanh toan vien phi thu ngan nop tien hoa don thanh toan vien phi tra tien quyet toan bao hiem"
+  },
+  {
+   "id": 19,
+   "ten": "Nhà thuốc bệnh viện",
+   "nhom": "tien-ich",
+   "loai": "trong-khu",
+   "diem": "nha-thuoc",
+   "ghi_chu": "Lấy thuốc theo đơn, mua thuốc",
+   "ma": [],
+   "vi_tri": [],
+   "doc": "Nhà thuốc bệnh viện ở trong khu lễ tân. Quý vị nhớ mang theo đơn thuốc. Tôi dẫn quý vị tới nơi.",
+   "tim": "nha thuoc benh vien lay thuoc theo don mua thuoc lay thuoc mua thuoc nha thuoc quay thuoc don thuoc hieu thuoc linh thuoc thuoc bao hiem"
+  },
+  {
+   "id": 20,
+   "ten": "Căn tin",
+   "nhom": "tien-ich",
+   "loai": "trong-khu",
+   "diem": "can-tin",
+   "ghi_chu": "Ăn uống, nước, đồ dùng cho người nhà",
+   "ma": [],
+   "vi_tri": [],
+   "doc": "Căn tin ở trong khu lễ tân. Tôi dẫn quý vị tới nơi.",
+   "tim": "can tin an uong nuoc do dung cho nguoi nha an uong nuoc com can tin cang tin quan an do an mua nuoc chao chay"
+  },
+  {
+   "id": 21,
+   "ten": "Nhà vệ sinh",
+   "nhom": "tien-ich",
+   "loai": "trong-khu",
+   "diem": "nha-ve-sinh",
+   "ghi_chu": "Nhà vệ sinh khu lễ tân",
+   "ma": [],
+   "vi_tri": [],
+   "doc": "Nhà vệ sinh ở trong khu lễ tân. Tôi dẫn quý vị tới nơi.",
+   "tim": "nha ve sinh nha ve sinh khu le tan nha ve sinh wc toilet di ve sinh nha xi rua tay di nang di nhe"
+  }
+ ]
+};</script>
+<script>
+/* ═══════════════════════════════════════════════════════════════════════
+   GIẢ LẬP ROBOT — chỉ dùng cho bản thử trên máy tính (demo/thu-nghiem.html).
+   File này KHÔNG được đóng vào APK. Trên robot thật, đối tượng CAU do tầng
+   Android cấp qua addJavascriptInterface.
+
+   Vì sao phải có: bản demo thường không có CAU, nên app tự ẩn nút dẫn đường —
+   nghĩa là ba màn quan trọng nhất (đang dẫn · chỉ đường · robot tự về sảnh)
+   KHÔNG THỬ ĐƯỢC trên máy tính, phải chờ mang máy ra bệnh viện mới biết đúng sai.
+   Giả lập này dựng lại đúng bộ hàm và đúng trình tự báo trạng thái mà Cau.kt gửi
+   lên, kèm bảng điều khiển để bắt robot gặp vật cản, gặp lỗi, hoặc tới nơi ngay.
+
+   ⚠ Giả lập chỉ dựng lại GIAO DIỆN và TRÌNH TỰ. Nó không kiểm được bản đồ thật,
+     tên điểm thật, hay robot có lách qua được lối đi hẹp không. Chạy đúng ở đây
+     KHÔNG có nghĩa là chạy đúng ở bệnh viện.
+   ═══════════════════════════════════════════════════════════════════════ */
+(function () {
+  'use strict';
+
+  var GL = {
+    aiSanSang: false,      // AI đám mây trả lời được chưa → quyết định nút mic có hiện không
+    micMo: false,
+    giay: 6,               // quãng đường mô phỏng dài bao nhiêu giây
+    tatDongHo: false,      // tắt đồng hồ 5 phút vắng người cho đỡ vướng lúc thử
+    lyDoChan: '',          // đặt chuỗi khác rỗng để mô phỏng robot chưa sẵn sàng
+    diemVeCho: '(chưa đặt)',
+    dangDi: null,
+    dangDoc: null,
+    daNoi: []              // mọi câu robot đã nói — bộ thử tự động đọc ở đây
+  };
+  window.GIA_LAP = GL;
+
+  var DIEM_GIA = ['Tiep don', 'Vien phi', 'Nha thuoc', 'Can tin',
+                  'Nha ve sinh', 'Truoc hanh lang', 'Sanh cho', 'Tram sac'];
+
+  /* ── Ghi nhật ký ra bảng điều khiển ───────────────────────────────── */
+  function ghi(loai, chu) {
+    var o = document.getElementById('gl-log');
+    if (!o) return;
+    var d = document.createElement('div');
+    d.className = 'gl-d gl-' + loai;
+    var t = new Date();
+    d.textContent = ('0' + t.getMinutes()).slice(-2) + ':' + ('0' + t.getSeconds()).slice(-2) +
+                    '  ' + chu;
+    o.insertBefore(d, o.firstChild);
+    while (o.childNodes.length > 60) o.removeChild(o.lastChild);
+  }
+
+  function batVe(id, chu) {
+    var e = document.getElementById(id);
+    if (e) e.textContent = chu;
+  }
+
+  /* ── Đọc thành tiếng ──────────────────────────────────────────────────
+     Đồng hồ là thứ QUYẾT ĐỊNH, không phải speechSynthesis. Máy Windows thường
+     không cài giọng tiếng Việt; dựa vào sự kiện onend của trình duyệt thì có
+     máy không bao giờ bắn, và window.robotDocXong() sẽ không được gọi —
+     kéo theo đồng hồ "robot về chỗ" không bao giờ chạy. Giọng chỉ là phần thêm. */
+  function doc(vanBan) {
+    dungDoc();
+    ghi('noi', '🔊 ' + vanBan);
+    batVe('gl-noi', vanBan);
+    /* Giữ lại mọi câu robot đã nói. Bộ thử tự động đọc mảng này thay vì đọc khung
+       chat: khung chat chỉ nhận chữ khi đang ở màn Trò chuyện, mà mấy câu quan
+       trọng nhất (cấp cứu) lại chuyển sang màn khác ngay trước khi nói. */
+    GL.daNoi.push(vanBan);
+    if (GL.daNoi.length > 50) GL.daNoi.shift();
+    try {
+      var u = new SpeechSynthesisUtterance(vanBan);
+      u.lang = 'vi-VN'; u.rate = 1;
+      speechSynthesis.speak(u);
+    } catch (e) { /* không có giọng cũng không sao, đã hiện chữ rồi */ }
+
+    var giay = Math.max(1.2, vanBan.length / 15);     // ~15 ký tự mỗi giây
+    GL.dangDoc = setTimeout(function () {
+      GL.dangDoc = null;
+      batVe('gl-noi', '—');
+      if (window.robotDocXong) window.robotDocXong();
+    }, giay * 1000);
+  }
+
+  function dungDoc() {
+    if (GL.dangDoc) { clearTimeout(GL.dangDoc); GL.dangDoc = null; }
+    try { speechSynthesis.cancel(); } catch (e) {}
+    batVe('gl-noi', '—');
+  }
+
+  /* ── Dẫn đường ────────────────────────────────────────────────────────
+     Dựng lại đúng trình tự Cau.kt gửi lên:
+       bat-dau  →  (nhiều lần) dang-di  →  toi-noi | loi | da-dung
+     và đúng quy tắc IM LẶNG dọc đường: chỉ nói một câu lúc bắt đầu, các mốc
+     giữa đường chỉ đẩy CHỮ, không đọc thành tiếng. */
+  function danDuongToiDiem(ten) {
+    ten = (ten || '').trim();
+    ghi('lenh', 'CAU.danDuongToiDiem("' + ten + '")');
+    if (!ten) { window.baoDanDuong('loi', 'Chưa cấu hình điểm đến cho chỗ này.'); return; }
+    if (GL.lyDoChan) {
+      window.baoDanDuong('loi', GL.lyDoChan);
+      doc(GL.lyDoChan);
+      return;
+    }
+    dungDanDuong(true);
+    batVe('gl-dich', ten);
+
+    window.baoDanDuong('bat-dau', '');
+    doc('Xin mời đi theo tôi.');
+
+    var moc = [
+      [0.30, 'Phía trước đang có vật cản, tôi đi vòng qua.'],
+      [0.55, 'Đường đã thông, tôi đi tiếp.'],
+      [0.85, 'Sắp tới nơi rồi ạ.']
+    ];
+    var hen = [];
+    moc.forEach(function (m) {
+      hen.push(setTimeout(function () {
+        window.baoDanDuong('dang-di', m[1]);
+      }, GL.giay * 1000 * m[0]));
+    });
+    hen.push(setTimeout(function () {
+      GL.dangDi = null;
+      batVe('gl-dich', '—');
+      ghi('ok', '📍 Robot tới ' + ten);
+      window.baoDanDuong('toi-noi', '');
+    }, GL.giay * 1000));
+    GL.dangDi = { ten: ten, hen: hen };
+  }
+
+  function huyHen() {
+    if (GL.dangDi) { GL.dangDi.hen.forEach(clearTimeout); GL.dangDi = null; }
+    batVe('gl-dich', '—');
+  }
+
+  function dungDanDuong(imLang) {
+    huyHen();
+    if (!imLang) {
+      ghi('lenh', 'CAU.dungDanDuong()');
+      window.baoDanDuong('da-dung', 'Tôi dừng lại rồi ạ.');
+    }
+  }
+
+  /* ── Robot tự về sảnh ─────────────────────────────────────────────────
+     Trên máy thật chuyến này IM LẶNG HOÀN TOÀN và không báo gì lên giao diện.
+     Ở đây cũng vậy — chỉ ghi vào nhật ký để người thử biết nó có xảy ra. */
+  function veCho() {
+    huyHen();
+    ghi('ok', '🏠 Robot tự đi về "' + GL.diemVeCho + '" (im lặng, không báo lên màn hình)');
+  }
+
+  /* ═══════════ Dựng lại BA LỚP CHẶN của TraLoi.kt ═══════════
+     Ba biểu thức dưới đây phải KHỚP với ba biểu thức trong MainApplication.kt.
+     Sửa một bên thì sửa cả hai — không thì bản thử nói khác robot thật, mà đó đúng
+     là kiểu sai lầm khiến người ta yên tâm nhầm rồi mang máy ra bệnh viện mới vỡ.
+
+     Ở đây chỉ dựng lại phần CHẶN. Phần gọi mô hình thì giả lập bằng câu dẫn cố định,
+     vì trên máy tính không có đường lên đám mây của hãng. */
+  var TU_CAP_CUU = /cấp cứu|cap cuu|nguy kịch|nguy kich|ngất|ngat xiu|bất tỉnh|bat tinh|co giật|co giat|đột quỵ|dot quy|tai biến|tai bien|không thở được|khong tho duoc|khó thở quá|kho tho qua|ngạt thở|ngat tho|chảy máu nhiều|chay mau nhieu|băng huyết|bang huyet|ngộ độc|ngo doc|hóc|sặc|tai nạn|tai nan|đau ngực dữ dội|dau nguc du doi/i;
+  var TU_HOI_Y_TE = /tôi bị (bệnh )?gì|toi bi gi|em bị gì|cháu bị gì|có nặng không|co nang khong|có nguy hiểm không|co nguy hiem khong|có sao không|co sao khong|có việc gì không|uống thuốc gì|uong thuoc gi|nên uống|nen uong|dùng thuốc gì|dung thuoc gi|có phải mổ|co phai mo|có nên mổ|co nen mo|có cần mổ|chẩn đoán|chan doan|xem (giúp|hộ|giùm).{0,12}kết quả|kết quả (xét nghiệm|siêu âm|chụp).{0,20}(sao|thế nào|gì)/i;
+  var TU_CHUA_CO = /bao nhiêu tiền|bao nhieu tien|hết bao nhiêu|het bao nhieu|giá khám|gia kham|chi phí|chi phi|mất bao nhiêu|mấy giờ|may gio|giờ làm việc|gio lam viec|giờ mở cửa|mở cửa lúc|đóng cửa lúc|bác sĩ nào|bac si nao|bác sỹ nào|bác sĩ tên gì|ai trực|lịch trực|lich truc|số điện thoại|so dien thoai|hotline|đặt lịch|dat lich|đặt hẹn|dat hen|đăng ký online|dang ky online|còn giường|con giuong|giường trống|giuong trong|còn chỗ nằm|bao giờ (tới|đến) lượt|khi nào (tới|đến) lượt|lịch mổ|lich mo/i;
+
+  var LOI_CAP_CUU = 'Cấp cứu thì quý vị đi ngay, đừng chờ tôi dẫn, tôi đi chậm hơn quý vị. ' +
+    'Khoa Hồi sức Cấp cứu Nội ở tầng hai, toà nhà đê ba, phòng đê hai mươi ba và đê hai mươi tư. ' +
+    'Quý vị đi thẳng qua sân, sang toà nhà đê ba, lên tầng hai.';
+  var LOI_HOI_Y_TE = 'Tôi là robot chỉ đường, tôi không khám bệnh và không đoán bệnh được đâu ạ. ' +
+    'Quý vị cho tôi biết cần tới khoa nào, tôi chỉ đường giúp. Còn bệnh tình thì bác sĩ ở phòng khám ' +
+    'mới là người trả lời được.';
+  var LOI_CHUA_CO = 'Phần này tôi chưa được nạp dữ liệu nên không dám nói, sợ sai thì quý vị mất công. ' +
+    'Mời quý vị hỏi quầy lễ tân giúp tôi ạ.';
+  var KHONG_CO_TRONG_KHO = 'Việc này tôi chưa có trong dữ liệu nên không dám đoán, sợ chỉ sai thì ' +
+    'quý vị đi nhầm cả toà nhà. Mời quý vị hỏi quầy lễ tân giúp tôi ạ.';
+
+  function noiRaMan(cau) {
+    if (window.nhanLoiNoi) window.nhanLoiNoi('robot', cau, true);
+    doc(cau);
+  }
+
+  function traLoi(cau) {
+    // ① cấp cứu — chặn trước mọi thứ, kể cả trước khi tra cứu
+    if (TU_CAP_CUU.test(cau)) {
+      ghi('loi', '⛔ CHẶN CẤP CỨU');
+      if (window.moManCapCuuTuAI) window.moManCapCuuTuAI();
+      noiRaMan(LOI_CAP_CUU); return;
+    }
+    // ② hỏi bệnh — robot không phải bác sĩ
+    if (TU_HOI_Y_TE.test(cau)) { ghi('loi', '⛔ CHẶN HỎI BỆNH'); noiRaMan(LOI_HOI_Y_TE); return; }
+    // ③ bệnh viện chưa cung cấp dữ liệu
+    if (TU_CHUA_CO.test(cau)) { ghi('loi', '⛔ CHẶN CHƯA CÓ DỮ LIỆU'); noiRaMan(LOI_CHUA_CO); return; }
+
+    // ④ tra kho khoa phòng — cùng hàm traCuu() mà tầng Android gọi xuống
+    var r = window.traCuu ? window.traCuu(cau, 3) : null;
+    if (!r || r.muc === 'ma-khong-co') {
+      noiRaMan(r ? ('Tôi không tìm thấy phòng ' + r.ma + ' trong bệnh viện. Ở đây chỉ có mã phòng ' +
+        'từ đê một đến đê hai mươi tư.') : KHONG_CO_TRONG_KHO);
+      return;
+    }
+    if (r.muc === 'khong-thay' || !r.ds.length) {
+      ghi('lenh', 'tra cứu: khong-thay → robot nói thẳng là không biết');
+      noiRaMan(KHONG_CO_TRONG_KHO); return;
+    }
+    ghi('lenh', 'tra cứu: ' + r.muc + ' (d0=' + r.d0 + ', phủ=' + (r.phu || 0).toFixed(2) + ')');
+    var d = r.ds[0];
+    if (r.muc === 'chua-chac' && r.ds.length > 1) {
+      noiRaMan('Quý vị cho tôi hỏi rõ hơn được không ạ? Có mấy nơi hợp với câu của quý vị: ' +
+               r.ds.map(function (x) { return x.ten; }).join(', ') + '.');
+      return;
+    }
+    if (window.moChiTiet) window.moChiTiet(d.id);
+    // Câu dẫn giả lập + câu vị trí lấy NGUYÊN VĂN từ dữ liệu, đúng như TraLoi.kt ghép
+    noiRaMan('Dạ tôi hiểu rồi ạ. ' + (d.vi_tri.length === 1 ? d.vi_tri[0].doc : d.doc));
+  }
+
+  /* ── Bộ hàm CAU, đúng chữ ký như Cau.kt ───────────────────────────── */
+  window.CAU = {
+    doc: doc,
+    dungDoc: dungDoc,
+
+    danDuongToiDiem: danDuongToiDiem,
+    dungDanDuong: function () { dungDanDuong(false); },
+    veCho: veCho,
+    datDiemVeCho: function (t) {
+      GL.diemVeCho = (t || '').trim() || '(chưa đặt)';
+      ghi('lenh', 'CAU.datDiemVeCho("' + GL.diemVeCho + '")');
+    },
+    lyDoChuaDanDuongDuoc: function () { return GL.lyDoChan; },
+    robotSanSang: function () { return !GL.lyDoChan; },
+    kiemTraBanDo: function () {
+      var j = JSON.stringify({ daDinhVi: true, danhSachDiem: DIEM_GIA });
+      ghi('lenh', 'CAU.kiemTraBanDo() → ' + DIEM_GIA.length + ' điểm (giả lập)');
+      if (window.baoTinhTrangBanDo) window.baoTinhTrangBanDo(j);
+    },
+
+    batMic: function () { GL.micMo = true; ghi('lenh', 'CAU.batMic()'); veBang(); },
+    tatMic: function () { GL.micMo = false; ghi('lenh', 'CAU.tatMic()'); veBang(); },
+    micDangMo: function () { return GL.micMo; },
+    hoiRobot: function (c) {
+      ghi('lenh', 'CAU.hoiRobot("' + c + '") → TraLoi.hoi()');
+      setTimeout(function () { traLoi(c); }, 900);   // mô phỏng độ trễ gọi mô hình
+    },
+    xoaNguCanh: function () { ghi('lenh', 'CAU.xoaNguCanh()'); },
+    moTaManHinh: function (m) { ghi('man', '🖥 ' + m); },
+    thongTinAI: function () {
+      return JSON.stringify({
+        appId: 'app_GIA_LAP', coAgent: true,
+        agentSanSang: GL.aiSanSang, micDangMo: GL.micMo
+      });
+    },
+    thuLLM: function (c, k) {
+      ghi('lenh', 'CAU.thuLLM("' + c + '", ' + k + ')');
+      setTimeout(function () {
+        if (window.nhanLoiNoi) {
+          window.nhanLoiNoi('robot', GL.aiSanSang
+            ? '[chẩn đoán] Mô hình trả lời được (status=1).'
+            : '[chẩn đoán] Mô hình KHÔNG trả lời (status=0).', true);
+        }
+      }, 900);
+    }
+  };
+
+  /* ═══════════ Bảng điều khiển ═══════════
+     Dùng px chứ không dùng rem: app tự đặt lại font-size của <html> theo kích
+     thước cửa sổ, bảng này mà dùng rem thì co giãn theo và méo. */
+  var CSS = [
+    '#gl-bang{position:fixed;left:12px;bottom:12px;z-index:9999;width:330px;',
+    '  font:13px/1.45 "Segoe UI",system-ui,sans-serif;color:#E8F0EF;',
+    '  background:rgba(8,26,28,.95);border:1px solid rgba(255,255,255,.22);',
+    '  border-radius:12px;box-shadow:0 8px 30px rgba(0,0,0,.45);overflow:hidden}',
+    '#gl-bang.gon{width:auto}',
+    '#gl-bang.gon .gl-than{display:none}',
+    '#gl-dau{display:flex;align-items:center;gap:8px;padding:9px 12px;cursor:pointer;',
+    '  background:linear-gradient(100deg,#0E5A63,#12857A);font-weight:700}',
+    '#gl-dau b{flex:1}',
+    '.gl-than{padding:10px 12px;max-height:70vh;overflow-y:auto}',
+    '.gl-hang{display:flex;align-items:center;gap:8px;margin-bottom:7px}',
+    '.gl-hang label{flex:1;opacity:.85}',
+    '.gl-than button{background:rgba(255,255,255,.14);color:#fff;border:1px solid rgba(255,255,255,.28);',
+    '  border-radius:7px;padding:5px 9px;font:inherit;cursor:pointer}',
+    '.gl-than button:hover{background:rgba(255,255,255,.28)}',
+    '.gl-than button.tat{opacity:.45}',
+    '.gl-o{background:rgba(255,255,255,.08);border-radius:7px;padding:6px 9px;margin-bottom:7px}',
+    '.gl-o span{opacity:.7}',
+    '.gl-vach{height:1px;background:rgba(255,255,255,.16);margin:9px 0}',
+    '#gl-log{font:11px/1.4 Consolas,monospace;max-height:170px;overflow-y:auto;',
+    '  background:rgba(0,0,0,.35);border-radius:7px;padding:6px 8px}',
+    '.gl-d{padding:1px 0;border-bottom:1px solid rgba(255,255,255,.06);white-space:pre-wrap}',
+    '.gl-noi{color:#7FE3D6}.gl-lenh{color:#FFD79A}.gl-ok{color:#9CE39C}',
+    '.gl-man{color:#B9B0E6}.gl-loi{color:#FF9A9A}',
+    '.gl-nhac{font-size:11px;opacity:.6;margin-top:8px;line-height:1.4}'
+  ].join('');
+
+  var HTML = [
+    '<div id="gl-dau"><span>🔧</span><b>Bảng thử — giả lập robot</b><span id="gl-mui">▸</span></div>',
+    '<div class="gl-than">',
+    '  <div class="gl-o">Robot đang nói: <span id="gl-noi">—</span></div>',
+    '  <div class="gl-o">Đang dẫn tới: <span id="gl-dich">—</span></div>',
+    '  <div class="gl-hang"><label>Quãng đường dài</label>',
+    '    <button data-giay="3">3 s</button><button data-giay="6" class="chon">6 s</button>',
+    '    <button data-giay="20">20 s</button></div>',
+    '  <div class="gl-hang"><label>Đang đi thì…</label>',
+    '    <button id="gl-toi">Tới nơi ngay</button>',
+    '    <button id="gl-loi">Báo lỗi</button></div>',
+    '  <div class="gl-vach"></div>',
+    '  <div class="gl-hang"><label>AI đám mây trả lời được<br><span style="opacity:.6">bật thì nút mic mới hiện</span></label>',
+    '    <button id="gl-ai">TẮT</button></div>',
+    '  <div class="gl-hang"><label>Robot sẵn sàng đi</label>',
+    '    <button id="gl-san">CÓ</button></div>',
+    '  <div class="gl-hang"><label>Đồng hồ 5 phút vắng người</label>',
+    '    <button id="gl-dh">BẬT</button></div>',
+    '  <div class="gl-hang"><label>Điểm robot về đứng</label>',
+    '    <span id="gl-vecho" style="opacity:.8">—</span></div>',
+    '  <div class="gl-vach"></div>',
+    '  <div id="gl-log"></div>',
+    '  <div class="gl-nhac">Đây là bản THỬ trên máy tính. Robot ở đây là giả lập —',
+    '  nó dựng lại giao diện và trình tự, không kiểm được bản đồ thật hay lối đi thật.</div>',
+    '</div>'
+  ].join('');
+
+  function veBang() {
+    var b = document.getElementById('gl-ai');
+    if (!b) return;
+    b.textContent = GL.aiSanSang ? 'BẬT' : 'TẮT';
+    b.className = GL.aiSanSang ? '' : 'tat';
+    document.getElementById('gl-san').textContent = GL.lyDoChan ? 'KHÔNG' : 'CÓ';
+    document.getElementById('gl-san').className = GL.lyDoChan ? 'tat' : '';
+    document.getElementById('gl-dh').textContent = GL.tatDongHo ? 'TẮT' : 'BẬT';
+    document.getElementById('gl-dh').className = GL.tatDongHo ? 'tat' : '';
+    document.getElementById('gl-vecho').textContent = GL.diemVeCho;
+  }
+
+  function dungBang() {
+    var s = document.createElement('style'); s.textContent = CSS;
+    document.head.appendChild(s);
+    var d = document.createElement('div'); d.id = 'gl-bang'; d.innerHTML = HTML;
+    /* Mở lên là THU GỌN sẵn. Bảng này nằm đè lên góc dưới-trái, mà đó đúng là chỗ
+       màn chỉ đường đặt mũi tên và câu "Mời quý vị đi thẳng" — để bung sẵn thì
+       người duyệt giao diện nhìn không ra app trông thế nào. */
+    d.className = 'gon';
+    document.body.appendChild(d);
+
+    document.getElementById('gl-dau').onclick = function () {
+      d.classList.toggle('gon');
+      document.getElementById('gl-mui').textContent = d.classList.contains('gon') ? '▸' : '▾';
+    };
+    Array.prototype.forEach.call(d.querySelectorAll('[data-giay]'), function (b) {
+      b.onclick = function () {
+        GL.giay = +b.dataset.giay;
+        Array.prototype.forEach.call(d.querySelectorAll('[data-giay]'),
+          function (x) { x.className = x === b ? 'chon' : ''; });
+        ghi('lenh', 'Quãng đường mô phỏng = ' + GL.giay + ' giây');
+      };
+    });
+    document.getElementById('gl-toi').onclick = function () {
+      if (!GL.dangDi) { ghi('loi', 'Robot có đang đi đâu mà tới nơi'); return; }
+      var ten = GL.dangDi.ten; huyHen();
+      ghi('ok', '📍 Robot tới ' + ten + ' (bấm tay)');
+      window.baoDanDuong('toi-noi', '');
+    };
+    document.getElementById('gl-loi').onclick = function () {
+      if (!GL.dangDi) { ghi('loi', 'Robot không đi thì lấy gì mà lỗi'); return; }
+      huyHen();
+      var loi = 'Tôi không tìm được đường tới đó. Mời quý vị hỏi quầy lễ tân giúp tôi.';
+      ghi('loi', '✗ ' + loi);
+      window.baoDanDuong('loi', loi);
+      doc(loi);
+    };
+    document.getElementById('gl-ai').onclick = function () {
+      GL.aiSanSang = !GL.aiSanSang;
+      ghi('lenh', 'AI sẵn sàng = ' + GL.aiSanSang);
+      veBang();
+      if (window.baoAISanSang) window.baoAISanSang(GL.aiSanSang);
+    };
+    document.getElementById('gl-san').onclick = function () {
+      GL.lyDoChan = GL.lyDoChan ? ''
+        : 'Robot chưa định vị được trên bản đồ. Mời quý vị hỏi quầy lễ tân giúp tôi.';
+      ghi('lenh', 'Robot sẵn sàng = ' + !GL.lyDoChan);
+      veBang();
+    };
+    document.getElementById('gl-dh').onclick = function () {
+      GL.tatDongHo = !GL.tatDongHo;
+      ghi('lenh', 'Đồng hồ 5 phút = ' + (GL.tatDongHo ? 'TẮT' : 'BẬT'));
+      veBang();
+    };
+    veBang();
+    ghi('ok', 'Giả lập robot đã bật. Mở một khoa rồi bấm nút dẫn đường.');
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', dungBang);
+  } else {
+    dungBang();
+  }
+
+  /* Tắt đồng hồ 5 phút khi người thử yêu cầu: chặn ngay ở setTimeout thay vì
+     sửa mã app — bản thử phải chạy đúng mã của bản thật, không được rẽ nhánh. */
+  var setTimeoutGoc = window.setTimeout;
+  window.setTimeout = function (f, ms) {
+    if (GL.tatDongHo && ms === 5 * 60 * 1000) return -1;
+    return setTimeoutGoc.apply(window, arguments);
+  };
+})();
+
+</script>
+<script>
+'use strict';
+const $ = s => document.querySelector(s);
+const D = window.DU_LIEU;
+const DS = D.dich;
+
+/* ═══════════════════════════════════════════════════════════════════════
+   Chuẩn hoá tiếng Việt
+   Hai bản: bỏ dấu (người dân gõ nhanh không bỏ dấu vẫn ra) và giữ nguyên chữ.
+   ═══════════════════════════════════════════════════════════════════════ */
+function khongDau(s){
+  return (s||'').toLowerCase()
+    .replace(/đ/g,'d')
+    .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+    .replace(/[^a-z0-9]+/g,' ').trim();
+}
+function tachTu(s){ return khongDau(s).split(' ').filter(w=>w.length>1); }
+
+/* Từ người dân nói ↔ từ trong tên khoa. Bảng này là thứ quyết định app có hiểu
+   tiếng người bệnh hay không — bổ sung dần theo những câu nghe được ở sảnh. */
+const DONG_NGHIA = {
+  'de':['san','phu','thai'], 'sinh':['san','phu'], 'chua':['thai','san'], 'bau':['thai','san'],
+  'con':['nhi','tre'], 'chau':['nhi','tre'], 'be':['nhi','tre','so','sinh'],
+  'bung':['tieu','hoa','da','day'], 'dạ':['da','day'], 'ruot':['tieu','hoa','ngoai'],
+  'ho':['phoi','ho','hap'], 'tho':['phoi','ho','hap'], 'nguc':['phoi','ho','hap'],
+  'tieu':['than','tiet','nieu'], 'soi':['than','tiet','nieu','ngoai'],
+  'mat':['mat','nhan'], 'tai':['tai','mui','hong'], 'hong':['tai','mui','hong'],
+  'mui':['tai','mui','hong'], 'rang':['rang','ham','mat'], 'loi':['rang','ham'],
+  'lung':['xuong','khop','than','kinh'], 'khop':['xuong','khop'], 'te':['than','kinh'],
+  'nao':['than','kinh','ngoai'], 'dau':['than','kinh'],
+  'mo':['ngoai'], 'phau':['ngoai'], 'thuat':['ngoai'],
+  'cham':['cuu','co','truyen'],
+  /* ⚠ KHÔNG thêm 'dong' → đông y ở đây. Bỏ dấu thì "đóng" (đóng viện phí) và
+     "đông" (đông y) thành cùng một chữ, người đi nộp tiền bị đẩy sang khoa châm cứu.
+     Khoa Y học cổ truyền đã có sẵn chữ "dong y" trong từ khoá nên không mất gì. */
+  'xiu':['cap','cuu','hoi','suc'], 'choang':['cap','cuu'],
+  'thuoc':['nha','thuoc'], 'tien':['vien','phi'], 'tra':['vien','phi'],
+  'an':['can','tin'], 'com':['can','tin'], 'wc':['ve','sinh'], 'toilet':['ve','sinh'],
+  'so':['tiep','don'], 'bhyt':['tiep','don','bao','hiem'], 'phieu':['tiep','don'],
+};
+
+/* ═══════════ Tìm kiếm ═══════════
+   Chỉ có 21 đích nên không cần bộ chấm điểm nặng như app thủ tục. Ba tầng:
+   ① mã phòng Dxx → trả đúng một khoa · ② trùng cụm nguyên · ③ chấm điểm theo từ. */
+const RE_MA = /\bd\s*(\d{1,2})\b/;
+
+function timTheoMa(q){
+  const m = RE_MA.exec(khongDau(q));
+  if(!m) return null;
+  const ma = 'D' + parseInt(m[1], 10);
+  for(const d of DS){ if(d.ma.indexOf(ma) >= 0) return {dich:d, ma:ma}; }
+  return {dich:null, ma:ma};                 // gõ D25, D30 — mã không có thật
+}
+
+/* Từ đệm — người ta gõ cả câu "tôi muốn đi đến khoa mắt". Không bỏ chúng ra thì
+   "đi" trong "đi đẻ" ăn khớp với "đi vệ sinh", và robot chỉ sản phụ vào nhà vệ sinh. */
+/* ⚠ KHÔNG bỏ chữ "nao": bỏ dấu thì "nào" (thế nào) và "não" (u não, chấn thương
+   sọ não) là một. Bỏ nó đi thì gõ "u não" không ra khoa nào cả. */
+const BO_QUA = new Set(('toi di o cho la co va can muon xin giup duoc khong the quy vi ' +
+  'anh chi em minh cai tim hoi den ra vao len xuong nay do gi ma se bi thi cua nguoi ' +
+  'lam sao bao gio dang khoa').split(' '));
+
+/* Chỉ mục từ, dựng một lần lúc mở app. Khớp TRỌN TỪ chứ không khớp chuỗi con:
+   khớp chuỗi con làm "de" ăn vào "dieu duong", "dau" ăn vào mọi khoa có chữ đau. */
+DS.forEach(d => { d._bo = new Set(d.tim.split(' ').filter(Boolean)); });
+
+function timDichCoDiem(q, soLuong){
+  const kd = khongDau(q);
+  if(kd.length < 2) return [];
+  const tu = [...new Set(tachTu(q))].filter(w => !BO_QUA.has(w));
+  if(!tu.length) return [];
+  const kq = [];
+  for(const d of DS){
+    let diem = 0, trung = 0;
+    if(kd.length > 3 && d.tim.indexOf(kd) >= 0) diem += 60;   /* trùng nguyên cụm */
+    for(const w of tu){
+      let co = false;
+      if(d._bo.has(w)) { diem += 14; co = true; }
+      else if(w.length >= 4 && d.tim.indexOf(w) >= 0) { diem += 5; co = true; }   /* gõ thiếu đuôi */
+      const dn = DONG_NGHIA[w];
+      if(dn){ let p = 0; for(const s of dn) if(d._bo.has(s)) p += 5;
+              if(p){ diem += Math.min(p, 14); co = true; } }
+      if(co) trung++;
+    }
+    /* phu = phần trăm số từ có nghĩa trong câu hỏi mà bản ghi này khớp được.
+       Đây là thứ phân biệt câu hỏi thật với câu vô tình đụng chữ — xem chamTinCay. */
+    if(diem > 0) kq.push({ d:d, diem:diem, phu:trung / tu.length });
+  }
+  if(!kq.length) return [];
+  kq.sort((a,b)=> b.diem - a.diem || a.d.ten.length - b.d.ten.length);
+  /* Ngưỡng 0,6 lần điểm cao nhất: thà trả một kết quả đúng còn hơn bảy kết quả
+     để người bệnh tự đoán. Không ra gì thì màn hình đã có câu mời hỏi quầy lễ tân. */
+  const nguong = Math.max(12, kq[0].diem * 0.6);
+  return kq.filter(x=>x.diem >= nguong).slice(0, soLuong || 8);
+}
+function timDich(q){ return timDichCoDiem(q, 8).map(x=>x.d); }
+
+/* ═══════════ Chấm độ tin cậy — NGƯỠNG TUYỆT ĐỐI ═══════════
+   ⚠ Đây là bài học đắt nhất của app tra cứu thủ tục Mông Dương, chép sang đây để
+     khỏi dẫm lại. Bản đầu của app đó cắt kết quả bằng ngưỡng TƯƠNG ĐỐI (0,42 lần
+     điểm cao nhất), nên nó KHÔNG BAO GIỜ nói được câu "tôi không biết": hỏi
+     "đăng ký kinh doanh" — không thủ tục nào khớp — nó vẫn lấy thủ tục điểm cao
+     nhất trong đám điểm thấp lè tè rồi ĐỌC TO cho dân nghe.
+
+   Ở bệnh viện hậu quả nặng hơn: chỉ sai khoa là người bệnh leo nhầm cả toà nhà.
+   Nên phải có một mức điểm SÀN tính bằng con số tuyệt đối, dưới mức đó là
+   "không thấy", bất kể nó có phải điểm cao nhất hay không.
+
+   Điểm SỐ thôi thì chưa đủ, phải kèm ĐỘ PHỦ TỪ. Đo ngày 13/08/2026:
+   "thời tiết hôm nay thế nào" ra **Khoa Ngoại Thần Kinh** với 28 điểm — trên sàn —
+   chỉ vì bỏ dấu thì "nào" và "não" là một chữ, cộng "tiết" đụng "tiết niệu".
+   Xét thêm độ phủ thì lộ ngay: khoa đó chỉ khớp 1 trong 3 từ có nghĩa của câu hỏi,
+   trong khi "đi đẻ" khớp trọn 1/1 từ. Câu hỏi thật phủ cao, câu vô tình đụng chữ phủ thấp.
+
+   Thang điểm để đối chiếu: trùng trọn từ = 14 · trùng nguyên cụm = 60 · đồng nghĩa ≤ 14. */
+const TIN_SAN  = 24;    // điểm sàn tuyệt đối — dưới mức này là không thấy, dù có là điểm cao nhất
+const TIN_PHU_CHAC = 0.6;   // phủ từ mức này trở lên mới được khẳng định
+const TIN_PHU_SAN  = 0.5;   // dưới mức này thì coi như câu hỏi không nói về khoa nào cả
+const TIN_CACH = 1.5;   // điểm đầu phải gấp chừng này lần điểm nhì mới coi là rõ ràng
+
+function chamTinCay(kq){
+  if(!kq || !kq.length) return { muc:'khong-thay', d0:0, d1:0, phu:0 };
+  const d0 = kq[0].diem, d1 = kq.length > 1 ? kq[1].diem : 0, phu = kq[0].phu;
+  if(d0 < TIN_SAN || phu < TIN_PHU_SAN) return { muc:'khong-thay', d0, d1, phu };
+  /* Hai ứng viên cùng một khoa (Phụ Sản ở ba toà) thì không tính là mập mờ */
+  const roRang = d1 === 0 || d0 >= d1 * TIN_CACH || kq[0].d.id === kq[1].d.id;
+  return { muc:(phu >= TIN_PHU_CHAC && roRang) ? 'chac' : 'chua-chac', d0, d1, phu };
+}
+
+/** Một lượt tra cứu đầy đủ — dùng chung cho giao diện, cho robot và cho bộ thử. */
+function traCuu(q, soLuong){
+  const ma = timTheoMa(q);
+  /* Người ta đọc mã phòng trên phiếu khám thì không còn gì để đoán nữa */
+  if(ma && ma.dich)  return { muc:'chac', ds:[ma.dich], ma:ma.ma, d0:99, d1:0, phu:1 };
+  if(ma && !ma.dich) return { muc:'ma-khong-co', ds:[], ma:ma.ma, d0:0, d1:0, phu:0 };
+  const kq = timDichCoDiem(q, soLuong || 3);
+  const tc = chamTinCay(kq);
+  return { muc:tc.muc, ds:(tc.muc === 'khong-thay' ? [] : kq.map(x=>x.d)),
+           ma:'', d0:tc.d0, d1:tc.d1, phu:tc.phu };
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   Máy phát biểu cảm — hai thẻ <video> luân phiên
+   Ba lớp chống đứng hình: sự kiện 'ended', sự kiện 'error', và một vòng canh gác
+   2 giây soi xem đồng hồ video có nhích không. WebView robot thỉnh thoảng nuốt
+   mất sự kiện 'ended' và để nguyên khung hình cuối — đứng chết mà không báo lỗi.
+   ═══════════════════════════════════════════════════════════════════════ */
+const BIEU_CAM_CHO = ['emoji_blink'];   /* Anh Trường chốt: màn chờ lặp một clip chớp mắt.
+                                           Muốn xoay vòng đủ 10 clip thì thêm tên vào đây. */
+const BIEU_CAM_DAN = ['emoji_happy','emoji_wink_1','emoji_laugh','emoji_wink_2'];
+
+function mayBieuCam(idA, idB, ds){
+  const vA = $('#'+idA), vB = $('#'+idB);
+  let dang = vA, cho = vB, hang = [], chay = false, canhGac = null, mocGio = -1, lanIm = 0, lanDau = true;
+
+  function xao(a){ a = a.slice(); for(let i=a.length-1;i>0;i--){ const j=(Math.random()*(i+1))|0; [a[i],a[j]]=[a[j],a[i]]; } return a; }
+  function ke(){ if(!hang.length) hang = ds.length > 1 ? xao(ds) : ds.slice(); return hang.shift(); }
+  function nap(v){
+    let ten;
+    if(lanDau){ ten = ds[0]; lanDau = false; hang = ds.length > 1 ? xao(ds.slice(1)) : []; }
+    else ten = ke();
+    v.src = 'bieu-cam/' + ten + '.mp4'; v.load();
+  }
+  function doi(){
+    if(!chay) return;
+    const cu = dang; dang = cho; cho = cu;
+    dang.classList.add('tren'); cho.classList.remove('tren');
+    try{ dang.currentTime = 0; }catch(e){}
+    const p = dang.play(); if(p && p.catch) p.catch(()=>{});
+    nap(cho); mocGio = -1; lanIm = 0;
+  }
+  [vA, vB].forEach(v=>{
+    v.addEventListener('ended', ()=>{ if(v === dang) doi(); });
+    v.addEventListener('error', ()=>{ if(v === dang) doi(); else nap(v); });
+  });
+  function soi(){
+    if(!chay) return;
+    if(dang.paused){ const p = dang.play(); if(p && p.catch) p.catch(()=>{}); }
+    if(dang.currentTime === mocGio){ if(++lanIm >= 2) doi(); }
+    else { mocGio = dang.currentTime; lanIm = 0; }
+  }
+  return {
+    bat(){
+      if(chay) return;
+      chay = true;
+      if(!dang.src){ nap(dang); nap(cho); }
+      dang.classList.add('tren');
+      const p = dang.play(); if(p && p.catch) p.catch(()=>{});
+      clearInterval(canhGac); canhGac = setInterval(soi, 2000);
+    },
+    dung(){ chay = false; clearInterval(canhGac); try{ vA.pause(); vB.pause(); }catch(e){} }
+  };
+}
+const mayCho  = mayBieuCam('bc-a','bc-b', BIEU_CAM_CHO);
+const mayDan  = mayBieuCam('bc-c','bc-d', BIEU_CAM_DAN);
+const mayChat = mayBieuCam('bc-e','bc-f', BIEU_CAM_DAN);
+
+/* ═══════════ Chuyển màn ═══════════ */
+let manDang = 'mh-cho';
+function ve(id){
+  document.querySelectorAll('.man-hinh').forEach(m=>m.classList.remove('hien'));
+  $('#'+id).classList.add('hien');
+  manDang = id;
+  /* Chỉ cho video chạy ở đúng màn đang hiện. Để nó chạy ngầm dưới màn menu thì
+     máy vẫn giải mã 30 hình/giây suốt ngày — nóng máy, tốn pin. */
+  if(id === 'mh-cho')  mayCho.bat();  else mayCho.dung();
+  if(id === 'mh-dan')  mayDan.bat();  else mayDan.dung();
+  if(id === 'mh-chat') mayChat.bat(); else mayChat.dung();
+  if(id !== 'mh-chat' && micChatMo) dongMicChat();
+  if(id === 'mh-cho') clearTimeout(henCho); else hoatDong();
+}
+
+function thoat(s){
+  return String(s == null ? '' : s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+/* ═══════════ Màn chờ & đồng hồ vắng người ═══════════ */
+const CHO_SAU = 5 * 60 * 1000;
+let henCho = null;
+function thoiCho(){ ve('mh-chinh'); veLuoiNhom(); }
+function veManCho(){
+  dungDoc();
+  huyVeCho();
+  if(dangDanDuong){ try{ CAU.dungDanDuong(); }catch(e){} dangDanDuong = false; }
+  dichDang = null; viTriDang = null;
+  $('#o-nhap').value = '';
+  veLuoiNhom();
+  /* Xoá ngữ cảnh trong bộ não hãng — chuyện của người trước không được dính sang
+     người sau. Bệnh viện thì đây còn là chuyện riêng tư. */
+  try{ if(window.CAU && CAU.xoaNguCanh) CAU.xoaNguCanh(); }catch(e){}
+  $('#chat-ds').innerHTML = '';
+  ve('mh-cho');
+}
+function hoatDong(){ clearTimeout(henCho); henCho = setTimeout(hetGio, CHO_SAU); }
+function hetGio(){
+  if(dangDoc || dangDanDuong){ henCho = setTimeout(hetGio, 30000); return; }
+  veManCho();
+}
+['pointerdown','keydown','wheel'].forEach(sk => document.addEventListener(sk, hoatDong, true));
+
+/* ═══════════ Lưới nhóm & danh sách ═══════════ */
+function veLuoi(){
+  const dem = {};
+  DS.forEach(d => dem[d.nhom] = (dem[d.nhom]||0) + 1);
+  let h = D.nhom.map(n=>`
+    <button class="the-nhom${n.ma==='cap-cuu'?' cc':''}" onclick="moNhom('${n.ma}')">
+      <div class="bieu-tuong">${n.icon}</div>
+      <div class="ten">${thoat(n.ten)}</div>
+      <div class="goi-y">${thoat(n.goi_y)}</div>
+      <div class="dem">${dem[n.ma]||0} nơi</div>
+    </button>`).join('');
+  h += `
+    <button class="the-nhom ma-phong" onclick="moBanPhim()">
+      <div class="bieu-tuong">🔢</div>
+      <div class="ten">Tìm theo mã phòng</div>
+      <div class="goi-y">Trên phiếu khám có ghi mã từ D1 đến D24</div>
+      <div class="dem">24 mã phòng</div>
+    </button>`;
+  $('#luoi-nhom').innerHTML = h;
+}
+function veLuoiNhom(){
+  ve('mh-chinh');
+  $('#thanh-nhom').classList.remove('hien');
+  $('#ds-noi').classList.remove('hien');
+  $('#luoi-nhom').classList.remove('an');
+  $('#bang-moi').style.display = '';
+}
+function moNhom(ma){
+  const n = D.nhom.find(x=>x.ma === ma);
+  const ds = DS.filter(d=>d.nhom === ma);
+  /* Nhóm cấp cứu chỉ có đúng một khoa — vào thẳng màn đỏ, không bắt bấm thêm nhịp nữa */
+  if(ma === 'cap-cuu' && ds.length === 1){ moChiTiet(ds[0].id); return; }
+  moDs(n.icon + ' ' + n.ten, ds);
+}
+function moDs(tieuDe, ds){
+  ve('mh-chinh');
+  $('#thanh-nhom').classList.add('hien');
+  $('#ds-noi').classList.add('hien');
+  $('#luoi-nhom').classList.add('an');
+  $('#bang-moi').style.display = 'none';
+  $('#ds-tieu-de').textContent = tieuDe;
+  $('#ds-dem').textContent = ds.length ? ds.length + ' nơi' : '';
+  $('#ds-noi').innerHTML = ds.length ? ds.map(d=>{
+    const v = d.vi_tri[0];
+    const mau = d.loai === 'cap-cuu' ? 'var(--do-cc)'
+              : (d.loai === 'trong-khu' ? (D.diem[d.diem]||{}).mau : 'var(--xanh)');
+    const nhan = d.loai === 'trong-khu' ? 'KHU LỄ TÂN'
+               : (d.vi_tri.length > 1 ? 'NHIỀU TOÀ' : 'NHÀ ' + v.toa);
+    const gt = d.loai === 'trong-khu' ? '📍'
+             : (d.vi_tri.length > 1 ? d.vi_tri.length + ' toà' : 'T' + v.tang);
+    const ma = d.ma.length ? d.ma.join(' · ') : (d.loai === 'trong-khu' ? 'dẫn thẳng tới nơi' : '—');
+    return `<button class="muc" onclick="moChiTiet(${d.id})">
+      <div class="the-vt" style="background:${mau}"><small>${nhan}</small><b>${gt}</b><i>${thoat(ma)}</i></div>
+      <div class="noi"><div class="t">${thoat(d.ten)}</div><div class="l">${thoat(d.ghi_chu)}</div></div>
+      <div class="mui-ten">›</div></button>`;
+  }).join('') : `<div class="rong"><b>Chưa tìm thấy</b>
+      Quý vị thử gõ tên khoa, mã phòng trên phiếu khám, hoặc chỗ đang đau.<br>
+      Không thấy nữa thì mời quý vị hỏi quầy lễ tân giúp tôi.</div>`;
+}
+let hen;
+function datTim(q){ $('#o-nhap').value = q; goTim(q); }
+function goTim(q){
+  clearTimeout(hen);
+  hen = setTimeout(()=>{
+    const t = (q||'').trim();
+    if(t.length < 2){ veLuoiNhom(); return; }
+    const theoMa = timTheoMa(t);
+    if(theoMa){
+      if(theoMa.dich){ moChiTiet(theoMa.dich.id, null, theoMa.ma); return; }
+      moDs('🔍 Mã ' + theoMa.ma, []);
+      baoLoi('Không có phòng ' + theoMa.ma + ' trong hệ thống. Bệnh viện chỉ có mã từ D1 đến D24.');
+      return;
+    }
+    moDs('🔍 Kết quả cho “' + t + '”', timDich(t));
+  }, 250);
+}
+
+/* ═══════════ Sơ đồ khu lễ tân + 3 toà ═══════════ */
+function veSoDo(nhanManh){
+  const o = [{k:'LT', ten:'Khu lễ tân', ph:'robot ở đây'}]
+    .concat(D.toa.map(t=>({k:t.ma, ten:t.ten, ph:t.so_tang + ' tầng'})));
+  return '<div class="so-do">' + o.map(x=>{
+    const cl = (x.k === 'LT' ? ' le-tan' : '') + (x.k === nhanManh ? ' dang' : '');
+    return `<div class="sd-o${cl}"><b>${thoat(x.ten)}</b><small>${thoat(x.ph)}</small></div>`;
+  }).join('') + '</div>';
+}
+
+/* ═══════════ Màn chi tiết ═══════════ */
+let dichDang = null, viTriDang = null, maNhanManh = null;
+
+function moChiTiet(id, iVt, ma){
+  const d = DS.find(x=>x.id === id); if(!d) return;
+  dichDang = d; maNhanManh = ma || null;
+
+  /* Khoa nằm ở nhiều toà mà chưa biết toà nào → hỏi lại trước, đừng đoán.
+     Trừ khi người ta gõ hẳn mã phòng — mã phòng đã chỉ đích danh một toà rồi. */
+  if(d.vi_tri.length > 1 && iVt == null && !ma){ hoiToa(d); return; }
+  if(d.vi_tri.length > 1 && ma && iVt == null){
+    iVt = d.vi_tri.findIndex(v => v.ma.indexOf(ma) >= 0);
+    if(iVt < 0) iVt = null;
+    if(iVt == null){ hoiToa(d); return; }
+  }
+  viTriDang = d.vi_tri.length ? d.vi_tri[iVt || 0] : null;
+
+  if(d.loai === 'cap-cuu'){ moCapCuu(d); return; }
+
+  const trongKhu = d.loai === 'trong-khu';
+  const diem = trongKhu ? D.diem[d.diem] : D.diem['truoc-hanh-lang'];
+  const mau = trongKhu ? diem.mau : 'var(--xanh)';
+
+  $('#ct-dau-ten').textContent = d.ten;
+  $('#ct-dau-phu').textContent = d.ghi_chu || '';
+
+  /* ── Cột trái: vị trí + nút dẫn ── */
+  let trai = '';
+  if(trongKhu){
+    trai += `<div class="bang-vt" style="background:${mau}">
+      <div class="nhan">NGAY TRONG</div>
+      <div class="toa" style="font-size:3rem">KHU LỄ TÂN</div>
+      <div class="tang">Tôi dẫn quý vị tới tận nơi</div>
+      <div class="bo-phan">${thoat(d.ten)}</div></div>`;
+  }else{
+    const v = viTriDang;
+    trai += `<div class="bang-vt" style="background:${mau}">
+      <div class="nhan">MỜI QUÝ VỊ TỚI</div>
+      <div class="toa">${thoat(v.toa_ten.replace('Nhà ',''))}</div>
+      <div class="tang">Tầng ${v.tang}</div>
+      ${v.ma.length ? '<div class="ma-ds">' + v.ma.map(m=>
+        `<span${m===maNhanManh?' style="background:#fff;color:var(--xanh)"':''}>${m}</span>`).join('') + '</div>' : ''}
+      <div class="bo-phan">${thoat(d.ten)}</div></div>`;
+  }
+  trai += veSoDo(trongKhu ? 'LT' : viTriDang.toa);
+
+  const ly = lyDoChuaDanDuoc();
+  const nhanNut = trongKhu
+    ? '🚶 Robot dẫn tôi tới ' + d.ten.replace(/^Quầy |^Phòng /,'').toLowerCase()
+    : '🚶 Robot dẫn tôi ra ' + D.diem['truoc-hanh-lang'].ten.toLowerCase();
+  if(coDanDuong()){
+    trai += `<button class="nut-to${ly?' tat':''}" id="nut-dan" onclick="danDuong()">${thoat(nhanNut)}</button>`;
+    if(ly) trai += `<div class="ly-do">${thoat(ly)}</div>`;
+  }
+  trai += `<button class="nut-to phu" onclick="docLai()">🔊 Nghe robot đọc lại</button>`;
+  $('#ct-trai').innerHTML = trai;
+
+  /* ── Cột phải: khoa + việc cần làm ── */
+  let phai = `<div><div class="ct-ten">${thoat(d.ten)}</div>
+    <div class="ct-mo">${thoat(d.ghi_chu)}</div></div>`;
+  if(trongKhu){
+    phai += `<div class="the-trang"><h4>Quý vị làm gì ở đây</h4>
+      <ul><li>${thoat(d.ghi_chu)}</li>
+      <li>Bấm nút bên trái, tôi dẫn quý vị đi. Quý vị đi theo tôi là được.</li></ul></div>`;
+  }else{
+    const v = viTriDang;
+    const t = (D.toa.find(x=>x.ma === v.toa) || {});
+    phai += `<div class="the-trang"><h4>Ba bước tới nơi</h4><ol>
+      <li>Bấm nút bên trái — tôi dẫn quý vị <b>ra đầu hành lang</b>.
+          Tôi chỉ đi được tới đó, không vào trong toà nhà được.</li>
+      <li>Quý vị đi thẳng tới <b>toà nhà ${thoat(t.thu_tu_chu || '')}</b>
+          — đó là <b>${thoat(v.toa_ten)}</b> — rồi lên <b>tầng ${v.tang}</b>
+          bằng thang máy hoặc cầu thang bộ.</li>
+      <li>${v.ma.length ? 'Tìm <b>phòng ' + v.ma.join(' hoặc ') + '</b>' : 'Tìm <b>' + thoat(d.ten) + '</b>'}
+          — đó là ${thoat(d.ten)}.</li></ol></div>`;
+    if(d.vi_tri.length > 1){
+      phai += `<div class="the-trang"><h4>Khoa này còn ở toà khác</h4>
+        <ul>${d.vi_tri.map(x=>`<li><b>${thoat(x.toa_ten)}</b> · tầng ${x.tang}${
+          x.ma.length ? ' · phòng ' + x.ma.join(', ') : ''}</li>`).join('')}</ul>
+        <p style="margin-top:.5rem;color:var(--chu-nhat);font-size:1.05rem">
+        Không chắc mình theo dõi ở toà nào thì quý vị xem lại phiếu khám, hoặc hỏi quầy lễ tân.</p>
+        <button class="nut-to phu" style="margin-top:.7rem" onclick="hoiToa(dichDang)">Chọn toà khác</button></div>`;
+    }
+  }
+  $('#ct-phai').innerHTML = phai;
+
+  ve('mh-ct');
+  doc(viTriDang ? viTriDang.doc : d.doc);
+  keManHinhChoAI();
+}
+
+/* Màn hỏi lại toà nhà */
+function hoiToa(d){
+  dichDang = d;
+  $('#toa-hoi').textContent = d.ten + ' có ở ' + d.vi_tri.length + ' toà nhà. Quý vị đang theo dõi ở toà nào?';
+  $('#toa-luoi').innerHTML = d.vi_tri.map((v,i)=>`
+    <button class="toa-nut" onclick="moChiTiet(${d.id}, ${i})">
+      <div class="tn-toa">${thoat(v.toa_ten.replace('Nhà ',''))}</div>
+      <div class="tn-tang">Tầng ${v.tang}</div>
+      <div class="tn-ma">${v.ma.length ? 'Phòng ' + v.ma.join(' · ') : ''}</div>
+    </button>`).join('');
+  ve('mh-toa');
+  doc(d.doc);
+}
+
+/* Màn cấp cứu — KHÔNG có nút dẫn đường, cố ý. */
+function moCapCuu(d){
+  const v = d.vi_tri[0];
+  $('#cc-ten').textContent = d.ten;
+  $('#cc-toa').textContent = v.toa_ten.replace('Nhà ','');
+  $('#cc-tang').textContent = v.tang;
+  $('#cc-ma').textContent = v.ma.join(' · ');
+  ve('mh-cc');
+  /* Đọc hai lần: lần đầu người đang hoảng thường không nghe kịp câu nào cả. */
+  doc(v.doc, ()=> doc(v.doc));
+}
+
+/* Khám lần đầu — dẫn tới quầy tiếp đón, đọc 4 bước. Robot KHÔNG đoán bệnh. */
+function moKhamLanDau(){
+  const qt = D.quy_trinh_kham;
+  const d = DS.find(x=>x.diem === qt.diem && x.loai === 'trong-khu');
+  if(!d){ baoLoi('Chưa cấu hình quầy tiếp đón.'); return; }
+  moChiTiet(d.id);
+  /* Thay cột phải bằng quy trình 4 bước — nội dung riêng cho người khám lần đầu */
+  $('#ct-phai').innerHTML =
+    `<div><div class="ct-ten">${thoat(qt.tieu_de)}</div>
+       <div class="ct-mo">Quý vị làm theo bốn bước dưới đây</div></div>
+     <div class="the-trang"><h4>Bốn bước đi khám</h4><ol>` +
+    qt.buoc.map(b=>`<li><b>${thoat(b[0])}.</b> ${thoat(b[1])}</li>`).join('') +
+    `</ol></div>
+     <div class="the-trang"><h4>Lưu ý</h4><ul>
+       <li>Mang theo <b>căn cước</b> và <b>thẻ bảo hiểm y tế</b> nếu có.</li>
+       <li>Tôi không khám bệnh và không đoán bệnh. Bác sĩ ở phòng khám mới quyết định.</li>
+     </ul></div>`;
+  dungDoc();
+  doc(qt.doc);
+}
+
+function luiTuChiTiet(){
+  if(dichDang && dichDang.vi_tri.length > 1){ hoiToa(dichDang); return; }
+  veTrangChu();
+}
+function veTrangChu(){ dungDoc(); huyVeCho(); dichDang = null; viTriDang = null; veLuoiNhom(); }
+
+/* ═══════════ Bàn phím mã phòng ═══════════ */
+let maGo = '';
+function moBanPhim(){
+  maGo = '';
+  const nut = ['1','2','3','4','5','6','7','8','9','⌫','0','✔'];
+  $('#bp-luoi').innerHTML = nut.map(n=>`<button onclick="goMa('${n}')">${n}</button>`).join('');
+  hienMaGo();
+  $('#phu-ma').classList.add('hien');
+}
+function dongBanPhim(){ $('#phu-ma').classList.remove('hien'); }
+function goMa(n){
+  if(n === '⌫'){ maGo = maGo.slice(0,-1); }
+  else if(n === '✔'){ chotMa(); return; }
+  else if(maGo.length < 2){ maGo += n; }
+  hienMaGo();
+  /* Gõ tới hai chữ số, hoặc chữ số đầu là 3-9 (không thể là mã hai chữ số) thì chốt luôn */
+  if(maGo.length === 2 || (maGo.length === 1 && +maGo >= 3)) setTimeout(chotMa, 220);
+}
+function hienMaGo(){
+  $('#bp-hien').innerHTML = 'D' + thoat(maGo) +
+    '<small>' + (maGo ? 'Bấm ✔ để tìm' : 'Bấm số, ví dụ D3') + '</small>';
+}
+function chotMa(){
+  if(!maGo) return;
+  const ma = 'D' + parseInt(maGo, 10);
+  const d = DS.find(x=>x.ma.indexOf(ma) >= 0);
+  dongBanPhim();
+  if(d) moChiTiet(d.id, null, ma);
+  else{
+    moDs('🔢 Mã ' + ma, []);
+    baoLoi('Không có phòng ' + ma + '. Bệnh viện chỉ có mã từ D1 đến D24 — quý vị xem lại phiếu khám giúp tôi.');
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   Cầu nối xuống robot
+   Trên máy tính không có đối tượng CAU — mọi nút gọi xuống robot đều tự ẩn,
+   demo vẫn bấm được hết mà không văng lỗi.
+   ═══════════════════════════════════════════════════════════════════════ */
+function coCau(){ try{ return typeof CAU !== 'undefined' && CAU; }catch(e){ return false; } }
+function coDanDuong(){ return !!(coCau() && typeof CAU.danDuongToiDiem === 'function'); }
+function lyDoChuaDanDuoc(){
+  if(!coDanDuong()) return '';
+  try{ return CAU.lyDoChuaDanDuongDuoc() || ''; }catch(e){ return ''; }
+}
+function coMicRobot(){
+  /* Không hỏi "có hàm batMic không" — hàm LÚC NÀO CŨNG CÓ, kể cả khi Agent SDK
+     chưa bind được service của hãng, và khi đó bấm mic là chết câm không báo gì.
+     Phải hỏi tầng Android xem nó đã bind thật chưa (cờ agentSanSang). */
+  if(!coCau() || typeof CAU.thongTinAI !== 'function') return false;
+  try{ return !!JSON.parse(CAU.thongTinAI()).agentSanSang; }catch(e){ return false; }
+}
+
+/* ═══════════ Dẫn đường ═══════════ */
+let dangDanDuong = false;
+function danDuong(){
+  if(!coDanDuong() || !dichDang) return;
+  if(dangDanDuong){ dungDanDuongNgay(); return; }
+  const khoa = D.diem[dichDang.loai === 'trong-khu' ? dichDang.diem : 'truoc-hanh-lang'];
+  if(!khoa){ baoLoi('Đích này chưa gắn điểm trên bản đồ.'); return; }
+  $('#dan-diem').textContent = khoa.ten;
+  dungDoc();
+  try{ CAU.danDuongToiDiem(khoa.diem_ban_do); }
+  catch(e){ baoLoi('Không gọi được lệnh dẫn đường.'); }
+}
+function dungDanDuongNgay(){
+  try{ CAU.dungDanDuong(); }catch(e){}
+  dangDanDuong = false;
+  if(dichDang) ve('mh-ct'); else veLuoiNhom();
+}
+
+/* Android gọi lên báo diễn biến. Bốn trạng thái: bat-dau · dang-di · toi-noi · loi/da-dung */
+window.baoDanDuong = function(trangThai, loiNhan){
+  /* Người ta bấm "Biểu cảm" giữa lúc robot đang dẫn: chặn báo muộn kéo màn hình
+     ra khỏi màn chờ ngay sau khi vừa về tới. */
+  if(manDang === 'mh-cho' && trangThai !== 'bat-dau'){ dangDanDuong = false; return; }
+
+  if(trangThai === 'bat-dau'){
+    dangDanDuong = true; $('#dan-tin').textContent = ''; ve('mh-dan'); return;
+  }
+  if(trangThai === 'dang-di'){
+    dangDanDuong = true;
+    $('#dan-tin').textContent = loiNhan || '';
+    if(manDang !== 'mh-dan') ve('mh-dan');
+    return;
+  }
+  dangDanDuong = false;
+  if(trangThai === 'toi-noi'){ toiNoi(); return; }
+  if(dichDang) ve('mh-ct'); else veLuoiNhom();
+  if(loiNhan) baoLoi(loiNhan);
+};
+
+function toiNoi(){
+  if(!dichDang){ veManCho(); return; }
+  if(dichDang.loai === 'trong-khu'){
+    /* Trong khu thì tới nơi là xong — về lại trang chi tiết, đọc lại từ đầu.
+       Suốt quãng đường robot im lặng, giờ mới là lúc người ta nghe được. */
+    ve('mh-ct');
+    doc('Đã tới nơi. Đây là ' + dichDang.ten + '. Chúc quý vị mọi việc thuận lợi.', batDauVeCho);
+    return;
+  }
+  /* Ngoài khu: đây là khoảnh khắc quan trọng nhất của app — người bệnh đứng giữa
+     sân, trước mặt ba toà nhà giống hệt nhau. */
+  const v = viTriDang || dichDang.vi_tri[0];
+  /* Robot dừng ở ĐẦU HÀNH LANG, còn cách các toà nhà một quãng. Đứng chỗ đó nhìn lên
+     thì ba toà trông giống hệt nhau và biển tên xa quá không đọc nổi — nhất là người
+     già hay người đang ôm con. Nên chỉ đường bằng THỨ TỰ toà nhà, ai cũng đếm được. */
+  const t = (D.toa.find(x=>x.ma === v.toa) || {});
+  $('#chi-di').innerHTML = 'Mời quý vị đi thẳng<br>toà nhà <b>' +
+                           thoat((t.thu_tu_chu || '').toUpperCase()) + '</b>';
+  $('#chi-toa').textContent  = v.toa_ten.replace('Nhà ','');
+  $('#chi-tang').textContent = 'Tầng ' + v.tang;
+  $('#chi-khoa').textContent = dichDang.ten;
+  $('#chi-hang-ma').style.display = v.ma.length ? '' : 'none';
+  $('#chi-ma').innerHTML = v.ma.map(m=>`<span>${m}</span>`).join('');
+  ve('mh-chi');
+  doc(v.chi_duong, batDauVeCho);
+}
+
+/* ═══════════ Robot tự về sảnh ═══════════ */
+let henVeCho = null, demVeCho = 0;
+function batDauVeCho(){
+  if(!coDanDuong()) return;                 /* trên máy tính thì bỏ qua */
+  demVeCho = 20;
+  $('#ve-cho').classList.add('hien');
+  $('#vc-dem').textContent = demVeCho;
+  clearInterval(henVeCho);
+  henVeCho = setInterval(()=>{
+    $('#vc-dem').textContent = --demVeCho;
+    if(demVeCho <= 0) veChoNgay();
+  }, 1000);
+}
+function huyVeCho(){ clearInterval(henVeCho); $('#ve-cho').classList.remove('hien'); }
+function hoanVeCho(){ huyVeCho(); }
+function veChoNgay(){
+  huyVeCho(); dungDoc();
+  try{ if(coCau() && CAU.veCho) CAU.veCho(); }catch(e){}
+  veManCho();
+}
+
+/* ═══════════ Đọc thành tiếng ═══════════ */
+let dangDoc = false, cauDangDoc = '', khiDocXong = null;
+function doc(vanBan, xong){
+  if(!vanBan) return;
+  cauDangDoc = vanBan; khiDocXong = xong || null;
+  dungDoc(true);
+  dangDoc = true;
+  if(coCau() && typeof CAU.doc === 'function'){ try{ CAU.doc(vanBan); return; }catch(e){} }
+  /* Máy tính: mượn giọng của trình duyệt để bản demo nghe thử được nhịp đọc.
+     Trên robot không bao giờ chạy tới đây. */
+  try{
+    const u = new SpeechSynthesisUtterance(vanBan);
+    u.lang = 'vi-VN'; u.rate = 0.98;
+    u.onend = window.robotDocXong; u.onerror = window.robotDocXong;
+    speechSynthesis.speak(u);
+  }catch(e){ dangDoc = false; }
+}
+function dungDoc(giuCau){
+  dangDoc = false;
+  if(!giuCau) khiDocXong = null;
+  try{ if(coCau() && CAU.dungDoc) CAU.dungDoc(); }catch(e){}
+  try{ speechSynthesis.cancel(); }catch(e){}
+}
+function docLai(){
+  const v = viTriDang, d = dichDang;
+  doc(cauDangDoc || (v ? v.doc : (d ? d.doc : '')));
+}
+window.robotDocXong = function(){
+  dangDoc = false;
+  const f = khiDocXong; khiDocXong = null;
+  if(f) try{ f(); }catch(e){}
+};
+
+/* ═══════════════════════════════════════════════════════════════════════
+   Trò chuyện
+   Nút mic CHỈ hiện khi tầng Android xác nhận Agent SDK đã bind được thật.
+   Chưa bind mà vẫn hiện nút thì người dùng bấm vào, không có gì xảy ra, và
+   trước mặt lãnh đạo bệnh viện thì đó là một con robot hỏng.
+   ═══════════════════════════════════════════════════════════════════════ */
+let micChatMo = false;
+function moChat(){ ve('mh-chat'); capNhatMic(); }
+function dongChat(){ dongMicChat(); veLuoiNhom(); }
+function xoaHoiThoai(){
+  $('#chat-ds').innerHTML = '';
+  try{ if(coCau() && CAU.xoaNguCanh) CAU.xoaNguCanh(); }catch(e){}
+}
+function themBong(ai, chu){
+  const b = document.createElement('div');
+  b.className = 'bong-chat ' + ai; b.textContent = chu;
+  $('#chat-ds').appendChild(b);
+  $('#chat-ds').scrollTop = $('#chat-ds').scrollHeight;
+  return b;
+}
+/* ⚠ MỘT ĐƯỜNG DUY NHẤT. Gõ chữ và nói miệng đều chảy vào cùng một chỗ dưới tầng
+   Android (TraLoi.hoi), nơi có đủ các lớp chặn: cấp cứu → hỏi bệnh → chưa có dữ liệu
+   → tra kho → hỏi mô hình → kiểm câu trả lời. App tra cứu thủ tục đời trước cho gõ
+   chữ đi một đường và nói miệng đi đường khác, nên mỗi lần thêm một lớp chặn là phải
+   nhớ sửa hai chỗ — kiểu gì cũng có ngày quên một chỗ, mà quên ở bệnh viện thì nguy. */
+function guiChat(){
+  const o = $('#chat-nhap'), t = o.value.trim();
+  if(!t) return;
+  o.value = ''; themBong('nguoi', t);
+  if(coCau() && typeof CAU.hoiRobot === 'function'){
+    $('#chat-trang-thai').textContent = 'Đang hỏi…';
+    try{ CAU.hoiRobot(t); return; }catch(e){}
+  }
+  /* Chỉ chạy trên máy tính, nơi không có robot. Trên robot không bao giờ tới đây. */
+  const tl = traLoiNoiBo(t);
+  themBong('robot', tl.chu); doc(tl.chu);
+  if(tl.id) setTimeout(()=>moChiTiet(tl.id), 1200);
+}
+
+/* Bộ trả lời tại chỗ — đường lui khi không có robot (bản demo trên máy tính).
+   Dùng chung traCuu() với tầng Android nên cách phân biệt "biết / chưa chắc / không
+   biết" giống hệt nhau, không có chuyện máy tính trả lời khác robot. */
+function traLoiNoiBo(q){
+  const r = traCuu(q, 3);
+  if(r.muc === 'ma-khong-co')
+    return {chu:'Tôi không tìm thấy phòng ' + r.ma +
+                '. Bệnh viện chỉ có mã từ D1 đến D24, quý vị xem lại phiếu khám giúp tôi.'};
+  if(r.muc === 'khong-thay' || !r.ds.length)
+    return {chu:'Câu này tôi chưa có trong dữ liệu nên không dám đoán. ' +
+                'Mời quý vị hỏi quầy lễ tân giúp tôi ạ.'};
+  if(r.muc === 'chua-chac' && r.ds.length > 1)
+    return {chu:'Có mấy nơi hợp với câu của quý vị: ' + r.ds.map(x=>x.ten).join(', ') +
+                '. Quý vị nói rõ hơn giúp tôi.'};
+  const d = r.ds[0];
+  return {chu:(d.vi_tri.length === 1 ? d.vi_tri[0].doc : d.doc), id:d.id};
+}
+function capNhatMic(){
+  const co = coMicRobot();
+  $('#mic1').classList.toggle('co', co);
+  $('#mic2').classList.toggle('co', co);
+  $('#nut-chat').classList.add('co');
+}
+function batTatMic(){
+  if(!coMicRobot()) return;
+  micChatMo = !micChatMo;
+  try{ micChatMo ? CAU.batMic() : CAU.tatMic(); }catch(e){ micChatMo = false; }
+  $('#mic1').classList.toggle('dang-nghe', micChatMo);
+  $('#mic2').classList.toggle('dang-nghe', micChatMo);
+  $('#chat-trang-thai').textContent = micChatMo ? 'Tôi đang nghe…' : '';
+}
+function dongMicChat(){ if(micChatMo) batTatMic(); }
+
+/* Android gọi lên: từng mẩu lời nói đã nghe/đã đọc */
+window.nhanLoiNoi = function(ai, chu, xong){
+  if(manDang !== 'mh-chat') return;
+  const ds = $('#chat-ds');
+  let cuoi = ds.lastElementChild;
+  if(!cuoi || !cuoi.classList.contains(ai) || cuoi.dataset.chot === '1') cuoi = themBong(ai, '');
+  cuoi.textContent = chu;
+  if(xong) cuoi.dataset.chot = '1';
+  ds.scrollTop = ds.scrollHeight;
+  $('#chat-trang-thai').textContent = '';
+};
+/* Android gọi lên khi nghe thấy tên một khoa — mở thẳng trang chỉ đường.
+   Chỉ mở khi tra cứu CHẮC: mở nhầm trang còn tệ hơn không mở, người bệnh đang
+   đứng nhìn màn hình mà nó nhảy sang khoa khác thì rối hơn là để nguyên. */
+window.goiYTuRobot = function(cauNoi){
+  const r = traCuu(cauNoi || '', 3);
+  if(r.muc === 'chac' && r.ds.length){ moChiTiet(r.ds[0].id); return 1; }
+  return 0;
+};
+/* ═══════════ Android gọi xuống để TRA — trả JSON, KHÔNG đọc thành tiếng ═══════════
+
+   Trả JSON chứ không trả văn xuôi, vì tầng Android cần đọc được MỨC TIN CẬY bằng máy:
+   "chac" thì cho robot khẳng định, "chua-chac" thì bắt nó hỏi lại, "khong-thay" thì
+   nói thẳng là không biết. Trả một câu văn thì Kotlin phải đoán ý — không đoán được.
+
+   ⚠ Trường `doc` là câu robot ĐỌC THÀNH TIẾNG, lấy nguyên từ dữ liệu. Nó KHÔNG được
+     gửi lên mô hình. Tầng Android tự ghép câu này vào sau câu dẫn của mô hình, để
+     tên khoa, số tầng và mã phòng không lần nào đi qua mô hình diễn đạt lại. */
+window.tomTatChoAI = function(tuKhoa){
+  const r = traCuu(tuKhoa || '', 3);
+  return JSON.stringify({
+    muc: r.muc,
+    ma: r.ma,
+    ung_vien: r.ds.map(d=>{
+      const v = d.vi_tri[0];
+      return {
+        id: d.id,
+        ten: d.ten,
+        loai: d.loai,
+        nhieu_toa: d.vi_tri.length > 1,
+        /* Vị trí gọn cho mô hình đọc hiểu — KHÔNG kèm câu chữ để nó khỏi nhắc lại */
+        vi_tri: d.loai === 'trong-khu' ? 'trong khu lễ tân'
+              : (d.vi_tri.length > 1 ? d.vi_tri.length + ' toà nhà'
+                 : v.toa_ten + ', tầng ' + v.tang + (v.ma.length ? ', phòng ' + v.ma.join(' hoặc ') : '')),
+        doc: d.vi_tri.length === 1 ? d.vi_tri[0].doc : d.doc
+      };
+    })
+  });
+};
+
+/* Android gọi lên khi nghe thấy chuyện cấp cứu — bật thẳng màn đỏ.
+   Chặn ở tầng Kotlin bằng mã, không chờ mô hình nghĩ. */
+window.moManCapCuuTuAI = function(){
+  const d = DS.find(x=>x.loai === 'cap-cuu');
+  if(d) moChiTiet(d.id);
+};
+/* Kể cho mô hình biết màn hình đang hiện gì */
+function keManHinhChoAI(){
+  if(!coCau() || typeof CAU.moTaManHinh !== 'function') return;
+  if(!dichDang) return;
+  const v = viTriDang;
+  const mo = 'Màn hình đang hiện: ' + dichDang.ten +
+    (v ? ' — ' + v.toa_ten + ', tầng ' + v.tang + (v.ma.length ? ', phòng ' + v.ma.join(', ') : '')
+       : ' — trong khu lễ tân') + '.';
+  try{ CAU.moTaManHinh(mo); }catch(e){}
+}
+/* Android gọi lên khi AI của hãng trả lời được thật — lúc đó nút mic mới hiện ra.
+   Nhờ vậy hôm nào hãng sửa xong Agent SDK, nút tự xuất hiện, không phải build lại APK. */
+window.baoAISanSang = function(sanSang){
+  console.log('AI sẵn sàng:', sanSang);
+  capNhatMic();
+};
+window.baoTinhTrangBanDo = function(json){
+  try{ console.log('Bản đồ robot:', json); baoLoi('Bản đồ: ' + json); }catch(e){}
+};
+
+/* ═══════════ Cỡ chữ ═══════════
+   Tính bằng JS thay vì calc(min(...)) trong CSS: hàm min() của CSS cần Chrome 79
+   trở lên, mà WebView trên máy Nova (Android 9) có thể cũ hơn thế. */
+let coLon = false;
+function datCoChu(){
+  const heSo = Math.min(innerWidth / 1920, innerHeight / 1080);
+  document.documentElement.style.fontSize = (heSo * (coLon ? 18.5 : 16)) + 'px';
+}
+function doiCoLon(){
+  coLon = !coLon; datCoChu();
+  $('#nhan-co-chu').textContent = coLon ? 'Chữ vừa' : 'Chữ to hơn';
+}
+addEventListener('resize', datCoChu);
+
+/* ═══════════ Cảnh báo ═══════════ */
+let henBao;
+function baoLoi(t){
+  const b = $('#canh-bao'); b.textContent = t; b.classList.add('hien');
+  clearTimeout(henBao); henBao = setTimeout(()=>b.classList.remove('hien'), 6500);
+}
+
+/* ═══════════ Khởi động ═══════════ */
+$('#ten-bv').textContent = D.don_vi;
+$('#cho-ten-bv').textContent = D.don_vi;
+$('#cho-khu').textContent = D.khu_vuc + ' · chạm để bắt đầu';
+$('#ten-phu').textContent = D.khu_vuc + ' · ' + DS.reduce((n,d)=>n + d.ma.length, 0) +
+  ' mã phòng · cập nhật ' + D.cap_nhat;
+datCoChu(); veLuoi(); capNhatMic();
+/* Tên điểm robot tự về nằm trong dữ liệu, không ghi cứng trong mã Kotlin —
+   đổi chỗ đứng của robot chỉ cần sửa app-data.json rồi chạy dung-app.py. */
+try{ if(coCau() && CAU.datDiemVeCho) CAU.datDiemVeCho(D.diem_ve_cho); }catch(e){}
+/* App mở lên là vào màn chờ. Gọi ve() chứ không chỉ dựa vào class "hien" đặt sẵn
+   trong HTML — phải qua ve() thì máy phát biểu cảm mới khởi động. */
+ve('mh-cho');
+$('#mic1').addEventListener('click', ()=>{ moChat(); batTatMic(); });
+$('#mic2').addEventListener('click', batTatMic);
+document.addEventListener('keydown', e=>{
+  if(e.key === 'Escape'){ dungDoc(); if(manDang === 'mh-chat') dongChat(); }
+});
+
+/* Nút Back cứng của robot gọi vào đây. Trả '1' = app đã tự xử lý, đừng thoát.
+   Chỉ khi đang đứng ở màn chờ mới cho thoát hẳn ra RobotOS Home. */
+window.luiHeThong = function(){
+  if($('#phu-ma').classList.contains('hien')){ dongBanPhim(); return '1'; }
+  if(manDang === 'mh-dan'){ dungDanDuongNgay(); return '1'; }
+  if(manDang === 'mh-chat'){ dongChat(); return '1'; }
+  if(manDang === 'mh-chi' || manDang === 'mh-cc'){ veTrangChu(); return '1'; }
+  if(manDang === 'mh-toa'){ veTrangChu(); return '1'; }
+  if(manDang === 'mh-ct'){ luiTuChiTiet(); return '1'; }
+  if(manDang === 'mh-chinh'){ veManCho(); return '1'; }
+  return '0';
+};
+
+/* Tự kiểm lúc lắp đặt — gõ trong DevTools:
+     CAU.kiemTraBanDo()   → tám điểm trên bản đồ đã đặt đúng tên chưa
+     CAU.thongTinAI()     → appId, Agent SDK đã bind chưa, mic đang mở/tắt
+     timDich('đau bụng')  → bộ tìm kiếm hiểu tiếng người bệnh tới đâu */
+</script>
+</body>
+</html>

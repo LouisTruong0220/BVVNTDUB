@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Đặt điểm bản đồ robot — Bệnh viện Việt Nam – Thụy Điển Uông Bí</title>
+<style>
+/* Tông màu lấy đúng của app để người đọc nhận ra là cùng một bộ.
+   Đỏ chỉ dùng cho cảnh báo, giống quy ước trong app: đỏ = phải dừng lại đọc kỹ. */
+:root{
+  --xanh:#0E5A63; --xanh-dam:#083C42; --xanh-tuoi:#12857A; --xanh-nhat:#E3F1F0;
+  --do:#D02020; --do-nhat:#FDEDED; --cam:#B5651D; --cam-nhat:#FBEEE0;
+  --nen:#F3F5F5; --the:#fff; --vien:#DDE4E4; --chu:#15201F; --chu-nhat:#61716F;
+  --bong:0 2px 14px rgba(10,40,40,.08);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:"Segoe UI","Be Vietnam Pro",system-ui,-apple-system,Arial,sans-serif;
+  background:var(--nen);color:var(--chu);line-height:1.6;font-size:16px;
+  padding:0 0 60px;
+}
+.khung{max-width:1000px;margin:0 auto;padding:0 20px}
+code,.ma{font-family:"Cascadia Mono",Consolas,"Courier New",monospace}
+
+/* ── Đầu trang ── */
+header{background:linear-gradient(105deg,var(--xanh-dam),var(--xanh-tuoi));color:#fff;
+  padding:34px 0 30px;margin-bottom:30px}
+header .nhan{font-size:.85rem;letter-spacing:.16em;opacity:.8;font-weight:600}
+header h1{font-size:2.1rem;line-height:1.2;margin:.3rem 0 .5rem;font-weight:800}
+header p{opacity:.9;max-width:64ch}
+header .in{margin-top:14px;display:inline-block;background:rgba(255,255,255,.16);
+  border:1px solid rgba(255,255,255,.35);border-radius:20px;padding:6px 16px;font-size:.9rem}
+
+h2{font-size:1.5rem;margin:38px 0 14px;padding-bottom:8px;border-bottom:3px solid var(--xanh);
+  display:flex;align-items:center;gap:10px}
+h2 .so{background:var(--xanh);color:#fff;width:32px;height:32px;border-radius:50%;
+  display:inline-grid;place-items:center;font-size:1rem;flex:none}
+h3{font-size:1.15rem;margin:22px 0 10px;color:var(--xanh-dam)}
+p{margin:10px 0}
+ul,ol{margin:10px 0 10px 22px}
+li{margin:6px 0}
+
+/* ── Hộp cảnh báo ── */
+.hop{border-radius:12px;padding:16px 20px;margin:18px 0;border-left:6px solid}
+.hop b:first-child{display:block;margin-bottom:4px}
+.hop.do{background:var(--do-nhat);border-color:var(--do)}
+.hop.do b:first-child{color:var(--do)}
+.hop.cam{background:var(--cam-nhat);border-color:var(--cam)}
+.hop.cam b:first-child{color:var(--cam)}
+.hop.xanh{background:var(--xanh-nhat);border-color:var(--xanh)}
+.hop.xanh b:first-child{color:var(--xanh-dam)}
+
+/* ── Sơ đồ ── */
+.so-do{background:var(--the);border:1px solid var(--vien);border-radius:14px;
+  padding:20px;box-shadow:var(--bong);overflow-x:auto}
+.so-do svg{display:block;min-width:820px;width:100%;height:auto}
+.chu-thich{display:flex;gap:22px;flex-wrap:wrap;margin-top:14px;font-size:.9rem;color:var(--chu-nhat)}
+.chu-thich span{display:flex;align-items:center;gap:7px}
+.o-mau{width:15px;height:15px;border-radius:4px;flex:none}
+
+/* ── Thẻ điểm ── */
+.luoi-diem{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px;margin:16px 0}
+.the{background:var(--the);border:1px solid var(--vien);border-radius:12px;padding:14px 16px;
+  box-shadow:var(--bong);display:flex;gap:13px;align-items:flex-start}
+.the .stt{width:30px;height:30px;border-radius:8px;background:var(--xanh);color:#fff;
+  display:grid;place-items:center;font-weight:800;flex:none;font-size:.95rem}
+.the.xa .stt{background:var(--cam)}
+.the.phu .stt{background:#8A9997}
+.the .noi{min-width:0;flex:1}
+.the .ten-diem{font-family:"Cascadia Mono",Consolas,monospace;font-size:1.12rem;font-weight:700;
+  background:#101C1B;color:#7FE3D6;padding:3px 10px;border-radius:6px;display:inline-block}
+.the .mo{font-size:.9rem;color:var(--chu-nhat);margin-top:7px}
+
+/* ── Đúng / sai ── */
+.ds-ds{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:14px 0}
+.cot{border-radius:12px;padding:14px 18px}
+.cot.dung{background:#EAF7EE;border:1px solid #B6E2C4}
+.cot.sai{background:var(--do-nhat);border:1px solid #F3C3C3}
+.cot h4{font-size:1rem;margin-bottom:8px}
+.cot.dung h4{color:#12772F}
+.cot.sai h4{color:var(--do)}
+.cot ul{list-style:none;margin-left:0}
+.cot li{font-family:"Cascadia Mono",Consolas,monospace;font-size:.95rem;padding:3px 0}
+.cot li small{font-family:inherit;color:var(--chu-nhat);font-size:.8rem}
+
+/* ── Bảng ── */
+table{width:100%;border-collapse:collapse;margin:14px 0;background:var(--the);
+  border-radius:10px;overflow:hidden;box-shadow:var(--bong);font-size:.94rem}
+th{background:var(--xanh-dam);color:#fff;text-align:left;padding:11px 14px;font-weight:600}
+td{padding:10px 14px;border-top:1px solid var(--vien);vertical-align:top}
+tr:nth-child(even) td{background:#FAFCFC}
+td code{background:#101C1B;color:#7FE3D6;padding:2px 7px;border-radius:5px;font-size:.88rem}
+
+/* ── Danh sách kiểm ── */
+.kiem{background:var(--the);border:1px solid var(--vien);border-radius:12px;padding:6px 18px;
+  box-shadow:var(--bong);margin:14px 0}
+.kiem div{display:flex;gap:12px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--vien)}
+.kiem div:last-child{border-bottom:0}
+.kiem .o{width:20px;height:20px;border:2px solid var(--xanh);border-radius:5px;flex:none;margin-top:2px}
+.kiem b{display:block}
+.kiem small{color:var(--chu-nhat)}
+
+/* ── Khối lệnh ── */
+pre{background:#101C1B;color:#D6E8E6;padding:14px 18px;border-radius:10px;overflow-x:auto;
+  font-family:"Cascadia Mono",Consolas,monospace;font-size:.9rem;line-height:1.55;margin:12px 0}
+pre .cm{color:#6F8B88}
+pre .hl{color:#7FE3D6}
+
+footer{margin-top:44px;padding-top:18px;border-top:1px solid var(--vien);
+  color:var(--chu-nhat);font-size:.88rem}
+
+/* ── In ra giấy ── */
+@media print{
+  body{background:#fff;font-size:12pt}
+  header{background:var(--xanh-dam) !important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .hop,.the,.cot,table,pre,.kiem,.so-do{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  h2{page-break-after:avoid}
+  .so-do,.ds-ds,.kiem,table{page-break-inside:avoid}
+  header .in{display:none}
+}
+@media(max-width:700px){ .ds-ds{grid-template-columns:1fr} }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="khung">
+    <div class="nhan">ROBOWORLD · GREETINGBOT NOVA</div>
+    <h1>Đặt điểm bản đồ cho robot lễ tân</h1>
+    <p>Bệnh viện Việt Nam – Thụy Điển Uông Bí. Dành cho kỹ thuật viên đi quét bản đồ tại hiện trường.
+       <b>Đọc hết trang này trước khi ra bệnh viện.</b></p>
+    <span class="in">💡 Bấm Ctrl + P để in ra mang theo</span>
+  </div>
+</header>
+
+<div class="khung">
+
+<div class="hop do">
+  <b>⚠ Vì sao trang này quan trọng</b>
+  App gọi lệnh dẫn đường bằng <b>tên điểm</b>, không phải toạ độ. Đặt sai tên thì robot nhận lệnh
+  xong <b>đứng im</b> và báo <code>ERROR_DESTINATION_NOT_EXIST</code> — nhìn từ ngoài trông y hệt máy hỏng,
+  mà lại xảy ra ngay trước mặt lãnh đạo bệnh viện.
+</div>
+
+<!-- ══════════ 1. SƠ ĐỒ ══════════ -->
+<h2><span class="so">1</span> Robot đi tới đâu</h2>
+
+<p>Robot <b>chỉ đi trong khu lễ tân</b>, xa nhất là ra <b>đầu hành lang</b>. Nó dừng ở đó, còn cách
+ba toà nhà một quãng — <b>không</b> vào trong toà nhà, <b>không</b> lên thang máy, <b>không</b> lên tầng.</p>
+
+<div class="so-do">
+<svg viewBox="0 0 860 300" role="img" aria-label="Sơ đồ khu lễ tân, đầu hành lang và ba toà nhà">
+  <!-- Khu lễ tân -->
+  <rect x="14" y="30" width="290" height="240" rx="14" fill="#FBEEE0" stroke="#B5651D" stroke-width="2" stroke-dasharray="7 5"/>
+  <text x="159" y="55" text-anchor="middle" font-size="15" font-weight="700" fill="#B5651D">KHU LỄ TÂN</text>
+  <text x="159" y="73" text-anchor="middle" font-size="11.5" fill="#8A7460">robot dẫn thẳng tới nơi</text>
+
+  <g font-size="12" fill="#15201F">
+    <rect x="32" y="88" width="120" height="34" rx="8" fill="#fff" stroke="#B5651D"/>
+    <text x="92" y="109" text-anchor="middle" font-weight="600">Tiep don</text>
+    <rect x="166" y="88" width="120" height="34" rx="8" fill="#fff" stroke="#B8860B"/>
+    <text x="226" y="109" text-anchor="middle" font-weight="600">Vien phi</text>
+    <rect x="32" y="132" width="120" height="34" rx="8" fill="#fff" stroke="#1F6F5C"/>
+    <text x="92" y="153" text-anchor="middle" font-weight="600">Nha thuoc</text>
+    <rect x="166" y="132" width="120" height="34" rx="8" fill="#fff" stroke="#7A5AA6"/>
+    <text x="226" y="153" text-anchor="middle" font-weight="600">Can tin</text>
+    <rect x="32" y="176" width="120" height="34" rx="8" fill="#fff" stroke="#2B5C9B"/>
+    <text x="92" y="197" text-anchor="middle" font-weight="600">Nha ve sinh</text>
+    <rect x="166" y="176" width="120" height="34" rx="8" fill="#F3F5F5" stroke="#8A9997" stroke-dasharray="4 3"/>
+    <text x="226" y="197" text-anchor="middle" fill="#61716F">Sanh cho</text>
+    <rect x="99" y="220" width="120" height="34" rx="8" fill="#F3F5F5" stroke="#8A9997" stroke-dasharray="4 3"/>
+    <text x="159" y="241" text-anchor="middle" fill="#61716F">Tram sac</text>
+  </g>
+
+  <!-- Đầu hành lang -->
+  <rect x="330" y="118" width="128" height="64" rx="12" fill="#0E5A63"/>
+  <text x="394" y="143" text-anchor="middle" font-size="13" font-weight="800" fill="#fff">Truoc hanh lang</text>
+  <text x="394" y="163" text-anchor="middle" font-size="11" fill="#9FD9D2">ROBOT DỪNG Ở ĐÂY</text>
+
+  <!-- Mũi tên robot đi -->
+  <line x1="304" y1="150" x2="326" y2="150" stroke="#0E5A63" stroke-width="3"/>
+  <polygon points="326,144 338,150 326,156" fill="#0E5A63"/>
+
+  <!-- Vạch ranh giới -->
+  <line x1="478" y1="18" x2="478" y2="282" stroke="#D02020" stroke-width="2.5" stroke-dasharray="8 6"/>
+  <text x="478" y="14" text-anchor="middle" font-size="11" font-weight="700" fill="#D02020">robot KHÔNG qua vạch này</text>
+
+  <!-- Người bệnh tự đi -->
+  <line x1="462" y1="150" x2="516" y2="150" stroke="#61716F" stroke-width="2" stroke-dasharray="5 4"/>
+  <polygon points="516,144 528,150 516,156" fill="#61716F"/>
+  <text x="492" y="140" text-anchor="middle" font-size="10.5" fill="#61716F">tự đi</text>
+
+  <!-- Ba toà nhà -->
+  <g>
+    <rect x="536" y="58" width="98" height="184" rx="10" fill="#0E5A63"/>
+    <text x="585" y="120" text-anchor="middle" font-size="26" font-weight="800" fill="#fff">DI</text>
+    <text x="585" y="145" text-anchor="middle" font-size="12" fill="#9FD9D2">5 tầng</text>
+    <text x="585" y="176" text-anchor="middle" font-size="12.5" font-weight="700" fill="#FFD79A">toà nhà</text>
+    <text x="585" y="193" text-anchor="middle" font-size="12.5" font-weight="700" fill="#FFD79A">ĐẦU TIÊN</text>
+
+    <rect x="644" y="58" width="98" height="184" rx="10" fill="#12857A"/>
+    <text x="693" y="120" text-anchor="middle" font-size="26" font-weight="800" fill="#fff">DII</text>
+    <text x="693" y="145" text-anchor="middle" font-size="12" fill="#B8E8E2">5 tầng</text>
+    <text x="693" y="176" text-anchor="middle" font-size="12.5" font-weight="700" fill="#FFD79A">toà nhà</text>
+    <text x="693" y="193" text-anchor="middle" font-size="12.5" font-weight="700" fill="#FFD79A">THỨ HAI</text>
+
+    <rect x="752" y="58" width="98" height="184" rx="10" fill="#2E9A8E"/>
+    <text x="801" y="120" text-anchor="middle" font-size="26" font-weight="800" fill="#fff">DIII</text>
+    <text x="801" y="145" text-anchor="middle" font-size="12" fill="#CFF0EB">8 tầng</text>
+    <text x="801" y="176" text-anchor="middle" font-size="12.5" font-weight="700" fill="#FFD79A">toà nhà</text>
+    <text x="801" y="193" text-anchor="middle" font-size="12.5" font-weight="700" fill="#FFD79A">THỨ BA</text>
+  </g>
+  <text x="693" y="268" text-anchor="middle" font-size="12" fill="#61716F">
+    Robot chỉ đường bằng THỨ TỰ, không bằng tên toà
+  </text>
+</svg>
+<div class="chu-thich">
+  <span><i class="o-mau" style="background:#FBEEE0;border:1px solid #B5651D"></i> Khu robot đi được</span>
+  <span><i class="o-mau" style="background:#0E5A63"></i> Điểm robot dừng xa nhất</span>
+  <span><i class="o-mau" style="background:#D02020"></i> Ranh giới không qua</span>
+  <span><i class="o-mau" style="background:#F3F5F5;border:1px solid #8A9997"></i> Điểm phục vụ, không dẫn khách tới</span>
+</div>
+</div>
+
+<!-- ══════════ 2. TÁM ĐIỂM ══════════ -->
+<h2><span class="so">2</span> Tám điểm phải đặt</h2>
+
+<p>Gõ <b>đúng từng ký tự</b> như trong ô đen. Gõ xong đọc lại một lượt.</p>
+
+<div class="luoi-diem">
+  <div class="the"><span class="stt">1</span><div class="noi">
+    <span class="ten-diem">Tiep don</span>
+    <div class="mo">Quầy tiếp đón / đăng ký khám. Đứng cách quầy ~1 m, mặt robot hướng vào quầy.</div></div></div>
+  <div class="the"><span class="stt">2</span><div class="noi">
+    <span class="ten-diem">Vien phi</span>
+    <div class="mo">Trước phòng thu viện phí.</div></div></div>
+  <div class="the"><span class="stt">3</span><div class="noi">
+    <span class="ten-diem">Nha thuoc</span>
+    <div class="mo">Trước nhà thuốc bệnh viện.</div></div></div>
+  <div class="the"><span class="stt">4</span><div class="noi">
+    <span class="ten-diem">Can tin</span>
+    <div class="mo">Trước cửa căn tin.</div></div></div>
+  <div class="the"><span class="stt">5</span><div class="noi">
+    <span class="ten-diem">Nha ve sinh</span>
+    <div class="mo">Đầu lối rẽ vào nhà vệ sinh khu lễ tân — <b>không</b> đặt sát cửa.</div></div></div>
+  <div class="the xa"><span class="stt">6</span><div class="noi">
+    <span class="ten-diem">Truoc hanh lang</span>
+    <div class="mo"><b>Điểm xa nhất robot đi tới.</b> Đầu hành lang dẫn ra ba toà nhà — chỗ nhìn thẳng
+    thấy được cả DI, DII, DIII xếp theo thứ tự. Xem mục 4, phải khảo sát trước khi đặt.</div></div></div>
+  <div class="the phu"><span class="stt">7</span><div class="noi">
+    <span class="ten-diem">Sanh cho</span>
+    <div class="mo">Chỗ robot đứng đợi khách giữa sảnh. Dẫn xong robot tự về đây.</div></div></div>
+  <div class="the phu"><span class="stt">8</span><div class="noi">
+    <span class="ten-diem">Tram sac</span>
+    <div class="mo">Cọc sạc. Bật máy và định vị tại đây.</div></div></div>
+</div>
+
+<h3>Bốn điều tuyệt đối phải giữ</h3>
+<div class="ds-ds">
+  <div class="cot dung">
+    <h4>✓ ĐÚNG</h4>
+    <ul>
+      <li>Tiep don</li>
+      <li>Nha ve sinh</li>
+      <li>Truoc hanh lang</li>
+      <li>Vien phi</li>
+    </ul>
+  </div>
+  <div class="cot sai">
+    <h4>✕ SAI — robot sẽ đứng im</h4>
+    <ul>
+      <li>Tiếp đón <small>← còn dấu tiếng Việt</small></li>
+      <li>Nha Ve Sinh <small>← viết hoa sai</small></li>
+      <li>Truoc  hanh  lang <small>← hai dấu cách</small></li>
+      <li>Vien phi - Tang 1 <small>← thêm chữ phía sau</small></li>
+    </ul>
+  </div>
+</div>
+
+<div class="hop xanh">
+  <b>Muốn dùng tên khác?</b>
+  <b>Không sửa mã Kotlin.</b> Sửa trường <code>diem_ban_do</code> trong <code>dung-du-lieu.py</code>,
+  chạy <code>python dung-du-lieu.py</code> rồi <code>python dung-app.py</code>, build lại APK.
+  Tên điểm nằm trong dữ liệu chứ không ghi cứng trong mã.
+</div>
+
+<!-- ══════════ 3. THỨ TỰ TOÀ NHÀ ══════════ -->
+<h2><span class="so">3</span> Xác nhận thứ tự ba toà nhà</h2>
+
+<div class="hop do">
+  <b>⚠ Sai thứ tự là robot chỉ sai toà</b>
+  App chỉ đường bằng <b>thứ tự</b> chứ không bằng tên: <i>“Xin mời đi thẳng, toà nhà thứ hai,
+  đó là toà DII.”</i> Lý do: đứng ở đầu hành lang thì ba toà trông giống hệt nhau và biển tên xa quá
+  không đọc nổi — nhất là người già, người đang ôm con. Đếm thứ tự thì ai cũng đếm được.
+</div>
+
+<p><b>Việc phải làm:</b> đứng đúng chỗ đặt điểm <code>Truoc hanh lang</code>, nhìn thẳng,
+đếm xem toà nào tới trước.</p>
+
+<table>
+  <tr><th style="width:34%">Thứ tự tính từ đầu hành lang</th><th>App đang giả định là</th><th>Đúng chưa?</th></tr>
+  <tr><td>Toà nhà <b>đầu tiên</b></td><td>Nhà DI — 5 tầng</td><td>☐</td></tr>
+  <tr><td>Toà nhà <b>thứ hai</b></td><td>Nhà DII — 5 tầng</td><td>☐</td></tr>
+  <tr><td>Toà nhà <b>thứ ba</b></td><td>Nhà DIII — 8 tầng</td><td>☐</td></tr>
+</table>
+
+<p>Khác đi thì sửa bảng <code>TOA_THU_TU</code> trong <code>dung-du-lieu.py</code>, chạy lại
+<code>dung-du-lieu.py</code> và <code>dung-app.py</code> — <b>không phải sửa mã Kotlin</b>,
+nhưng phải đẩy lại <code>index.html</code> lên robot.</p>
+
+<!-- ══════════ 4. KHẢO SÁT ══════════ -->
+<h2><span class="so">4</span> Khảo sát trước khi đặt điểm <code style="font-size:1rem">Truoc hanh lang</code></h2>
+
+<p>Đây là điểm xa nhất robot đi tới, và là điểm duy nhất có thể nằm <b>ngoài nhà</b>.
+Nova là robot trong nhà. Đi bộ đúng quãng đường robot sẽ đi và kiểm bốn thứ:</p>
+
+<div class="kiem">
+  <div><span class="o"></span><span><b>Bậc, gờ, ngưỡng cửa ≤ 2 cm</b>
+    <small>Cao hơn là bánh robot không vượt được.</small></span></div>
+  <div><span class="o"></span><span><b>Độ dốc ≤ 5°</b>
+    <small>Dốc hơn thì robot trượt hoặc báo lỗi giữa đường.</small></span></div>
+  <div><span class="o"></span><span><b>Mặt sàn phẳng, liền mạch</b>
+    <small>Không rãnh thoát nước hở, không sỏi, không thảm dày.</small></span></div>
+  <div><span class="o"></span><span><b>Có mái che</b>
+    <small>Nova là robot trong nhà, dính mưa là hỏng.</small></span></div>
+</div>
+
+<div class="hop cam">
+  <b>Không đạt một mục nào cũng phải rút điểm về trong nhà</b>
+  Đặt <code>Truoc hanh lang</code> ngay <b>cửa sảnh nhìn ra sân</b>. App không cần sửa gì —
+  người bệnh vẫn được dẫn tới đó, nghe câu chỉ đường, rồi tự đi tiếp. Chỉ khác là quãng tự đi
+  dài hơn vài chục mét. Báo lại anh Trường để ghi vào hồ sơ dự án.
+</div>
+
+<!-- ══════════ 5. QUÉT MAP ══════════ -->
+<h2><span class="so">5</span> Quy trình quét bản đồ</h2>
+
+<h3>Bước 1 — Quét map</h3>
+<ul>
+  <li>Làm <b>ngoài giờ cao điểm</b>. Sảnh bệnh viện đông nhất 6h30–10h00; người đi lại liên tục
+      làm bản đồ đầy vệt nhiễu.</li>
+  <li>Đẩy robot đi <b>chậm</b>, bám sát tường một vòng, rồi đi lại giữa sảnh.</li>
+  <li>Đừng bỏ sót góc khuất, hốc cột, khu ghế chờ — chỗ nào không quét thì robot coi như
+      không có đường, và sẽ từ chối đi qua.</li>
+</ul>
+
+<h3>Bước 2 — Đặt điểm</h3>
+<ul>
+  <li>Đứng <b>cách đích khoảng 1 m</b>, mặt robot <b>hướng về</b> đích. Hướng đứng cũng được lưu
+      cùng điểm — đặt quay lưng thì robot tới nơi sẽ quay lưng vào quầy.</li>
+  <li>Chỗ đặt phải chừa mỗi bên ~1 m để robot xoay được, và <b>không chắn lối đi</b>.
+      Robot đứng chờ giữa lối vào khoa cấp cứu là chuyện nghiêm trọng.</li>
+  <li>Gõ tên theo đúng bảng ở mục 2.</li>
+</ul>
+
+<h3>Bước 3 — Định vị</h3>
+<ul>
+  <li>Bật máy tại <code>Tram sac</code> rồi cho định vị. Định vị ở chỗ khác thì robot dễ nhận
+      nhầm vị trí ban đầu.</li>
+</ul>
+
+<!-- ══════════ 6. TỰ KIỂM ══════════ -->
+<h2><span class="so">6</span> Tự kiểm sau khi đặt</h2>
+
+<p>Mở app, nối DevTools vào WebView của robot:</p>
+<pre><span class="cm"># Tìm tiến trình WebView rồi mở cổng 9222</span>
+adb shell cat /proc/net/unix | Select-String webview_devtools_remote
+adb forward tcp:9222 localabstract:webview_devtools_remote_<span class="hl">&lt;pid&gt;</span>
+<span class="cm"># rồi mở chrome://inspect trên máy tính</span></pre>
+
+<p>Trong Console gõ:</p>
+<pre><span class="hl">CAU.kiemTraBanDo()</span>   <span class="cm">// đủ 8 điểm chưa, tên có đúng từng ký tự không</span>
+<span class="hl">CAU.thongTinAI()</span>     <span class="cm">// appId phải là app_70eef22c4a6d4777af413ac942ea0153</span></pre>
+
+<p>Rồi thử dẫn đường <b>theo thứ tự tăng dần độ rủi ro</b>:</p>
+<div class="kiem">
+  <div><span class="o"></span><span><b>1. <code>Nha thuoc</code> hoặc <code>Tiep don</code></b>
+    <small>Gần, trong nhà, an toàn nhất.</small></span></div>
+  <div><span class="o"></span><span><b>2. <code>Nha ve sinh</code></b>
+    <small>Thường là chỗ hẹp nhất.</small></span></div>
+  <div><span class="o"></span><span><b>3. <code>Truoc hanh lang</code></b>
+    <small>Đi bộ theo robot suốt quãng này, canh xem có vướng bậc, dốc, người đông.</small></span></div>
+  <div><span class="o"></span><span><b>4. Robot tự quay về <code>Sanh cho</code></b>
+    <small>Sau khi đọc xong câu chỉ đường, robot phải tự đi về sảnh.</small></span></div>
+  <div><span class="o"></span><span><b>5. Nghe kỹ: dọc đường robot phải IM LẶNG</b>
+    <small>Chỉ nói đúng một câu “Xin mời đi theo tôi” lúc bắt đầu. Đó là chủ ý.</small></span></div>
+</div>
+
+<!-- ══════════ 7. LỖI ══════════ -->
+<h2><span class="so">7</span> Robot nhận lệnh nhưng không nhúc nhích</h2>
+
+<p>Xem logcat: <code>adb logcat -s BVCau BVApp RobotHelper</code></p>
+
+<table>
+  <tr><th style="width:38%">Thấy gì trong log</th><th>Nghĩa là</th><th>Làm gì</th></tr>
+  <tr>
+    <td><code>startNavigation('Tiep don') trả mã = 0</code></td>
+    <td>App gửi lệnh đúng, lỗi nằm ở máy</td>
+    <td>Xem ba bước ở dòng dưới</td>
+  </tr>
+  <tr>
+    <td><code>ERROR_DESTINATION_NOT_EXIST</code></td>
+    <td><b>Tên điểm sai</b></td>
+    <td>So lại từng ký tự với bảng mục 2</td>
+  </tr>
+  <tr>
+    <td><code>status=1025 global path search failed</code></td>
+    <td>Robot không tìm ra đường</td>
+    <td>① Nhả nút dừng khẩn cấp ② Đẩy robot ra chỗ thoáng, chừa mỗi bên ~1 m ③ Tắt nguồn bật lại hẳn</td>
+  </tr>
+  <tr>
+    <td><code>STATUS_NAVI_OUT_MAP</code></td>
+    <td>Robot đang đứng ngoài vùng đã quét</td>
+    <td>Đẩy về trong sảnh rồi định vị lại</td>
+  </tr>
+  <tr>
+    <td><code>can send failed</code> in ~1.500 dòng/giây</td>
+    <td><b>KHÔNG phải lỗi</b></td>
+    <td>Bỏ qua — ROM Nova in thế cả lúc chạy tốt</td>
+  </tr>
+</table>
+
+<div class="hop do">
+  <b>Không thấy dòng <code>startNavigation</code> nào trong log</b>
+  Nghĩa là app chưa gửi lệnh — nhiều khả năng app được mở bằng <code>am start</code> thay vì mở từ
+  <b>RobotOS Home</b>. Mở bằng <code>am start</code> thì <code>RobotApi</code> trả
+  <code>handleApiDisabled</code>, mất cả dẫn đường lẫn giọng nói, mà app không báo lỗi gì.
+</div>
+
+<div class="hop cam">
+  <b>⚠ Dùng đúng bản adb</b>
+  Phải dùng <code>adb 1.0.41</code> của Android SDK. <b>Không</b> dùng <code>C:\Windows\adb.exe</code>
+  (bản 1.0.39 của PUDU) — hai bản lệch phiên bản sẽ giết tiến trình của nhau, rớt kết nối liên tục.
+</div>
+
+<footer>
+  Roboworld · Bệnh viện Việt Nam – Thụy Điển Uông Bí · cập nhật 17/08/2026<br>
+  Bản chữ đầy đủ: <code>huong-dan-dat-ten-diem-ban-do.md</code> ·
+  Tài liệu app: <code>README.md</code>
+</footer>
+
+</div>
+</body>
+</html>
