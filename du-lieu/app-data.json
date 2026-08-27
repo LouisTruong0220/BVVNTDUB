@@ -185,8 +185,8 @@
       "D21",
       "D22"
      ],
-     "doc": "Khoa Phụ Sản ở tầng một, toà nhà đê ba. Phòng đê hai mươi một hoặc đê hai mươi hai. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.",
-     "chi_duong": "Đã tới nơi. Xin mời quý vị đi thẳng. Toà nhà thứ ba, đó là toà đê ba. Quý vị vào đó, lên tầng một, vào Khoa Phụ Sản. Tìm phòng đê hai mươi một hoặc đê hai mươi hai. Chúc quý vị mau khoẻ."
+     "doc": "Khoa Phụ Sản ở tầng một, toà nhà đê ba. Phòng đê hai mươi mốt hoặc đê hai mươi hai. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.",
+     "chi_duong": "Đã tới nơi. Xin mời quý vị đi thẳng. Toà nhà thứ ba, đó là toà đê ba. Quý vị vào đó, lên tầng một, vào Khoa Phụ Sản. Tìm phòng đê hai mươi mốt hoặc đê hai mươi hai. Chúc quý vị mau khoẻ."
     }
    ],
    "doc": "Khoa Phụ Sản có ở ba toà. Quý vị đang theo dõi ở toà nào ạ?",
@@ -502,11 +502,11 @@
      "ma": [
       "D15"
      ],
-     "doc": "Khoa Y Học Cổ Truyền ở tầng ba, toà nhà đê hai. Phòng đê mười năm. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.",
-     "chi_duong": "Đã tới nơi. Xin mời quý vị đi thẳng. Toà nhà thứ hai, đó là toà đê hai. Quý vị vào đó, lên tầng ba, vào Khoa Y Học Cổ Truyền. Tìm phòng đê mười năm. Chúc quý vị mau khoẻ."
+     "doc": "Khoa Y Học Cổ Truyền ở tầng ba, toà nhà đê hai. Phòng đê mười lăm. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.",
+     "chi_duong": "Đã tới nơi. Xin mời quý vị đi thẳng. Toà nhà thứ hai, đó là toà đê hai. Quý vị vào đó, lên tầng ba, vào Khoa Y Học Cổ Truyền. Tìm phòng đê mười lăm. Chúc quý vị mau khoẻ."
     }
    ],
-   "doc": "Khoa Y Học Cổ Truyền ở tầng ba, toà nhà đê hai. Phòng đê mười năm. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.",
+   "doc": "Khoa Y Học Cổ Truyền ở tầng ba, toà nhà đê hai. Phòng đê mười lăm. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.",
    "tim": "khoa y hoc co truyen y hoc co truyen cham cuu d15 dong y cham cuu thuoc nam thuoc bac bam huyet xoa bop phuc hoi chuc nang y hoc co truyen keo gian cot song"
   },
   {

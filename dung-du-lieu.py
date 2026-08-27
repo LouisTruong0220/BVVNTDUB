@@ -243,14 +243,27 @@ def khong_dau(s):
 
 
 def ma_doc(ma):
-    """Mã phòng D3 → 'đê ba' để máy đọc. Người ta đối chiếu với phiếu khám nên phải đọc rõ."""
+    """Mã phòng D3 → 'đê ba' để máy đọc. Người ta đối chiếu với phiếu khám nên phải đọc rõ.
+
+    ⚠ Hai chỗ tiếng Việt đổi chữ khi ghép số, máy đọc sai là người bệnh nghe ra mã khác:
+      · đơn vị 5 sau hàng chục đọc là "lăm", không phải "năm" — D15 là "mười lăm".
+      · đơn vị 1 từ hai mươi trở lên đọc là "mốt" — D21 là "hai mươi mốt" (nhưng D11
+        vẫn là "mười một").
+    """
     n = int(ma[1:])
     if n <= 10:
         return "đê " + SO_CHU[n]
-    if n < 20:
-        return "đê mười " + (SO_CHU[n - 10] if n % 10 else "")
     chuc, don = divmod(n, 10)
-    return ("đê " + SO_CHU[chuc] + " mươi " + (SO_CHU[don] if don else "")).strip()
+    dau = "mười" if chuc == 1 else SO_CHU[chuc] + " mươi"
+    if don == 0:
+        duoi = ""
+    elif don == 1:
+        duoi = "một" if chuc == 1 else "mốt"
+    elif don == 5:
+        duoi = "lăm"
+    else:
+        duoi = SO_CHU[don]
+    return ("đê " + dau + " " + duoi).strip()
 
 
 def ds_ma_doc(ma):

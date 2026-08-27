@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Thêm phòng khám — App robot lễ tân Bệnh viện Việt Nam – Thụy Điển Uông Bí</title>
+<meta name="description" content="Hướng dẫn tự thêm khoa, đổi tầng, đổi mã phòng và sửa câu chỉ đường cho app robot lễ tân — chỉ sửa một file, chạy ba lệnh.">
+<style>
+/* Cùng tông với huong-dan-dat-ten-diem-ban-do.html — hai trang là một bộ.
+   Đỏ chỉ dùng cho cảnh báo: đỏ = phải dừng lại đọc kỹ. */
+:root{
+  --xanh:#0E5A63; --xanh-dam:#083C42; --xanh-tuoi:#12857A; --xanh-nhat:#E3F1F0;
+  --do:#D02020; --do-nhat:#FDEDED; --cam:#B5651D; --cam-nhat:#FBEEE0;
+  --luc:#12772F; --luc-nhat:#EAF7EE;
+  --nen:#F3F5F5; --the:#fff; --vien:#DDE4E4; --chu:#15201F; --chu-nhat:#61716F;
+  --bong:0 2px 14px rgba(10,40,40,.08);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:"Segoe UI","Be Vietnam Pro",system-ui,-apple-system,Arial,sans-serif;
+  background:var(--nen);color:var(--chu);line-height:1.6;font-size:16px;padding:0 0 60px;
+}
+.khung{max-width:1000px;margin:0 auto;padding:0 20px}
+code,.ma{font-family:"Cascadia Mono",Consolas,"Courier New",monospace}
+
+header{background:linear-gradient(105deg,var(--xanh-dam),var(--xanh-tuoi));color:#fff;
+  padding:34px 0 30px;margin-bottom:30px}
+header .nhan{font-size:.85rem;letter-spacing:.16em;opacity:.8;font-weight:600}
+header h1{font-size:2.1rem;line-height:1.2;margin:.3rem 0 .5rem;font-weight:800}
+header p{opacity:.92;max-width:66ch}
+header .in{margin-top:14px;display:inline-block;background:rgba(255,255,255,.16);
+  border:1px solid rgba(255,255,255,.35);border-radius:20px;padding:6px 16px;font-size:.9rem}
+
+h2{font-size:1.5rem;margin:40px 0 14px;padding-bottom:8px;border-bottom:3px solid var(--xanh);
+  display:flex;align-items:center;gap:10px}
+h2 .so{background:var(--xanh);color:#fff;width:32px;height:32px;border-radius:50%;
+  display:inline-grid;place-items:center;font-size:1rem;flex:none}
+h3{font-size:1.15rem;margin:24px 0 10px;color:var(--xanh-dam)}
+p{margin:10px 0}
+ul,ol{margin:10px 0 10px 22px}
+li{margin:6px 0}
+
+.hop{border-radius:12px;padding:16px 20px;margin:18px 0;border-left:6px solid}
+.hop b:first-child{display:block;margin-bottom:4px}
+.hop.do{background:var(--do-nhat);border-color:var(--do)}
+.hop.do b:first-child{color:var(--do)}
+.hop.cam{background:var(--cam-nhat);border-color:var(--cam)}
+.hop.cam b:first-child{color:var(--cam)}
+.hop.xanh{background:var(--xanh-nhat);border-color:var(--xanh)}
+.hop.xanh b:first-child{color:var(--xanh-dam)}
+.hop.luc{background:var(--luc-nhat);border-color:var(--luc)}
+.hop.luc b:first-child{color:var(--luc)}
+
+/* ── Sơ đồ dây chuyền ── */
+.so-do{background:var(--the);border:1px solid var(--vien);border-radius:14px;
+  padding:20px;box-shadow:var(--bong);overflow-x:auto;margin:16px 0}
+.so-do svg{display:block;min-width:700px;width:100%;height:auto}
+
+/* ── Khối lệnh / mã ── */
+pre{background:#101C1B;color:#D6E8E6;padding:15px 18px;border-radius:10px;overflow-x:auto;
+  font-family:"Cascadia Mono",Consolas,monospace;font-size:.9rem;line-height:1.6;margin:12px 0}
+pre .cm{color:#6F8B88}                 /* chú thích */
+pre .k{color:#7FB2E3}                  /* từ khoá */
+pre .s{color:#B7E38A}                  /* chuỗi */
+pre .n{color:#E3C77F}                  /* số */
+pre .hl{background:rgba(127,227,214,.14);display:block;margin:0 -18px;padding:0 18px}
+.nhan-ma{font-size:.85rem;color:var(--chu-nhat);margin:16px 0 -6px;font-weight:600}
+
+/* ── Bảng ── */
+table{width:100%;border-collapse:collapse;margin:14px 0;background:var(--the);
+  border-radius:10px;overflow:hidden;box-shadow:var(--bong);font-size:.94rem}
+th{background:var(--xanh-dam);color:#fff;text-align:left;padding:11px 14px;font-weight:600}
+td{padding:10px 14px;border-top:1px solid var(--vien);vertical-align:top}
+tr:nth-child(even) td{background:#FAFCFC}
+td code,th code{background:#101C1B;color:#7FE3D6;padding:2px 7px;border-radius:5px;font-size:.88rem}
+td b.ok{color:var(--luc)} td b.xau{color:var(--do)}
+
+/* ── Đúng / sai ── */
+.ds-ds{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:14px 0}
+.cot{border-radius:12px;padding:14px 18px}
+.cot.dung{background:var(--luc-nhat);border:1px solid #B6E2C4}
+.cot.sai{background:var(--do-nhat);border:1px solid #F3C3C3}
+.cot h4{font-size:1rem;margin-bottom:8px}
+.cot.dung h4{color:var(--luc)}
+.cot.sai h4{color:var(--do)}
+.cot ul{list-style:none;margin-left:0}
+.cot li{font-family:"Cascadia Mono",Consolas,monospace;font-size:.92rem;padding:4px 0}
+.cot li small{font-family:inherit;color:var(--chu-nhat);font-size:.8rem;display:block}
+
+/* ── Danh sách kiểm ── */
+.kiem{background:var(--the);border:1px solid var(--vien);border-radius:12px;padding:6px 18px;
+  box-shadow:var(--bong);margin:14px 0}
+.kiem div{display:flex;gap:12px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--vien)}
+.kiem div:last-child{border-bottom:0}
+.kiem .o{width:20px;height:20px;border:2px solid var(--xanh);border-radius:5px;flex:none;margin-top:2px}
+.kiem b{display:block}
+.kiem small{color:var(--chu-nhat)}
+
+/* ── Câu robot đọc ── */
+.doc-thu{background:var(--xanh-nhat);border-left:6px solid var(--xanh-tuoi);border-radius:12px;
+  padding:14px 20px;margin:14px 0;font-size:1.02rem;line-height:1.65}
+.doc-thu .nhan{display:block;font-size:.78rem;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--xanh-dam);font-weight:700;margin-bottom:5px}
+
+footer{margin-top:46px;padding-top:18px;border-top:1px solid var(--vien);
+  color:var(--chu-nhat);font-size:.88rem}
+
+@media print{
+  body{background:#fff;font-size:12pt}
+  header{background:var(--xanh-dam) !important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .hop,.cot,table,pre,.kiem,.so-do,.doc-thu{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  h2{page-break-after:avoid}
+  .ds-ds,.kiem,table,pre,.so-do{page-break-inside:avoid}
+  header .in{display:none}
+}
+@media(max-width:700px){
+  .ds-ds{grid-template-columns:1fr}
+  /* Bảng nhiều cột không vừa màn điện thoại — đổi mỗi HÀNG thành một THẺ,
+     tên cột thành nhãn từng ô, để chỉ phải cuộn dọc. */
+  table{display:block;background:transparent;box-shadow:none;border-radius:0}
+  table tr{display:block;background:var(--the);border:1px solid var(--vien);
+    border-radius:10px;box-shadow:var(--bong);margin:0 0 12px;padding:4px 0}
+  table tr:first-child{display:none}
+  table td{display:block;border-top:0;padding:7px 14px}
+  table tr td+td{border-top:1px solid var(--vien)}
+  table tr:nth-child(even) td{background:transparent}
+  table td::before{content:attr(data-nhan);display:block;margin-bottom:3px;
+    font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;color:var(--chu-nhat)}
+  table td code{display:inline-block;white-space:normal;word-break:break-word}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="khung">
+    <div class="nhan">ROBOWORLD · GREETINGBOT NOVA</div>
+    <h1>Thêm phòng khám, sửa chỉ đường</h1>
+    <p>App robot lễ tân Bệnh viện Việt Nam – Thụy Điển Uông Bí.
+       Dành cho người <b>không lập trình</b>: thêm một khoa, đổi tầng, đổi mã phòng, sửa câu robot nói —
+       chỉ sửa <b>một file</b>, chạy <b>ba lệnh</b>.</p>
+    <span class="in">💡 Bấm Ctrl + P để in ra để cạnh máy</span>
+  </div>
+</header>
+
+<div class="khung">
+
+<div class="hop do">
+  <b>⚠ Chỉ sửa đúng một file: <code>dung-du-lieu.py</code></b>
+  Đừng sửa <code>app-data.json</code>, đừng sửa <code>khung-app.html</code>, đừng sửa file Kotlin.
+  Cả ba thứ đó do máy sinh ra và sẽ bị ghi đè ở lần chạy kế tiếp — sửa tay là mất công vô ích.
+</div>
+
+<h2><span class="so">1</span> Vì sao phải đi qua script</h2>
+
+<p>Cùng một sự thật — <i>“Khoa Nhi ở tầng 2 nhà DI”</i> — đang nằm ở <b>ba nơi</b>: chữ trên màn hình,
+câu robot đọc thành tiếng, và kho tri thức trên đám mây cho phần trò chuyện AI. Gõ tay ba bản thì
+sớm muộn lệch nhau, mà lúc lệch là robot <b>nói một đằng, hiện một nẻo</b> — người bệnh biết tin cái nào?</p>
+
+<p>Sinh cả ba từ cùng một nguồn thì không bao giờ lệch được:</p>
+
+<div class="so-do">
+<svg viewBox="0 0 760 250" role="img" aria-label="Sơ đồ: dung-du-lieu.py sinh ra app-data.json, từ đó sinh ra màn hình app và kho tri thức">
+  <defs>
+    <marker id="mt" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
+      <path d="M0,0 L9,4.5 L0,9 z" fill="#0E5A63"/>
+    </marker>
+  </defs>
+  <style>
+    .b{fill:#fff;stroke:#DDE4E4;stroke-width:1.5;rx:10}
+    .t{font:600 14px "Segoe UI",sans-serif;fill:#15201F}
+    .t2{font:12px "Segoe UI",sans-serif;fill:#61716F}
+    .mono{font:600 13px Consolas,monospace}
+    .l{stroke:#0E5A63;stroke-width:2;fill:none;marker-end:url(#mt)}
+    /* Viền trắng quanh chữ: nhãn nằm sát đường kẻ, không có viền thì đường
+       đi xuyên qua chữ trông như bị gạch bỏ. */
+    .lb{font:600 11px "Segoe UI",sans-serif;fill:#0E5A63;
+        stroke:#fff;stroke-width:3.5px;paint-order:stroke;stroke-linejoin:round}
+  </style>
+
+  <rect class="b" x="14" y="16" width="240" height="62" fill="#E3F1F0" stroke="#0E5A63" stroke-width="2.5"/>
+  <text class="mono" x="30" y="42" fill="#083C42">dung-du-lieu.py</text>
+  <text class="t2" x="30" y="62">CHỖ DUY NHẤT SỬA TAY</text>
+
+  <path class="l" d="M134,80 L134,112"/>
+  <text class="lb" x="144" y="100">python dung-du-lieu.py</text>
+
+  <rect class="b" x="14" y="116" width="240" height="62"/>
+  <text class="mono" x="30" y="142" fill="#083C42">du-lieu/app-data.json</text>
+  <text class="t2" x="30" y="162">máy sinh — đừng sửa tay</text>
+
+  <path class="l" d="M254,140 L330,140 L330,52 L406,52"/>
+  <text class="lb" x="338" y="104">dung-app.py</text>
+  <rect class="b" x="410" y="22" width="336" height="62"/>
+  <text class="t" x="426" y="46">Màn hình robot + file APK</text>
+  <text class="t2" x="426" y="66">demo/index.html · android assets</text>
+
+  <path class="l" d="M254,150 L330,150 L330,206 L406,206"/>
+  <text class="lb" x="338" y="168">dung-kho-tri-thuc.py</text>
+  <rect class="b" x="410" y="176" width="336" height="62"/>
+  <text class="t" x="426" y="200">Kho tri thức cho phần AI</text>
+  <text class="t2" x="426" y="220">nạp lên cổng OrionStar</text>
+</svg>
+</div>
+
+<h2><span class="so">2</span> Thêm một khoa trong toà DI / DII / DIII</h2>
+
+<p>Việc hay gặp nhất. Mở <code>dung-du-lieu.py</code>, tìm bảng <code>BANG_KHOA</code>, thêm một khối
+vào đúng cụm (file đã chia sẵn bằng những dòng <code># ── Nội khoa ──</code>):</p>
+
+<pre><span class="cm"># ── Mắt · Tai mũi họng · Răng ──</span>
+<span class="hl">    dict(ten=<span class="s">"Khoa Da Liễu"</span>, nhom=<span class="s">"mat-tai-rang"</span>, ghi_chu=<span class="s">"Da liễu, bệnh ngoài da"</span>,
+         vi_tri=[(<span class="s">"DII"</span>, <span class="n">4</span>, [<span class="s">"D25"</span>])],
+         tu_dan=<span class="s">"da lieu ngua di ung noi me day vay nen nam da mun trung ca "</span>
+                <span class="s">"benh ngoai da rung toc"</span>),</span></pre>
+
+<p>Năm thứ phải điền:</p>
+
+<table>
+<tr><th>Trường</th><th>Điền gì</th><th>Lưu ý</th></tr>
+<tr><td data-nhan="Trường"><code>ten</code></td><td data-nhan="Điền gì">Tên khoa đúng như bệnh viện gọi</td>
+    <td data-nhan="Lưu ý">Có dấu, viết hoa chữ đầu. Đây là chữ hiện trên màn hình <b>và</b> là chữ robot đọc</td></tr>
+<tr><td data-nhan="Trường"><code>nhom</code></td><td data-nhan="Điền gì">Một mã trong bảng <code>NHOM</code></td>
+    <td data-nhan="Lưu ý">Chép <b>đúng ký tự</b>: <code>me-be</code> · <code>tre-em</code> · <code>mat-tai-rang</code> ·
+        <code>noi-khoa</code> · <code>ngoai-khoa</code> · <code>xuong-khop</code> · <code>cap-cuu</code> ·
+        <code>tien-ich</code> · <code>hanh-chinh</code>. Gõ sai thì khoa đó <b class="xau">không hiện trong ô nào</b></td></tr>
+<tr><td data-nhan="Trường"><code>ghi_chu</code></td><td data-nhan="Điền gì">Một dòng mô tả ngắn</td>
+    <td data-nhan="Lưu ý">Hiện mờ dưới tên khoa trong danh sách kết quả</td></tr>
+<tr><td data-nhan="Trường"><code>vi_tri</code></td><td data-nhan="Điền gì">Toà · tầng · mã phòng</td>
+    <td data-nhan="Lưu ý">Xem ngay dưới</td></tr>
+<tr><td data-nhan="Trường"><code>tu_dan</code></td><td data-nhan="Điền gì">Từ người dân dùng để tìm</td>
+    <td data-nhan="Lưu ý">Trường <b>quan trọng nhất</b> — xem mục 3</td></tr>
+</table>
+
+<h3>Trường <code>vi_tri</code> — mỗi phần tử là một chỗ khoa đó có mặt</h3>
+
+<pre>    vi_tri=[(<span class="s">"DII"</span>, <span class="n">4</span>, [<span class="s">"D25"</span>])],                        <span class="cm"># một chỗ</span>
+    vi_tri=[(<span class="s">"DI"</span>, <span class="n">2</span>, [<span class="s">"D3"</span>, <span class="s">"D4"</span>]), (<span class="s">"DII"</span>, <span class="n">2</span>, [<span class="s">"D13"</span>])],   <span class="cm"># khoa có ở HAI toà</span>
+    vi_tri=[(<span class="s">"DIII"</span>, <span class="n">3</span>, [])],                           <span class="cm"># có tầng, chưa có mã phòng</span></pre>
+
+<ul>
+  <li>Toà chỉ nhận <code>"DI"</code> · <code>"DII"</code> · <code>"DIII"</code>. Toà khác → xem mục 8.</li>
+  <li>Tầng là <b>số</b>: <code>4</code>, không phải <code>"bốn"</code>. Robot tự đổi sang chữ khi đọc.</li>
+  <li>Mã phòng viết y như trên phiếu khám: <code>"D25"</code>. Chưa có mã thì để <code>[]</code>.</li>
+  <li>Khai <b>nhiều hơn một phần tử</b> thì app tự hiện màn hỏi lại
+      <i>“Quý vị đang theo dõi ở toà nào ạ?”</i> với các nút to — không phải làm gì thêm.</li>
+</ul>
+
+<h3>Câu robot đọc — máy tự ghép, không có chỗ nào để gõ tay</h3>
+
+<p>Khối ví dụ ở trên sinh ra hai câu sau, đúng công thức đã chốt với anh Trường:</p>
+
+<div class="doc-thu">
+  <span class="nhan">Lúc mở màn chi tiết, chưa đi</span>
+  “Khoa Da Liễu ở tầng bốn, toà nhà đê hai. Phòng đê hai mươi lăm.
+   Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.”
+</div>
+<div class="doc-thu">
+  <span class="nhan">Lúc robot đã tới đầu hành lang — câu quan trọng nhất của cả app</span>
+  “Đã tới nơi. Xin mời quý vị đi thẳng. <b>Toà nhà thứ hai, đó là toà đê hai.</b>
+   Quý vị vào đó, lên tầng bốn, vào Khoa Da Liễu. Tìm phòng đê hai mươi lăm. Chúc quý vị mau khoẻ.”
+</div>
+
+<p>Muốn đổi <b>cách nói</b> cho mọi khoa cùng lúc thì sửa hàm <code>cau_vi_tri()</code> /
+<code>cau_chi_duong()</code> ở nửa dưới file — sửa một chỗ, cả 16 khoa đổi theo.</p>
+
+<h2><span class="so">3</span> <code>tu_dan</code> — trường quyết định người dân có tìm ra hay không</h2>
+
+<p>Đây là các từ người bệnh <b>thật sự gõ hoặc nói</b>. Không ai gõ “Khoa Da Liễu” — người ta gõ
+<i>ngứa</i>, <i>nổi mề đay</i>, <i>dị ứng</i>. Viết <b>không dấu, chữ thường, cách nhau bằng dấu cách</b>.</p>
+
+<div class="ds-ds">
+  <div class="cot dung">
+    <h4>✓ Đúng</h4>
+    <ul>
+      <li>ngua di ung noi me day<small>không dấu, chỉ dấu cách</small></li>
+      <li>ngat xiu<small>cụm hai từ — chặt hơn từ đơn</small></li>
+      <li>dua con di kham<small>đúng lời người dân nói</small></li>
+    </ul>
+  </div>
+  <div class="cot sai">
+    <h4>✗ Sai</h4>
+    <ul>
+      <li>Ngứa, dị ứng<small>có dấu và có dấu phẩy → không khớp được</small></li>
+      <li>ngat<small>trùng “ngạt mũi” khi bỏ dấu</small></li>
+      <li>kham benh dau<small>quá phổ thông → cướp kết quả của khoa khác</small></li>
+    </ul>
+  </div>
+</div>
+
+<div class="hop do">
+  <b>⚠ Bỏ dấu xong nhiều từ trùng nhau — loại lỗi đã cắn app này ba lần</b>
+  Bộ tìm kiếm bỏ dấu trước khi so, nên hai từ khác hẳn nghĩa có thể thành một.
+</div>
+
+<table>
+<tr><th>Từ</th><th>Bỏ dấu thành</th><th>Trùng với</th><th>Chuyện đã xảy ra thật</th></tr>
+<tr><td data-nhan="Từ">ngất</td><td data-nhan="Bỏ dấu"><code>ngat</code></td><td data-nhan="Trùng">ngạt (mũi)</td>
+    <td data-nhan="Hậu quả">“ngất xỉu” ra <b class="xau">Khoa Tai Mũi Họng</b> trước Cấp Cứu</td></tr>
+<tr><td data-nhan="Từ">đóng</td><td data-nhan="Bỏ dấu"><code>dong</code></td><td data-nhan="Trùng">đông (y)</td>
+    <td data-nhan="Hậu quả">“đóng viện phí” ra <b class="xau">Khoa Y Học Cổ Truyền</b></td></tr>
+<tr><td data-nhan="Từ">nào</td><td data-nhan="Bỏ dấu"><code>nao</code></td><td data-nhan="Trùng">não</td>
+    <td data-nhan="Hậu quả">“thời tiết thế nào” ra <b class="xau">Khoa Ngoại Thần Kinh</b></td></tr>
+</table>
+
+<p>Cách chữa: thêm <b>cụm hai từ</b> thay vì từ đơn (<code>ngat xiu</code> chứ không phải <code>ngat</code>),
+rồi <b>luôn chạy bộ thử</b> ở mục 6.</p>
+
+<h2><span class="so">4</span> Thêm một chỗ trong khu lễ tân (robot dẫn thẳng tới nơi)</h2>
+
+<p>Ví dụ thêm <b>Phòng xét nghiệm</b> ngay trong sảnh. Khác mục 2 ở chỗ robot đi <b>tới tận nơi</b>,
+nên phải làm đủ <b>ba bước</b> — thiếu bước nào robot cũng đứng im.</p>
+
+<p class="nhan-ma">BƯỚC A — khai điểm bản đồ, thêm vào bảng <code>DIEM</code></p>
+<pre>    <span class="s">"xet-nghiem"</span>:   {<span class="s">"ten"</span>: <span class="s">"Phòng xét nghiệm"</span>,  <span class="s">"diem_ban_do"</span>: <span class="s">"Xet nghiem"</span>,   <span class="s">"mau"</span>: <span class="s">"#3E6B4F"</span>},</pre>
+
+<div class="hop cam">
+  <b>⚠ <code>diem_ban_do</code> phải trùng TỪNG KÝ TỰ với tên điểm trên bản đồ robot</b>
+  Không dấu, đúng hoa/thường, đúng một dấu cách. Sai một ký tự → robot ném
+  <code>ERROR_DESTINATION_NOT_EXIST</code>, nhận lệnh xong đứng im, nhìn từ ngoài y như máy hỏng.
+  Và <b>đừng dùng màu đỏ</b> cho <code>mau</code> — đỏ để riêng cho màn cấp cứu.
+</div>
+
+<p class="nhan-ma">BƯỚC B — khai chỗ đến, thêm vào bảng <code>BANG_TIEN_ICH</code></p>
+<pre>    dict(ten=<span class="s">"Phòng xét nghiệm"</span>, nhom=<span class="s">"tien-ich"</span>, diem=<span class="s">"xet-nghiem"</span>,
+         ghi_chu=<span class="s">"Lấy máu, xét nghiệm theo chỉ định"</span>,
+         tu_dan=<span class="s">"xet nghiem lay mau thu mau xn nuoc tieu sinh hoa mau "</span>
+                <span class="s">"phieu chi dinh xet nghiem"</span>,
+         doc=<span class="s">"Phòng xét nghiệm ở trong khu lễ tân. Quý vị nhớ mang theo phiếu chỉ định. "</span>
+             <span class="s">"Tôi dẫn quý vị tới nơi."</span>),</pre>
+
+<p>Khác mục 2: ở đây <b>có</b> trường <code>doc</code> — robot dẫn thẳng tới nơi nên câu nói ngắn và
+tuỳ chỗ, không theo công thức chung. Viết như người nói, và <b>số phải viết bằng chữ</b>
+(“tầng hai”, không phải “tầng 2”).</p>
+
+<p class="nhan-ma">BƯỚC C — dặn kỹ thuật viên đặt điểm trên robot</p>
+<p>Bước ngoài máy tính, và là bước hay quên nhất. Robot phải có điểm tên <code>Xet nghiem</code>
+trên bản đồ thật thì lệnh dẫn mới chạy. Nhớ <b>thêm điểm mới vào bảng</b> trong
+<a href="huong-dan-dat-ten-diem-ban-do.html">hướng dẫn đặt điểm bản đồ</a>, không thì lần quét map
+sau người ta lại quét thiếu.</p>
+
+<h2><span class="so">5</span> Sửa khoa đã có</h2>
+
+<table>
+<tr><th>Muốn</th><th>Sửa gì</th></tr>
+<tr><td data-nhan="Muốn">Khoa chuyển tầng</td><td data-nhan="Sửa">Sửa số tầng trong <code>vi_tri</code></td></tr>
+<tr><td data-nhan="Muốn">Khoa đổi mã phòng</td><td data-nhan="Sửa">Sửa danh sách mã trong <code>vi_tri</code></td></tr>
+<tr><td data-nhan="Muốn">Khoa mở thêm ở toà khác</td><td data-nhan="Sửa"><b>Thêm</b> một phần tử vào <code>vi_tri</code> — app tự chuyển sang hỏi lại toà</td></tr>
+<tr><td data-nhan="Muốn">Khoa đóng bớt một chỗ</td><td data-nhan="Sửa"><b>Bớt</b> phần tử đó. Còn đúng một chỗ thì app thôi hỏi lại</td></tr>
+<tr><td data-nhan="Muốn">Đổi tên khoa</td><td data-nhan="Sửa">Sửa <code>ten</code></td></tr>
+<tr><td data-nhan="Muốn">Người dân tìm không ra</td><td data-nhan="Sửa">Thêm từ vào <code>tu_dan</code></td></tr>
+<tr><td data-nhan="Muốn">Khoa ngừng hoạt động</td><td data-nhan="Sửa">Xoá cả khối <code>dict(...)</code>, hoặc thêm <code>#</code> đầu mỗi dòng để tạm tắt</td></tr>
+</table>
+
+<h2><span class="so">6</span> Ba lệnh phải chạy, rồi kiểm</h2>
+
+<pre><span class="k">cd</span> D:\RBW_Claude\11-app-nova\le-tan-benh-vien-uong-bi
+python dung-du-lieu.py        <span class="cm"># 1. sinh lại dữ liệu</span>
+python dung-app.py            <span class="cm"># 2. dựng lại màn hình + chép sang Android</span>
+python dung-kho-tri-thuc.py   <span class="cm"># 3. dựng lại hồ sơ nạp cổng OrionStar</span></pre>
+
+<p>Lệnh 1 in ra dòng tổng kết — <b>đọc dòng này</b>, đó là phép kiểm nhanh nhất.
+Số đích phải tăng đúng bằng số khoa vừa thêm:</p>
+
+<pre>   <span class="hl">22 đích</span>  ·  25 mã phòng  ·  9 nhóm  ·  6 điểm bản đồ
+   Mã phòng thiếu so với D1–D24: không thiếu mã nào</pre>
+
+<h3>Bộ thử tự động — bắt buộc chạy</h3>
+
+<pre>node tools\thu-luong-dan-duong.mjs   <span class="cm"># luồng dẫn đường + 7 phép kiểm an toàn</span>
+node tools\soi-man-hinh.mjs          <span class="cm"># chụp 15 màn, bắt nút tàng hình / tràn khung</span></pre>
+
+<p>Bộ thứ nhất có sẵn hai phép kiểm bắt đúng cái bẫy của <code>tu_dan</code>:
+<i>“Câu vô nghĩa → KHÔNG được bịa ra một khoa”</i> và <i>“Tôi muốn đưa con đi khám → Khoa Nhi”</i>.
+Thêm khoa với <code>tu_dan</code> quá rộng là hai phép này <b class="xau">đỏ ngay</b> — đó chính là
+lúc phải thu hẹp lại.</p>
+
+<h3>Rồi mở bản thử bấm tay</h3>
+
+<p>Nháy đúp <code>demo\thu-nghiem.html</code> (bản có giả lập robot, bấm được nút dẫn đường):</p>
+
+<div class="kiem">
+  <div><span class="o"></span><span><b>Vào đúng ô nhóm của khoa mới</b>
+    <small>khoa phải nằm trong danh sách</small></span></div>
+  <div><span class="o"></span><span><b>Gõ đúng câu người dân hay nói</b>
+    <small>“ngứa”, “nổi mẩn” — phải ra khoa mới</small></span></div>
+  <div><span class="o"></span><span><b>Gõ mã phòng mới</b>
+    <small>“D25” — phải ra khoa mới</small></span></div>
+  <div><span class="o"></span><span><b>Bấm dẫn đường, xem màn chỉ đường</b>
+    <small>đúng toà, đúng tầng, và đúng <b>thứ tự toà nhà</b></small></span></div>
+  <div><span class="o"></span><span><b>Bấm nút loa nghe lại câu đọc</b>
+    <small>nghe có tự nhiên không, số có đọc đúng không</small></span></div>
+  <div><span class="o"></span><span><b>Thử vài câu vô nghĩa</b>
+    <small>“thời tiết hôm nay”, “bao giờ có tàu” — robot phải nói <b>không biết</b>,
+      tuyệt đối không lôi ra một khoa nào</small></span></div>
+</div>
+
+<h2><span class="so">7</span> Sửa xong phải build lại APK và nạp lại kho tri thức</h2>
+
+<div class="hop do">
+  <b>⚠ Không build lại APK thì robot vẫn chạy y bản cũ</b>
+  Màn hình robot đọc <code>index.html</code> <b>nằm bên trong file APK</b>. Không có đường đẩy
+  nội dung rời sang robot.
+</div>
+
+<pre>.\tools\build-apk.ps1                      <span class="cm"># ra apk\le-tan-benh-vien-uong-bi-vX.Y.apk</span>
+.\tools\day-len-robot.ps1 -Ip &lt;IP&gt; -CaiApp</pre>
+
+<p>Rồi <b>mở app từ RobotOS Home</b>, không mở bằng <code>am start</code> — mở bằng
+<code>am start</code> thì <code>RobotApi</code> trả <code>handleApiDisabled</code>, mất cả
+dẫn đường lẫn giọng nói.</p>
+
+<h3>Nạp lại kho tri thức lên cổng OrionStar</h3>
+
+<p>Phần <b>trò chuyện AI</b> không đọc APK, nó đọc kho tri thức trên đám mây. Khoa mới chỉ “tồn tại”
+với AI sau khi nạp lại:</p>
+
+<ol>
+  <li>Chạy <code>python dung-kho-tri-thuc.py</code>.</li>
+  <li>Vào cổng <code>global-robotmp.orionstar.com</code>, đúng appId
+      <code>app_70eef22c4a6d4777af413ac942ea0153</code>.</li>
+  <li>Nạp lại <code>kho-tri-thuc\hoi-dap.csv</code> (mục Knowledge Q&amp;A) và
+      <code>kho-tri-thuc\kien-thuc.md</code>.</li>
+  <li>Ô persona ở <code>kho-tri-thuc\persona-robot.md</code> chỉ phải dán lại khi đổi tên bệnh viện
+      hoặc đổi cách xưng hô — thêm khoa thì không cần.</li>
+</ol>
+
+<div class="hop luc">
+  <b>Chưa kịp nạp cũng không sao</b>
+  Màn hình vẫn đúng, dẫn đường vẫn đúng — chỉ riêng phần hỏi bằng miệng là chưa biết khoa mới.
+  Không nguy hiểm, nhưng đừng để quên.
+</div>
+
+<h2><span class="so">8</span> Việc KHÔNG làm được bằng cách trên</h2>
+
+<table>
+<tr><th>Muốn</th><th>Vì sao khó</th><th>Phải làm gì</th></tr>
+<tr><td data-nhan="Muốn">Thêm toà nhà thứ tư (nhà A, nhà B…)</td>
+    <td data-nhan="Vì sao">Bốn bảng <code>TOA_CHU</code> · <code>TOA_TEN</code> · <code>TOA_TANG</code> ·
+        <code>TOA_THU_TU</code> đang khai đúng ba toà, và câu chỉ đường đếm theo thứ tự dọc hành lang</td>
+    <td data-nhan="Làm gì">Gọi tôi — sửa cả bốn bảng cùng lúc, và phải khảo sát xem đứng ở đầu hành lang
+        có nhìn thấy toà đó không</td></tr>
+<tr><td data-nhan="Muốn">Đổi <b>thứ tự</b> ba toà nhà</td>
+    <td data-nhan="Vì sao">Robot chỉ đường bằng <i>“toà nhà thứ hai”</i>. Sai thứ tự là chỉ sai toà,
+        người bệnh đi nhầm</td>
+    <td data-nhan="Làm gì">Sửa bảng <code>TOA_THU_TU</code>, nhưng <b>phải ra hiện trường đếm lại trước</b></td></tr>
+<tr><td data-nhan="Muốn">Thêm ô mới trên màn hình chính</td>
+    <td data-nhan="Vì sao">Lưới 5 cột đang đủ 10 ô = 2 hàng vừa khít màn. Ô thứ 11 đẩy xuống hàng ba,
+        mà người già ít khi cuộn</td>
+    <td data-nhan="Làm gì">Thêm vào bảng <code>NHOM</code> thì ô tự hiện, nhưng nên giữ tổng số ô là
+        <b>10 hoặc 15</b></td></tr>
+<tr><td data-nhan="Muốn">Cho robot đi vào trong toà DI/DII/DIII</td>
+    <td data-nhan="Vì sao">Ràng buộc vật lý, không phải phần mềm</td>
+    <td data-nhan="Làm gì">Ngoài phạm vi bản 1</td></tr>
+<tr><td data-nhan="Muốn">Đổi giọng đọc</td>
+    <td data-nhan="Vì sao">Giọng do máy robot phát, không nằm trong app</td>
+    <td data-nhan="Làm gì">Cài đặt của robot</td></tr>
+</table>
+
+<h2><span class="so">9</span> Lỗi hay gặp</h2>
+
+<table>
+<tr><th>Hiện tượng</th><th>Nguyên nhân gần như chắc chắn</th></tr>
+<tr><td data-nhan="Hiện tượng">Chạy <code>dung-du-lieu.py</code> báo <code>SyntaxError</code></td>
+    <td data-nhan="Nguyên nhân">Thiếu dấu phẩy cuối khối <code>dict(...)</code>, hoặc thiếu một dấu ngoặc.
+        Xem số dòng trong thông báo</td></tr>
+<tr><td data-nhan="Hiện tượng">Báo <code>KeyError: 'DIV'</code></td>
+    <td data-nhan="Nguyên nhân">Toà nhà gõ sai — chỉ có <code>"DI"</code>, <code>"DII"</code>, <code>"DIII"</code></td></tr>
+<tr><td data-nhan="Hiện tượng">Khoa mới không hiện trong ô nào</td>
+    <td data-nhan="Nguyên nhân"><code>nhom</code> gõ sai. Chép lại đúng ký tự từ bảng <code>NHOM</code></td></tr>
+<tr><td data-nhan="Hiện tượng">Gõ đúng từ mà không ra khoa mới</td>
+    <td data-nhan="Nguyên nhân"><code>tu_dan</code> viết có dấu, hoặc có dấu phẩy. Phải không dấu, chỉ dấu cách</td></tr>
+<tr><td data-nhan="Hiện tượng">Ra khoa mới cả khi hỏi chuyện khác</td>
+    <td data-nhan="Nguyên nhân"><code>tu_dan</code> quá rộng, có từ quá phổ thông. Bỏ bớt, thay bằng cụm hai từ</td></tr>
+<tr><td data-nhan="Hiện tượng">Robot đọc sai số phòng</td>
+    <td data-nhan="Nguyên nhân">Chỉ xảy ra với <code>doc</code> gõ tay ở <code>BANG_TIEN_ICH</code> — số phải viết bằng chữ</td></tr>
+<tr><td data-nhan="Hiện tượng">Robot nhận lệnh dẫn rồi đứng im</td>
+    <td data-nhan="Nguyên nhân">Tên trong <code>diem_ban_do</code> không khớp tên điểm trên bản đồ robot. So từng ký tự</td></tr>
+<tr><td data-nhan="Hiện tượng">Sửa xong mà robot vẫn như cũ</td>
+    <td data-nhan="Nguyên nhân">Quên build lại APK, hoặc quên chạy <code>dung-app.py</code> trước khi build</td></tr>
+</table>
+
+<footer>
+  Roboworld · App robot lễ tân Bệnh viện Việt Nam – Thụy Điển Uông Bí · cập nhật 27/08/2026<br>
+  Bản chữ để đọc trên GitHub: <code>huong-dan-them-phong-kham.md</code> ·
+  Đặt điểm bản đồ: <a href="huong-dan-dat-ten-diem-ban-do.html">huong-dan-dat-ten-diem-ban-do.html</a>
+</footer>
+
+</div>
+</body>
+</html>

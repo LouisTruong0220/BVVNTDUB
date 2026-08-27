@@ -147,8 +147,14 @@ hình tự nghĩ.
 | Giao diện, bố cục, luồng màn hình | `khung-app.html` | `dung-app.py` |
 | Câu robot nói lúc dẫn đường | `Cau.kt` → `danDuongToiDiem` | build lại APK |
 
-Chỉ khi đụng vào `.kt` mới phải build lại APK. Đổi nội dung và giao diện thì chạy `dung-app.py`
-rồi đẩy lại `index.html` là đủ.
+> 📄 **Thêm khoa mới, đổi tầng, đổi mã phòng, thêm chỗ robot dẫn tới — có hướng dẫn riêng
+> viết cho người không lập trình:** [`huong-dan-them-phong-kham.html`](huong-dan-them-phong-kham.html)
+> (bản chữ đọc trên GitHub: [`huong-dan-them-phong-kham.md`](huong-dan-them-phong-kham.md)).
+
+⚠ **Đổi nội dung cũng phải build lại APK.** `index.html` nằm trong `assets/` của APK và
+`MainActivity` nạp nó bằng `file:///android_asset/index.html` — không có đường đẩy file rời
+sang robot. `day-len-robot.ps1` chỉ đẩy được thư mục `bieu-cam/`. Sửa chữ mà không build lại
+thì robot vẫn chạy y bản cũ.
 
 ---
 

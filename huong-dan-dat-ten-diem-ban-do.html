@@ -4,6 +4,27 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Đặt điểm bản đồ robot — Bệnh viện Việt Nam – Thụy Điển Uông Bí</title>
+<meta name="description" content="Tám điểm bản đồ phải đặt cho robot lễ tân Bệnh viện Việt Nam – Thụy Điển Uông Bí: tên từng điểm, sơ đồ khu lễ tân, quy trình quét bản đồ và cách tự kiểm sau khi đặt.">
+
+<!-- Ảnh bìa khi gửi link qua Zalo / Messenger / Telegram.
+     og:image BẮT BUỘC là URL tuyệt đối — crawler không hiểu đường dẫn tương đối.
+     Nguồn dựng ảnh: cloudflare/_nguon-anh-og/og-huong-dan-diem-ban-do-uong-bi.html -->
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Roboworld">
+<meta property="og:locale" content="vi_VN">
+<meta property="og:url" content="https://huong-dan-diem-ban-do-uong-bi.pages.dev/">
+<meta property="og:title" content="Đặt điểm bản đồ robot lễ tân — Bệnh viện Việt Nam – Thụy Điển Uông Bí">
+<meta property="og:description" content="Tám điểm phải đặt, tên phải đúng từng ký tự. Có sơ đồ khu lễ tân, quy trình quét bản đồ và phần tự kiểm sau khi đặt. Mở được bằng điện thoại ngay tại chỗ.">
+<meta property="og:image" content="https://huong-dan-diem-ban-do-uong-bi.pages.dev/og-cover.jpg">
+<meta property="og:image:secure_url" content="https://huong-dan-diem-ban-do-uong-bi.pages.dev/og-cover.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Robot lễ tân GreetingBot Nova đứng cạnh quầy đón tiếp sảnh Bệnh viện Việt Nam – Thụy Điển Uông Bí">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Đặt điểm bản đồ robot lễ tân — Bệnh viện Uông Bí">
+<meta name="twitter:description" content="Tám điểm phải đặt, tên phải đúng từng ký tự. Có sơ đồ, quy trình quét bản đồ và phần tự kiểm.">
+<meta name="twitter:image" content="https://huong-dan-diem-ban-do-uong-bi.pages.dev/og-cover.jpg">
 <style>
 /* Tông màu lấy đúng của app để người đọc nhận ra là cùng một bộ.
    Đỏ chỉ dùng cho cảnh báo, giống quy ước trong app: đỏ = phải dừng lại đọc kỹ. */
@@ -118,7 +139,23 @@ footer{margin-top:44px;padding-top:18px;border-top:1px solid var(--vien);
   .so-do,.ds-ds,.kiem,table{page-break-inside:avoid}
   header .in{display:none}
 }
-@media(max-width:700px){ .ds-ds{grid-template-columns:1fr} }
+@media(max-width:700px){
+  .ds-ds{grid-template-columns:1fr}
+  /* Bảng 3 cột không vừa màn điện thoại: để nguyên thì cả trang lệch ngang,
+     mà cho cuộn ngang thì cột giữa bị bó còn một từ mỗi dòng, ô cao ngất.
+     Trên điện thoại đổi mỗi HÀNG thành một THẺ, tên cột thành nhãn từng ô —
+     kỹ thuật viên đứng giữa sảnh chỉ cuộn dọc, không phải kéo ngang. */
+  table{display:block;background:transparent;box-shadow:none;border-radius:0}
+  table tr{display:block;background:var(--the);border:1px solid var(--vien);
+    border-radius:10px;box-shadow:var(--bong);margin:0 0 12px;padding:4px 0}
+  table tr:first-child{display:none}           /* hàng tiêu đề đã thành nhãn */
+  table td{display:block;border-top:0;padding:7px 14px}
+  table tr td+td{border-top:1px solid var(--vien)}
+  table tr:nth-child(even) td{background:transparent}
+  table td::before{content:attr(data-nhan);display:block;margin-bottom:3px;
+    font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;color:var(--chu-nhat)}
+  table td code{display:inline-block;white-space:normal;word-break:break-word}
+}
 </style>
 </head>
 <body>
@@ -284,6 +321,13 @@ ba toà nhà một quãng — <b>không</b> vào trong toà nhà, <b>không</b> 
   Tên điểm nằm trong dữ liệu chứ không ghi cứng trong mã.
 </div>
 
+<div class="hop cam">
+  <b>📄 Thêm một điểm MỚI thì phải khai trong app TRƯỚC</b>
+  Ví dụ thêm phòng xét nghiệm: khai vào bảng <code>DIEM</code> của app rồi mới ra đặt trên robot —
+  xem <a href="huong-dan-them-phong-kham.html">hướng dẫn thêm phòng khám</a>, mục 4.
+  Đặt điểm trên robot mà quên khai trong app thì robot không bao giờ được lệnh đi tới đó.
+</div>
+
 <!-- ══════════ 3. THỨ TỰ TOÀ NHÀ ══════════ -->
 <h2><span class="so">3</span> Xác nhận thứ tự ba toà nhà</h2>
 
@@ -299,9 +343,9 @@ ba toà nhà một quãng — <b>không</b> vào trong toà nhà, <b>không</b> 
 
 <table>
   <tr><th style="width:34%">Thứ tự tính từ đầu hành lang</th><th>App đang giả định là</th><th>Đúng chưa?</th></tr>
-  <tr><td>Toà nhà <b>đầu tiên</b></td><td>Nhà DI — 5 tầng</td><td>☐</td></tr>
-  <tr><td>Toà nhà <b>thứ hai</b></td><td>Nhà DII — 5 tầng</td><td>☐</td></tr>
-  <tr><td>Toà nhà <b>thứ ba</b></td><td>Nhà DIII — 8 tầng</td><td>☐</td></tr>
+  <tr><td data-nhan="Thứ tự tính từ đầu hành lang">Toà nhà <b>đầu tiên</b></td><td data-nhan="App đang giả định là">Nhà DI — 5 tầng</td><td data-nhan="Đúng chưa?">☐</td></tr>
+  <tr><td data-nhan="Thứ tự tính từ đầu hành lang">Toà nhà <b>thứ hai</b></td><td data-nhan="App đang giả định là">Nhà DII — 5 tầng</td><td data-nhan="Đúng chưa?">☐</td></tr>
+  <tr><td data-nhan="Thứ tự tính từ đầu hành lang">Toà nhà <b>thứ ba</b></td><td data-nhan="App đang giả định là">Nhà DIII — 8 tầng</td><td data-nhan="Đúng chưa?">☐</td></tr>
 </table>
 
 <p>Khác đi thì sửa bảng <code>TOA_THU_TU</code> trong <code>dung-du-lieu.py</code>, chạy lại
@@ -394,29 +438,29 @@ adb forward tcp:9222 localabstract:webview_devtools_remote_<span class="hl">&lt;
 <table>
   <tr><th style="width:38%">Thấy gì trong log</th><th>Nghĩa là</th><th>Làm gì</th></tr>
   <tr>
-    <td><code>startNavigation('Tiep don') trả mã = 0</code></td>
-    <td>App gửi lệnh đúng, lỗi nằm ở máy</td>
-    <td>Xem ba bước ở dòng dưới</td>
+    <td data-nhan="Thấy gì trong log"><code>startNavigation('Tiep don') trả mã = 0</code></td>
+    <td data-nhan="Nghĩa là">App gửi lệnh đúng, lỗi nằm ở máy</td>
+    <td data-nhan="Làm gì">Xem ba bước ở dòng dưới</td>
   </tr>
   <tr>
-    <td><code>ERROR_DESTINATION_NOT_EXIST</code></td>
-    <td><b>Tên điểm sai</b></td>
-    <td>So lại từng ký tự với bảng mục 2</td>
+    <td data-nhan="Thấy gì trong log"><code>ERROR_DESTINATION_NOT_EXIST</code></td>
+    <td data-nhan="Nghĩa là"><b>Tên điểm sai</b></td>
+    <td data-nhan="Làm gì">So lại từng ký tự với bảng mục 2</td>
   </tr>
   <tr>
-    <td><code>status=1025 global path search failed</code></td>
-    <td>Robot không tìm ra đường</td>
-    <td>① Nhả nút dừng khẩn cấp ② Đẩy robot ra chỗ thoáng, chừa mỗi bên ~1 m ③ Tắt nguồn bật lại hẳn</td>
+    <td data-nhan="Thấy gì trong log"><code>status=1025 global path search failed</code></td>
+    <td data-nhan="Nghĩa là">Robot không tìm ra đường</td>
+    <td data-nhan="Làm gì">① Nhả nút dừng khẩn cấp ② Đẩy robot ra chỗ thoáng, chừa mỗi bên ~1 m ③ Tắt nguồn bật lại hẳn</td>
   </tr>
   <tr>
-    <td><code>STATUS_NAVI_OUT_MAP</code></td>
-    <td>Robot đang đứng ngoài vùng đã quét</td>
-    <td>Đẩy về trong sảnh rồi định vị lại</td>
+    <td data-nhan="Thấy gì trong log"><code>STATUS_NAVI_OUT_MAP</code></td>
+    <td data-nhan="Nghĩa là">Robot đang đứng ngoài vùng đã quét</td>
+    <td data-nhan="Làm gì">Đẩy về trong sảnh rồi định vị lại</td>
   </tr>
   <tr>
-    <td><code>can send failed</code> in ~1.500 dòng/giây</td>
-    <td><b>KHÔNG phải lỗi</b></td>
-    <td>Bỏ qua — ROM Nova in thế cả lúc chạy tốt</td>
+    <td data-nhan="Thấy gì trong log"><code>can send failed</code> in ~1.500 dòng/giây</td>
+    <td data-nhan="Nghĩa là"><b>KHÔNG phải lỗi</b></td>
+    <td data-nhan="Làm gì">Bỏ qua — ROM Nova in thế cả lúc chạy tốt</td>
   </tr>
 </table>
 

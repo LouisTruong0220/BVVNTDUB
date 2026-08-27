@@ -34,6 +34,10 @@ Muốn dùng tên khác thì **không sửa mã Kotlin** — sửa trường `di
 `dung-du-lieu.py`, chạy `python dung-du-lieu.py` rồi `python dung-app.py`, build lại APK.
 Tên điểm nằm trong dữ liệu chứ không ghi cứng trong mã.
 
+> 📄 **Thêm một điểm MỚI** (ví dụ phòng xét nghiệm) thì phải khai thêm trong app rồi mới đặt
+> trên robot — xem [`huong-dan-them-phong-kham.html`](huong-dan-them-phong-kham.html) mục 4.
+> Đặt điểm trên robot mà quên khai trong app thì robot không bao giờ được lệnh đi tới đó.
+
 ---
 
 ## ⚠ Điểm `Truoc hanh lang` — phải khảo sát trước khi đặt
