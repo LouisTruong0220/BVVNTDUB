@@ -59,8 +59,109 @@ class MainApplication : Application() {
          */
         @Volatile private var agentSanSang = false
 
-        fun batMicro() = datMicro(false)
-        fun tatMicro() = datMicro(true)
+        /**
+         * MIC ĐANG MỞ HAY KHÔNG — cờ của app, không hỏi SDK.
+         *
+         * ⚠ Không suy ra từ `AgentCore.isMicrophoneMuted`: app không đụng vào công tắc đó
+         *   nữa (bẫy một chiều, xem AppAgent.onCreate). Và cờ này là thứ chặn ở
+         *   `onASRResult` — ngoài lúc người bệnh bấm nút micro thì mọi câu nghe được đều
+         *   bị bỏ, kể cả khi đang đứng ở màn Trò chuyện.
+         */
+        @Volatile private var dangChoNghe = false
+
+        fun batMicro() { huyHenTatMic(); dangChoNghe = true;  datMicro(false); henTatMicNeuKhongAiNoi() }
+        fun tatMicro() { huyHenTatMic(); dangChoNghe = false; datMicro(true);  quenVe() }
+
+        /* ═══════════════════════════════════════════════════════════════
+           MICRO BẤM-MỚI-NGHE — chép lối đã chạy thật ở app Medinova (v1.6)
+           và app sự kiện Tây Ninh.
+
+           Vì sao: mic tự mở là robot vừa dứt lời đã dỏng tai hứng tạp âm, và
+           hai người đứng cạnh nói chuyện riêng cũng bị tính là câu hỏi. Ở sảnh
+           bệnh viện còn tệ hơn — đó là chuyện bệnh tình của người đang ngồi chờ.
+
+           Nay: bấm nút micro thì mới thu. Nói xong cứ dừng, một giây sau mic tự
+           tắt và câu được gửi đi. Muốn nói tiếp thì bấm lại.
+
+           BA ĐỒNG HỒ, cả ba nằm bên Kotlin vì chỉ Kotlin thấy cờ `final`:
+             · 250 ms (hoặc 1,4 giây nếu robot đang nói) — từ lúc bấm tới lúc mở
+               mic thật. Nằm ở moMic() bên khung-app.html.
+             · 1 giây sau mỗi `final` — dứt câu thì tắt mic và gửi câu đi.
+             · 15 giây trần cứng — bấm mic rồi bỏ đi thì tự tắt.
+           ═══════════════════════════════════════════════════════════════ */
+
+        /* ── GOM VẾ ──
+           Bộ nhận dạng của hãng bắn `final` ở MỖI lần khách ngắt hơi, không phải chỉ ở
+           cuối câu. Gửi ngay từng vế thì người bệnh nói "cho tôi hỏi… khoa nhi ở đâu"
+           là robot trả lời HAI LẦN cho hai nửa câu, mà nửa đầu tra ra khoa sai.
+           Gom lại, chờ một giây im lặng rồi mới gửi cả câu cho TraLoi. */
+        private val ve = StringBuilder()
+
+        @Synchronized
+        fun gomVe(chu: String) {
+            if (chu.isBlank()) return
+            if (ve.isNotEmpty()) ve.append(' ')
+            ve.append(chu.trim())
+        }
+
+        @Synchronized
+        fun quenVe() { ve.setLength(0) }
+
+        /** Hết một giây im lặng — gửi cả câu đã gom cho tầng hội thoại. */
+        fun guiCauDaGom() {
+            val cau = synchronized(this) {
+                val t = ve.toString().trim(); ve.setLength(0); t
+            }
+            if (cau.isNotBlank()) TraLoi.hoi(cau)
+        }
+
+        private const val CHO_DUT_CAU_MS = 1_000L
+
+        /**
+         * TRẦN CỨNG: bấm micro mà KHÔNG NÓI GÌ thì bao lâu tự tắt.
+         *
+         * ⚠ Không có trần này thì đồng hồ một giây ở trên không bao giờ chạy — nó chỉ
+         *   khởi động sau khi nghe được một câu. Người bệnh bấm micro rồi bỏ đi là mic
+         *   mở suốt, đúng cái "thu tạp âm" mà cả chế độ bấm-mới-nghe sinh ra để tránh.
+         */
+        private const val TRAN_MO_MIC_MS = 15_000L
+
+        private val tayCam = Handler(Looper.getMainLooper())
+        private var henTatMic: Runnable? = null
+
+        private fun huyHenTatMic() {
+            henTatMic?.let { tayCam.removeCallbacks(it) }
+            henTatMic = null
+        }
+
+        /** Bấm micro mà không nói gì — tắt sau TRAN_MO_MIC_MS. */
+        private fun henTatMicNeuKhongAiNoi() {
+            huyHenTatMic()
+            val r = Runnable {
+                henTatMic = null
+                if (!dangChoNghe) return@Runnable
+                Log.d(TAG, "Mở mic $TRAN_MO_MIC_MS ms mà không nghe được gì — tự tắt")
+                tatMicro()
+                Cau.baoMicTuTat()
+            }
+            henTatMic = r
+            tayCam.postDelayed(r, TRAN_MO_MIC_MS)
+        }
+
+        /** Người bệnh vừa dứt một vế — hẹn một giây nữa tắt mic, trừ khi có vế tiếp theo. */
+        private fun henTatMicSauKhiDutCau(khiTat: () -> Unit) {
+            huyHenTatMic()
+            val r = Runnable {
+                henTatMic = null
+                if (!dangChoNghe) return@Runnable
+                Log.d(TAG, "Người bệnh dứt câu — tự tắt mic sau $CHO_DUT_CAU_MS ms")
+                tatMicro()
+                Cau.baoMicTuTat()      // để nút micro trên màn hình thôi nhấp nháy
+                khiTat()
+            }
+            henTatMic = r
+            tayCam.postDelayed(r, CHO_DUT_CAU_MS)
+        }
 
         /**
          * ⚠ Mic và "nghe không cần đánh thức" phải đi CÙNG NHAU, đặt ở đúng một chỗ này.
@@ -78,14 +179,39 @@ class MainApplication : Application() {
          */
         private fun datMicro(tat: Boolean) {
             runCatching {
-                AgentCore.isMicrophoneMuted = tat
+                /*
+                 * ⚠⚠ KHÔNG ĐỤNG VÀO `isMicrophoneMuted` — BẪY MỘT CHIỀU.
+                 *   Đặt `= true` là tắt luôn công tắc micro của MÁY và `= false` không bật
+                 *   lại được. Chi tiết ở AppAgent.onCreate. Bản trước của app này có đặt,
+                 *   nên máy nào đã chạy bản ≤ v1.4 thì đang bị bịt mic: bấm tay nút
+                 *   "Bật microphone" trên dải trạng thái của hãng một lần, hoặc chạy
+                 *   `adb shell settings put global microphone 1`.
+                 *
+                 * Chặn nghe nay bằng hai thứ đảo chiều được: isEnableWakeFree, và cờ
+                 * dangChoNghe chốt ở onASRResult.
+                 */
                 AgentCore.isEnableWakeFree = !tat
-                Log.d(TAG, "Micro: tắt tiếng=${AgentCore.isMicrophoneMuted} · " +
-                           "nghe tự do=${AgentCore.isEnableWakeFree}")
+
+                /* ═══ VÌ SAO KHÔNG DÙNG `enableWakeupMode` ═══
+                   Bật nó là chuyển sang chế độ CHỈ NGHE SAU KHI ĐƯỢC GỌI TÊN, mà tên đánh
+                   thức nằm ở Settings.Global `robot_settings_wake_keyword` — trên máy này
+                   là {"wake_word":"小豹小豹"}, tiếng Trung. Không người bệnh nào gọi được
+                   câu đó, và SDK không có API kích hoạt thẳng. Đường duy nhất là nghe tự
+                   do. Gọi tắt ở đây cho chắc, phòng khi ROM bật sẵn.
+
+                   ⚠ ĐIỀU KIỆN VẬN HÀNH của nghe tự do: log ghi `isVisionEnable: true`,
+                     tức robot dùng CAMERA để quyết định câu nói có hướng vào nó không.
+                     NGƯỜI NÓI PHẢI ĐỨNG ĐỐI DIỆN ROBOT, TRONG TẦM CAMERA. Đứng cạnh sườn
+                     hay nói vọng từ xa thì bị xếp 环境音 (tiếng ồn môi trường) và câu nói
+                     bị bỏ. Đây là hành vi của hãng, không sửa bằng mã — phải dặn người
+                     trực sảnh. */
+                runCatching { AgentCore.enableWakeupMode(false) }
+
+                Log.d(TAG, "Micro: chờ nghe=$dangChoNghe · nghe tự do=${AgentCore.isEnableWakeFree}")
             }.onFailure { Log.w(TAG, "Không đặt được trạng thái micro: ${it.message}") }
         }
 
-        fun micDangMo(): Boolean = runCatching { !AgentCore.isMicrophoneMuted }.getOrDefault(false)
+        fun micDangMo(): Boolean = dangChoNghe
 
         /** Xoá ngữ cảnh hội thoại — gọi mỗi khi robot về màn chờ.
          *  Ở bệnh viện đây không chỉ là chuyện gọn gàng: chuyện bệnh tình của người trước
@@ -456,19 +582,37 @@ class MainApplication : Application() {
                  *      trong logcat. Mất dòng đó nghĩa là tắt hoạch định giết luôn ASR —
                  *      đã đo ở app Mông Dương là KHÔNG giết, nhưng vẫn phải kiểm lại trên máy này.
                  *
-                 * 3. isMicrophoneMuted — mặc định KHÔNG tắt tiếng, tức robot nghe cả ngày ngay
-                 *    từ lúc mở app. Ở sảnh bệnh viện đó là nghe lỏm chuyện bệnh tình của người
-                 *    ngồi chờ. Đóng lại từ đầu; chỉ mở ở màn Trò chuyện.
+                 * 3. isEnableWakeFree — mặc định BẬT, robot tự bắt lời người đi ngang.
+                 *    Tắt từ đầu; chỉ bật khi người bệnh bấm nút micro. Xem datMicro().
                  *
-                 * 4. isEnableWakeFree — mặc định BẬT, robot tự bắt lời người đi ngang. Xem
-                 *    chú thích dài ở datMicro().
+                 * ⚠⚠ CÔNG TẮC THỨ TƯ — `isMicrophoneMuted` — ĐÃ GỠ BỎ 08/09/2026.
+                 *
+                 *    Bản trước đặt `isMicrophoneMuted = true` ngay tại đây, với ý "đóng mic
+                 *    từ đầu, chỉ mở ở màn Trò chuyện". Nghe thì hợp lý, nhưng đó là BẪY MỘT
+                 *    CHIỀU đã đo trên máy thật 26/08/2026 (app sự kiện Long An, rồi app
+                 *    Medinova bản 1.0 dính lại):
+                 *
+                 *      · đặt `= true`  → TẮT LUÔN công tắc micro của MÁY
+                 *                        (Settings.Global "microphone" 1 → 0, icon mic trên
+                 *                         dải trạng thái của hãng hiện gạch chéo)
+                 *      · đặt `= false` → KHÔNG bật lại được. Khoá vẫn nằm ở 0.
+                 *
+                 *    Nghĩa là chỉ cần chạy app một lần là robot tự bịt tai mình VĨNH VIỄN,
+                 *    cho tới khi có người bấm tay nút "Bật microphone" trên màn robot, hoặc
+                 *    chạy `adb shell settings put global microphone 1`. Không tầng nào báo
+                 *    lỗi: app vẫn ghi "tắt tiếng=false", AgentService vẫn nhận chữ, chỉ có
+                 *    `onASRResult` là không bao giờ chạy.
+                 *
+                 *    Việc "robot đừng bắt lời ngoài màn Trò chuyện" nay làm bằng hai thứ
+                 *    KHÁC, cả hai đều đảo chiều được:
+                 *      · isEnableWakeFree — có bắt lời tự do không
+                 *      · cờ dangChoNghe   — chốt ở onASRResult
                  */
                 isEnableVoiceBar = false
                 isDisablePlan = true
-                isMicrophoneMuted = true
                 isEnableWakeFree = false
                 Log.d(TAG, "Công tắc hãng: voiceBar=$isEnableVoiceBar · disablePlan=$isDisablePlan · " +
-                           "micTat=$isMicrophoneMuted · wakeFree=$isEnableWakeFree")
+                           "wakeFree=$isEnableWakeFree  (KHÔNG đụng isMicrophoneMuted)")
 
                 /* Persona vẫn đặt dù đã tắt hoạch định: nó là đường lui nếu phải bật
                    disablePlan=false lại, và không tốn gì. */
@@ -509,16 +653,40 @@ class MainApplication : Application() {
                         // Nghe được chữ nghĩa là đường dây thật sự thông.
                         if (!agentSanSang) { agentSanSang = true; Cau.baoAISanSang(true) }
 
+                        /* CHỐT BẤM-MỚI-NGHE. Mic đóng thì nghe được cũng bỏ.
+                           ⚠ Đây là chốt MIC, không phải chốt MÀN HÌNH. Ngay trong màn Trò
+                             chuyện mic cũng đóng cho tới khi người bệnh bấm nút, nên câu
+                             lọt vào lúc đó rơi vào đây. Ghi rõ cả hai để người đọc log sau
+                             này không tưởng app đang ở nhầm màn.
+                           Đây cũng là thứ THAY CHO việc tắt micro bằng isMicrophoneMuted —
+                           xem chú thích dài ở datMicro(). */
+                        if (!dangChoNghe) {
+                            Log.d(TAG, "Nghe được '$chu' nhưng mic đang đóng — bỏ qua")
+                            return false
+                        }
+
                         Cau.guiLoiNoi("nguoi", chu, t.final)
 
                         if (t.final) {
                             Log.d(TAG, "Người bệnh nói: $chu")
                             tuNoi = ""          // lượt mới, quên câu app tự đọc lần trước
-                            /* ĐƯỜNG CHÍNH của cả cuộc hội thoại nằm ở đây. TraLoi tự lo:
+
+                            /* BẤM-MỚI-NGHE: gom vế, hẹn một giây nữa tắt mic rồi MỚI gửi
+                               cả câu đi. Mỗi `final` mới ĐẶT LẠI cái hẹn, nên người bệnh
+                               nói bao nhiêu vế cũng gom đủ.
+
+                               ĐƯỜNG CHÍNH của cả cuộc hội thoại nằm ở guiCauDaGom → TraLoi:
                                cấp cứu → hỏi bệnh → chưa có dữ liệu → tra kho → chấm tin cậy
                                → hỏi mô hình → kiểm câu trả lời → mới cho robot đọc.
-                               Nó tự đẩy sang luồng phụ nên callback này không bị chặn. */
-                            TraLoi.hoi(chu)
+                               TraLoi tự đẩy sang luồng phụ nên callback này không bị chặn. */
+                            gomVe(chu)
+                            henTatMicSauKhiDutCau { guiCauDaGom() }
+
+                            /* ⚠ ĐỪNG trả `true` ở đây để "nuốt" câu nói. Đã thử 26/08/2026
+                               ở app sự kiện Long An, đúng nhằm chặn AgentOS trả lời hai
+                               lần: HỎNG — app mất luôn đường nghe, onASRResult không chạy
+                               lần nào nữa, robot điếc hẳn. Việc chặn AgentOS tự đáp làm ở
+                               ĐẦU RA (onTTSResult bên dưới), không làm ở đầu vào. */
                         }
                         return false
                     }

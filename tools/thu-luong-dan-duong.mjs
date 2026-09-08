@@ -236,6 +236,76 @@ await kiemChan('Thời tiết hôm nay thế nào',     /chưa có trong dữ li
 await kiemChan('Tôi muốn đưa con đi khám',      /Khoa Nhi/i, 'Câu thật → chỉ đúng khoa');
 await kiemChan('Phòng thu viện phí ở đâu',      /viện phí/i, 'Hỏi chỗ nộp tiền → KHÔNG bị chặn nhầm');
 
+/* ═══════════════════════════════════════════════════════════════════════
+   G. MICRO BẤM-MỚI-NGHE
+
+   Chép lối đã chạy thật ở app Medinova (v1.6) và app sự kiện Tây Ninh: bấm nút
+   mới thu, dứt câu một giây là tự tắt và gửi câu đi. Mục đích là robot đang trả
+   lời thì không hứng tạp âm.
+
+   Mấy phép dưới đây ĐẾM LỆNH app gọi xuống Kotlin, không nhìn ảnh chụp — lỗi
+   nhóm này (mic mở lúc không nên mở) không hiện ra trong ảnh màn hình.
+   ═══════════════════════════════════════════════════════════════════════ */
+console.log('\n── G. Micro bấm-mới-nghe ──');
+
+const micMo = () => p.evaluate(() => GIA_LAP.micMo);
+/* Hai nút micro: #mic1 ở MÀN CHÍNH (bấm là mở màn Trò chuyện rồi bật mic luôn),
+   #mic2 ở trong màn Trò chuyện. */
+const nutSang = () => p.evaluate(() =>
+  document.querySelector('#mic2').classList.contains('dang-nghe'));
+
+await p.evaluate(() => { GIA_LAP.aiSanSang = true; veTrangChu(); moChat(); });
+await p.waitForTimeout(300);
+await kiem('Vào màn Trò chuyện: mic vẫn ĐÓNG, không tự mở',
+  async () => !(await micMo()));
+
+await p.click('#mic2');
+await kiem('Bấm nút micro → mic mở (sau quãng chờ robot nín)',
+  async () => await cho(async () => await micMo(), 4000));
+await kiem('Nút micro sáng lên "đang nghe"', async () => await nutSang());
+
+/* Bộ nhận dạng bắn `final` ở mỗi lần ngắt hơi. Hai vế phải gom thành MỘT câu,
+   không thì robot trả lời hai lần, mà nửa đầu tra ra khoa sai. */
+await p.evaluate(() => { GIA_LAP.daNoi.length = 0; GIA_LAP.khachNoi('cho tôi hỏi'); });
+await p.waitForTimeout(300);
+await p.evaluate(() => GIA_LAP.khachNoi('khoa nhi ở đâu'));
+await kiem('Dứt câu → Kotlin tự tắt mic',
+  async () => await cho(async () => !(await micMo()), 4000));
+await kiem('Nút micro tự tắt sáng theo (window.baoMicTuTat)',
+  async () => !(await nutSang()));
+await kiem('Hai vế gom thành MỘT câu, robot chỉ trả lời một lần',
+  async () => await cho(async () => {
+    const ds = await p.evaluate(() => GIA_LAP.daNoi);
+    return ds.length === 1 && /Khoa Nhi/i.test(ds[0]);
+  }, 8000));
+
+/* Mic đóng mà vẫn nghe được thì phải BỎ — đây chính là chốt chống tạp âm. */
+await p.evaluate(() => { GIA_LAP.daNoi.length = 0; GIA_LAP.khachNoi('khoa mắt ở đâu'); });
+await p.waitForTimeout(1600);
+await kiem('Mic ĐÓNG mà có tiếng nói → BỎ QUA, robot không đáp',
+  async () => (await p.evaluate(() => GIA_LAP.daNoi.length)) === 0);
+
+/* Rời màn Trò chuyện là mic phải đóng — kể cả khi mới bấm, còn đang chờ mở.
+   Phải quay lại màn Trò chuyện trước: câu hỏi ở trên đã làm app mở màn hỏi toà
+   (Khoa Nhi có ở hai toà), nên #mic2 lúc này đang nằm ở màn khuất. */
+await p.evaluate(() => { veTrangChu(); moChat(); });
+await p.waitForTimeout(300);
+await p.click('#mic2');
+await p.evaluate(() => veTrangChu());
+await p.waitForTimeout(2200);
+await kiem('Bấm mic rồi thoát ngay → mic KHÔNG được mở sau lưng',
+  async () => !(await micMo()));
+
+/* Nút micro ở MÀN CHÍNH: một chạm phải vừa mở màn Trò chuyện vừa bật mic —
+   đây là đường người bệnh hay dùng nhất, bắt họ chạm hai lần là mất phần lớn. */
+await p.evaluate(() => veTrangChu());
+await p.waitForTimeout(200);
+await p.click('#mic1');
+await kiem('Bấm mic ở màn chính → sang màn Trò chuyện',
+  async () => await cho(async () => (await man()) === 'mh-chat', 3000));
+await kiem('… và mic mở luôn, không phải chạm lần hai',
+  async () => await cho(async () => await micMo(), 4000));
+
 if (loi.length) { console.log('\n✗ Lỗi JS bắt được:'); loi.forEach(x => console.log('   ' + x)); hong += loi.length; }
 console.log('\n' + (hong ? '✗ ' + hong + ' phép kiểm KHÔNG đạt' : '✓ Tất cả phép kiểm đều đạt'));
 console.log('Ảnh: ' + RA);

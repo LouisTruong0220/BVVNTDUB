@@ -9,11 +9,11 @@ tìm đúng khoa theo cách họ tự mô tả, và **dẫn đường** tới n�
 
 **Chỉ cần cài lên robot, không cần build:**
 
-1. Tải `apk/le-tan-benh-vien-uong-bi-v1.3.apk`
+1. Tải `apk/le-tan-benh-vien-uong-bi-v1.5.apk`
 2. Nối cáp USB vào **đầu robot**, dùng **adb 1.0.41** của Android SDK
    (⚠ **không** dùng `C:\Windows\adb.exe` bản 1.0.39 của PUDU — hai bản giết tiến trình của nhau)
    ```powershell
-   adb install -r le-tan-benh-vien-uong-bi-v1.3.apk
+   adb install -r le-tan-benh-vien-uong-bi-v1.5.apk
    ```
 3. **Mở app từ RobotOS Home**, tuyệt đối không dùng `am start` — dùng `am start` thì `RobotApi`
    trả `handleApiDisabled`, mất cả dẫn đường lẫn giọng nói mà app không báo lỗi gì.
@@ -38,18 +38,18 @@ Hồ sơ dự án đầy đủ nằm trong workspace nội bộ của Roboworld,
 | | |
 |---|---|
 | Trạng thái | **Bản demo HTML xong, APK build xong. Chưa chạy trên robot thật, chưa khảo sát mặt bằng.** |
-| APK | `apk/le-tan-benh-vien-uong-bi-v1.4.apk` — appId riêng · ba toà D dừng ở đầu hành lang · nhà A/B/F dẫn tới tận nơi |
+| APK | `apk/le-tan-benh-vien-uong-bi-v1.5.apk` — appId riêng · ba toà D dừng ở đầu hành lang · nhà A/B/F dẫn tới tận nơi |
 | **Bản thử trên máy tính** | **`demo/thu-nghiem.html`** — có giả lập robot, bấm được nút dẫn đường. Đọc [HUONG-DAN-THU-NGHIEM.md](HUONG-DAN-THU-NGHIEM.md) |
 | Demo bản sạch | `demo/index.html` — giống hệt cái nằm trong APK |
 | Package | `vn.roboworld.benhvien` |
-| Ngày | 11/08/2026 |
+| Ngày | 11/08/2026 · cập nhật 08/09/2026 (bốn phòng mới + micro bấm-mới-nghe) |
 
 ---
 
 ## Phạm vi hoạt động — thứ quyết định toàn bộ thiết kế
 
 Robot **chỉ đi trong khu lễ tân**, xa nhất là ra **đầu hành lang** — nó dừng ở đó, còn cách
-các toà nhà một quãng. Nó **không vào** DI/DII/DIII, không lên thang máy. Đích đến chia hai loại:
+các toà nhà một quãng. Nó **không vào** DI/DII/DIII, không lên thang máy. Đích đến chia bốn loại:
 
 | Loại | Gồm | Robot làm gì |
 |---|---|---|
@@ -72,13 +72,13 @@ bệnh nhân cấp cứu đi theo robot là làm chậm họ. Màn cấp cứu v
 | id | Màn | Ghi chú |
 |---|---|---|
 | `mh-cho` | Chờ — lặp `emoji_blink.mp4` | app mở lên vào đây, vắng người 5 phút thì tự về |
-| `mh-chinh` | Menu 9 nhóm + ô tìm + băng "khám lần đầu" + ô mã phòng | |
+| `mh-chinh` | Menu 10 nhóm + ô tìm + băng "khám lần đầu" + dải mã phòng | |
 | `mh-toa` | Hỏi lại toà nhà | chỉ hiện với khoa có ở nhiều toà (Phụ Sản 3 toà, Nhi 2 toà) |
 | `mh-ct` | Chi tiết đích đến | thẻ toà/tầng/mã + sơ đồ + nút dẫn |
 | `mh-dan` | Đang dẫn | **robot im lặng dọc đường** |
 | `mh-chi` | **Chỉ đường** | bật khi tới `Truoc hanh lang` — chữ to nhất trong app |
 | `mh-cc` | **Cấp cứu** | nền đỏ, không có nút dẫn |
-| `mh-chat` | Trò chuyện | nút mic **tự ẩn** khi AI hãng chưa trả lời được |
+| `mh-chat` | Trò chuyện | nút mic **tự ẩn** khi AI hãng chưa trả lời được · mic **bấm mới nghe** |
 
 **Về màu:** giao diện dùng tông **xanh y tế**, không dùng đỏ Roboworld làm màu chính. Đây là
 quyết định an toàn chứ không phải thẩm mỹ — màn cấp cứu đỏ toàn khung chỉ còn sức cảnh báo khi
@@ -93,8 +93,9 @@ cd D:\RBW_Claude\11-app-nova\le-tan-benh-vien-uong-bi
 python dung-du-lieu.py      # bảng khoa phòng  → du-lieu/app-data.json     (chỉ khi dữ liệu đổi)
 python dung-app.py          # HTML + JSON      → demo/index.html + rải sang android assets
 python dung-kho-tri-thuc.py # cùng nguồn       → kho-tri-thuc/ cho cổng OrionStar
-node tools\soi-man-hinh.mjs # chụp 15 màn ở đúng 1920×1080 + tự soi bố cục
-node tools\thu-luong-dan-duong.mjs   # chạy trọn luồng dẫn đường trên bản thử, 19 phép kiểm
+node tools\soi-man-hinh.mjs # chụp 17 màn ở đúng 1920×1080 + tự soi bố cục
+node tools\thu-luong-dan-duong.mjs   # trọn luồng dẫn đường + micro bấm-mới-nghe
+node tools\thu-tim-kiem.mjs          # 51 câu hỏi → ra đúng khoa, hoặc phải nói không biết
 .\tools\build-apk.ps1       # → android\app\build\outputs\apk\debug\app-debug.apk
 ```
 
@@ -122,7 +123,7 @@ luật CSS khác đè `display:none`** — cả ba đều không báo lỗi gì,
 | File | Nạp vào đâu |
 |---|---|
 | `persona-robot.md` | Chữ để copy-dán vào từng ô ở **Robot Persona → Create Robot Persona**, kèm cả Transition Script và Common Role Greeting |
-| `hoi-dap.csv` | Mục **Knowledge Q&A** — 176 cặp hỏi–đáp, UTF-8 có BOM nên Excel mở không loạn chữ |
+| `hoi-dap.csv` | Mục **Knowledge Q&A** — 182 cặp hỏi–đáp, UTF-8 có BOM nên Excel mở không loạn chữ |
 | `kien-thuc.md` | Tài liệu kiến thức nền |
 
 **Vì sao sinh bằng script chứ không gõ tay:** cùng một sự thật ("Khoa Nhi ở tầng 2 nhà DI")
@@ -161,6 +162,57 @@ hình tự nghĩ.
 `MainActivity` nạp nó bằng `file:///android_asset/index.html` — không có đường đẩy file rời
 sang robot. `day-len-robot.ps1` chỉ đẩy được thư mục `bieu-cam/`. Sửa chữ mà không build lại
 thì robot vẫn chạy y bản cũ.
+
+---
+
+## Micro BẤM-MỚI-NGHE — anh Trường chốt 08/09/2026
+
+> *"Người dùng cần bấm vào mic để nói, sau đó sẽ ngắt mic ngay, AI sẽ xử lý đúng giọng đó
+> để tránh thu tạp âm."*
+
+Chép lối đã chạy thật ở app Medinova (v1.6) và app sự kiện Tây Ninh.
+
+**Bấm nút micro thì mới thu.** Nói xong cứ dừng, một giây sau mic tự tắt và câu được gửi đi.
+Muốn nói tiếp thì bấm lại. Mic **chỉ** sống ở màn Trò chuyện.
+
+### Ba đồng hồ
+
+| | Việc | Ở đâu |
+|---|---|---|
+| **250 ms** — hoặc **1,4 giây** nếu robot đang nói | từ lúc bấm nút tới lúc mic mở thật. Đợi luồng chữ TTS chảy hết, không thì chính nó đóng lại cửa sổ nghe vừa mở | `moMic()` trong `khung-app.html` |
+| **1 giây** sau mỗi `final` | dứt câu thì tắt mic và gửi câu đi | `MainApplication.henTatMicSauKhiDutCau` |
+| **15 giây** trần cứng | bấm mic rồi bỏ đi thì tự tắt | `MainApplication.henTatMicNeuKhongAiNoi` |
+
+⚠ **Trần 15 giây không phải cho đẹp.** Đồng hồ một giây chỉ khởi động **sau khi nghe được
+một câu** — không có trần thì người bệnh bấm mic rồi bỏ đi là mic mở suốt, đúng cái "thu tạp
+âm" mà cả chế độ này sinh ra để tránh.
+
+### ⚠ Gom vế trước khi gửi
+
+Bộ nhận dạng của hãng bắn `final` ở **mỗi lần người bệnh ngắt hơi**, không phải chỉ ở cuối câu.
+Gửi ngay từng vế thì *"cho tôi hỏi… khoa nhi ở đâu"* thành **hai câu hỏi**, mà nửa đầu tra ra
+khoa sai. `MainApplication.gomVe()` gom lại; mỗi `final` mới **đặt lại** đồng hồ một giây.
+
+### ⚠⚠ Đã gỡ `isMicrophoneMuted` — bẫy một chiều
+
+Bản ≤ v1.4 đặt `AgentCore.isMicrophoneMuted = true` ở **hai chỗ** (lúc khởi động và mỗi lần
+tắt mic). Đo trên máy thật 26/08/2026: đặt `= true` là **tắt luôn công tắc micro của MÁY**
+(`Settings.Global microphone` 1 → 0), và đặt `= false` **không bật lại được**.
+
+> **Máy nào đã chạy bản ≤ v1.4 thì đang bị bịt mic.** Chữa: bấm tay nút "Bật microphone"
+> trên dải trạng thái của hãng, hoặc:
+> ```
+> adb shell settings put global microphone 1
+> ```
+
+Từ v1.5 app không đụng vào công tắc đó nữa. Chặn nghe nay bằng hai thứ **đảo chiều được**:
+`isEnableWakeFree`, và cờ `dangChoNghe` chốt ở `onASRResult`.
+
+### ⚠ Điều kiện vận hành — không sửa được bằng mã
+
+Log ghi `isVisionEnable: true`: robot dùng **camera** để quyết định câu nói có hướng vào nó
+không. **Người nói phải đứng đối diện robot, trong tầm camera.** Đứng cạnh sườn hay nói vọng
+từ xa thì bị xếp là tiếng ồn môi trường và câu nói bị bỏ. Phải dặn người trực sảnh.
 
 ---
 

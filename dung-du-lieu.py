@@ -135,7 +135,10 @@ BANG_KHOA = [
     dict(ten="Khoa Nội Phổi – Tiết Niệu – Hô Hấp", nhom="noi-khoa", ghi_chu="Hô hấp, phổi, tiết niệu",
          vi_tri=[("DII", 4, ["D17", "D18"])],
          tu_dan="ho kho tho phoi hen suyen viem phoi ho hap than tieu buot soi than "
-                "tiet nieu tuc nguc lao phoi kho tho ve dem di tieu nhieu"),
+                "tiet nieu tuc nguc lao phoi kho tho ve dem di tieu nhieu "
+                # Cách người bệnh thật sự kể bệnh — thêm 08/09/2026 sau khi bộ thử
+                # tra cứu bắt được "tôi bị ho kéo dài" không ra khoa nào.
+                "ho keo dai ho lau ngay ho ra mau ho khan tuc nguc kho tho khi gang suc"),
 
     # ── Ngoại khoa ────────────────────────────────────────────────────
     dict(ten="Khoa Ngoại Thận – Tiết Niệu", nhom="ngoai-khoa", ghi_chu="Phẫu thuật thận, tiết niệu",

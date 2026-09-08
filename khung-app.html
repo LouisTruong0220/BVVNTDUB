@@ -625,7 +625,34 @@ function khongDau(s){
     .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
     .replace(/[^a-z0-9]+/g,' ').trim();
 }
-function tachTu(s){ return khongDau(s).split(' ').filter(w=>w.length>1); }
+/* ═══ TỪ ĐỆM — phải loại KHI CÒN DẤU ═══
+   Đây là chỗ mà thứ tự thao tác quyết định đúng sai. Bỏ dấu trước rồi mới lọc thì
+   "đâu" thành "dau" — đúng bằng "đau", một trong những chữ hay gặp nhất ở bệnh viện.
+   Hậu quả đo được: hỏi "khoa nhi ở đâu" ra Khoa Ngoại Thần Kinh, Khoa Tâm Thần Kinh
+   và Khoa Mắt — cả ba đều vì chữ "đau" trong danh sách từ dẫn của chúng.
+   Cùng cái bẫy đó với "nào" ↔ "não": trước đây phải bỏ hẳn "nao" khỏi danh sách bỏ
+   qua để cứu câu "u não", đổi lại "thời tiết thế nào" lại ăn vào Khoa Ngoại Thần Kinh.
+   Lọc khi CÒN DẤU thì cả hai ca cùng đúng: bỏ "đâu"/"nào", giữ "đau"/"não".
+
+   ⚠ Chỉ để từ ĐỆM ở đây — từ để hỏi và từ xã giao. Đừng để từ chỉ triệu chứng hay
+     bộ phận cơ thể, mất một chữ là mất luôn khoa. */
+const TU_DEM_CO_DAU = new Set((
+  'đâu nào gì ạ à ơi hả nhỉ nhé vậy thế thì mà là ở tại của cho tôi mình em cháu ' +
+  'hỏi xin làm ơn giúp giùm hộ với và cần muốn được không có thưa dạ vâng ' +
+  'anh chị bác cô chú quý vị bạn'
+).split(' '));
+
+/* Tách từ mà GIỮ NGUYÊN DẤU. Không dùng \p{L}: WebView trên máy Nova là bản cũ,
+   lớp ký tự Unicode có cờ /u cần Chrome mới hơn — sai ở đây là chết cả khối script. */
+function tachTuCoDau(s){
+  return (s||'').toLowerCase().replace(/[.,!?;:()\[\]"'“”…\-–—]+/g,' ')
+    .split(/\s+/).filter(Boolean);
+}
+
+function tachTu(s){
+  const giu = tachTuCoDau(s).filter(w => !TU_DEM_CO_DAU.has(w));
+  return khongDau(giu.join(' ')).split(' ').filter(w=>w.length>1);
+}
 
 /* Từ người dân nói ↔ từ trong tên khoa. Bảng này là thứ quyết định app có hiểu
    tiếng người bệnh hay không — bổ sung dần theo những câu nghe được ở sảnh. */
@@ -653,14 +680,17 @@ const DONG_NGHIA = {
 /* ═══════════ Tìm kiếm ═══════════
    Chỉ có 21 đích nên không cần bộ chấm điểm nặng như app thủ tục. Ba tầng:
    ① mã phòng Dxx → trả đúng một khoa · ② trùng cụm nguyên · ③ chấm điểm theo từ. */
-const RE_MA = /\bd\s*(\d{1,2})\b/;
+/* Nhận cả D3 lẫn C1 — từ 08/09/2026 Khoa Cấp cứu mang mã C1, không phải Dxx nữa.
+   Chỉ nhận chữ cái đầu là d hoặc c: mở rộng cho mọi chữ cái thì "a1", "b2" trong
+   một câu bình thường cũng bị coi là mã phòng. */
+const RE_MA = /\b([dc])\s*(\d{1,2})\b/;
 
 function timTheoMa(q){
   const m = RE_MA.exec(khongDau(q));
   if(!m) return null;
-  const ma = 'D' + parseInt(m[1], 10);
+  const ma = m[1].toUpperCase() + parseInt(m[2], 10);
   for(const d of DS){ if(d.ma.indexOf(ma) >= 0) return {dich:d, ma:ma}; }
-  return {dich:null, ma:ma};                 // gõ D25, D30 — mã không có thật
+  return {dich:null, ma:ma};                 // gõ D25, C9 — mã không có thật
 }
 
 /* Từ đệm — người ta gõ cả câu "tôi muốn đi đến khoa mắt". Không bỏ chúng ra thì
@@ -675,27 +705,84 @@ const BO_QUA = new Set(('toi di o cho la co va can muon xin giup duoc khong the 
    khớp chuỗi con làm "de" ăn vào "dieu duong", "dau" ăn vào mọi khoa có chữ đau. */
 DS.forEach(d => { d._bo = new Set(d.tim.split(' ').filter(Boolean)); });
 
+/* ═══ TRỌNG SỐ THEO ĐỘ HIẾM ═══
+   Trước đây mỗi từ khớp đều được 14 điểm như nhau. Hai hậu quả đo được:
+
+     · Câu ngắn mà rõ nghĩa lại KHÔNG ĐỦ ĐIỂM. "khoa nhi ở đâu" chỉ còn đúng một
+       từ có nghĩa ("nhi", vì "khoa" là từ đệm) → 14 điểm, dưới ngưỡng 24, robot
+       trả lời "tôi chưa có trong dữ liệu". Đó là câu hỏi rõ ràng nhất đời.
+     · Từ phổ thông kéo khoa sai lên. "đau dạ dày khám khoa nào" ra Khoa Mắt,
+       vì "khám" và "đau" có mặt ở gần như mọi khoa.
+
+   Nay điểm mỗi từ tỉ lệ NGHỊCH với số đích chứa nó: từ chỉ một khoa có (nhi ·
+   đông y · căn tin · điện tim) đáng giá gấp năm lần từ nửa danh mục nào cũng có
+   (khám · đau · phòng). Đây chính là ý tưởng IDF trong tìm kiếm, rút gọn thành
+   bậc thang cho dễ chỉnh tay.
+
+   ⚠ Bảng bậc này là thứ quyết định app hiểu hay không hiểu tiếng người bệnh.
+     Đụng vào là PHẢI chạy lại node tools/thu-tim-kiem.mjs (51 phép). */
+const _demTu = new Map();
+DS.forEach(d => d._bo.forEach(w => _demTu.set(w, (_demTu.get(w) || 0) + 1)));
+
+function trongSoTu(w){
+  const n = _demTu.get(w) || 0;
+  if(n === 0) return 0;      // không đích nào có — không cộng gì
+  if(n === 1) return 34;     // từ đặc trưng: nhi · đông y · căn tin · điện tim
+  if(n === 2) return 28;
+  if(n <= 4)  return 20;
+  if(n <= 8)  return 12;
+  return 6;                  // từ nửa danh mục nào cũng có
+}
+
 function timDichCoDiem(q, soLuong){
   const kd = khongDau(q);
   if(kd.length < 2) return [];
   const tu = [...new Set(tachTu(q))].filter(w => !BO_QUA.has(w));
-  if(!tu.length) return [];
+
+  /* ═══ CỤM HAI TỪ ═══
+     Ghép các từ liền nhau (đã bỏ từ đệm nhưng GIỮ cả từ một chữ cái) rồi tìm
+     nguyên cụm trong bảng từ dẫn. Hai việc nó làm được mà từ đơn không làm nổi:
+
+       · Cứu từ một chữ cái. "đông y ở đâu" tách ra chỉ còn ["dong"] — chữ "y"
+         rụng vì quá ngắn — mà "dong" một mình thì đụng cả "đóng tiền" lẫn "đột
+         quỵ", ba khoa cùng 20 điểm, không khoa nào đủ ngưỡng. Có cụm "dong y"
+         thì Y Học Cổ Truyền vọt hẳn lên.
+       · Phân biệt câu hỏi thật với câu vô tình đụng chữ, vì cụm hai từ hiếm khi
+         trùng ngẫu nhiên.
+
+     Chép lối của app sự kiện Tây Ninh — ở đó chính cụm hai từ là thứ đưa bộ tra
+     cứu từ chập chờn lên 45/45. */
+  const dayTu = tachTuCoDau(q).filter(w => !TU_DEM_CO_DAU.has(w))
+                  .map(w => khongDau(w)).filter(Boolean);
+  const cum = [];
+  for(let i = 0; i + 1 < dayTu.length; i++) cum.push(dayTu[i] + ' ' + dayTu[i+1]);
+
+  if(!tu.length && !cum.length) return [];
   const kq = [];
   for(const d of DS){
-    let diem = 0, trung = 0;
+    let diem = 0, trung = 0, manh = 0;
     if(kd.length > 3 && d.tim.indexOf(kd) >= 0) diem += 60;   /* trùng nguyên cụm */
+    for(const c of cum){
+      if(d.tim.indexOf(c) >= 0){ diem += 30; manh = Math.max(manh, 30); }
+    }
     for(const w of tu){
       let co = false;
-      if(d._bo.has(w)) { diem += 14; co = true; }
+      if(d._bo.has(w)) { diem += trongSoTu(w); co = true; }
       else if(w.length >= 4 && d.tim.indexOf(w) >= 0) { diem += 5; co = true; }   /* gõ thiếu đuôi */
       const dn = DONG_NGHIA[w];
       if(dn){ let p = 0; for(const s of dn) if(d._bo.has(s)) p += 5;
               if(p){ diem += Math.min(p, 14); co = true; } }
       if(co) trung++;
     }
-    /* phu = phần trăm số từ có nghĩa trong câu hỏi mà bản ghi này khớp được.
-       Đây là thứ phân biệt câu hỏi thật với câu vô tình đụng chữ — xem chamTinCay. */
-    if(diem > 0) kq.push({ d:d, diem:diem, phu:trung / tu.length });
+    /* phu  = phần trăm số từ có nghĩa trong câu hỏi mà bản ghi này khớp được.
+       manh = có khớp được CỤM HAI TỪ nào không.
+
+       ⚠ manh CHỈ đếm cụm, cố ý. Bản đầu đếm cả từ đơn hiếm, và lập tức mở toang
+         cửa cho câu vô nghĩa: "thời tiết hôm nay" khớp "tiết" của Tiết Niệu,
+         "giá vàng bao nhiêu" khớp "vàng" của vàng da Sơ Sinh, "hôm nay thứ mấy"
+         khớp "thu" của thu ngân. Từ đơn hiếm trùng ngẫu nhiên là chuyện thường;
+         cụm hai từ thì gần như không. */
+    if(diem > 0) kq.push({ d:d, diem:diem, phu:trung / Math.max(1, tu.length), manh:manh });
   }
   if(!kq.length) return [];
   kq.sort((a,b)=> b.diem - a.diem || a.d.ten.length - b.d.ten.length);
@@ -726,13 +813,27 @@ function timDich(q){ return timDichCoDiem(q, 8).map(x=>x.d); }
    Thang điểm để đối chiếu: trùng trọn từ = 14 · trùng nguyên cụm = 60 · đồng nghĩa ≤ 14. */
 const TIN_SAN  = 24;    // điểm sàn tuyệt đối — dưới mức này là không thấy, dù có là điểm cao nhất
 const TIN_PHU_CHAC = 0.6;   // phủ từ mức này trở lên mới được khẳng định
-const TIN_PHU_SAN  = 0.5;   // dưới mức này thì coi như câu hỏi không nói về khoa nào cả
+const TIN_PHU_SAN  = 0.55;  // dưới mức này thì coi như câu hỏi không nói về khoa nào cả
+                            // 0,55 chứ không phải 0,5: câu "bao giờ có tàu về hà nội"
+                            // khớp đúng 2/4 từ ("nội", "về") = 0,50 chẵn, lọt qua mốc
+                            // 0,5 và robot chỉ về Khoa Nội Phổi.
 const TIN_CACH = 1.5;   // điểm đầu phải gấp chừng này lần điểm nhì mới coi là rõ ràng
+/* Trọng số tối thiểu của một từ khớp để được coi là ĐẶC TRƯNG. 28 = từ chỉ có ở
+   một hoặc hai khoa (nhi · ho · đông y · căn tin). Từ ở năm khoa trở lên chỉ được
+   6–12 điểm, không bao giờ vượt mốc này — đó là chủ ý. */
+const TIN_MANH = 28;
 
 function chamTinCay(kq){
   if(!kq || !kq.length) return { muc:'khong-thay', d0:0, d1:0, phu:0 };
   const d0 = kq[0].diem, d1 = kq.length > 1 ? kq[1].diem : 0, phu = kq[0].phu;
-  if(d0 < TIN_SAN || phu < TIN_PHU_SAN) return { muc:'khong-thay', d0, d1, phu };
+  const manh = kq[0].manh || 0;
+  if(d0 < TIN_SAN) return { muc:'khong-thay', d0, d1, phu };
+  /* ĐỘ PHỦ THẤP thì chỉ tha khi có một từ ĐẶC TRƯNG khớp.
+     Vì sao cần cả hai điều kiện, đo trên chính hai câu này:
+       · "tôi bị ho kéo dài"        phủ 0,33 — nhưng "ho" là từ của đúng khoa
+       · "bao giờ có tàu về hà nội" phủ 0,50 — chỉ đụng "nội", "về", chữ phổ thông
+     Xét riêng phủ thì hoặc bỏ oan câu đầu, hoặc nhận nhầm câu sau. */
+  if(phu < TIN_PHU_SAN && manh < TIN_MANH) return { muc:'khong-thay', d0, d1, phu };
   /* Hai ứng viên cùng một khoa (Phụ Sản ở ba toà) thì không tính là mập mờ */
   const roRang = d1 === 0 || d0 >= d1 * TIN_CACH || kq[0].d.id === kq[1].d.id;
   return { muc:(phu >= TIN_PHU_CHAC && roRang) ? 'chac' : 'chua-chac', d0, d1, phu };
@@ -817,7 +918,9 @@ function ve(id){
   if(id === 'mh-cho')  mayCho.bat();  else mayCho.dung();
   if(id === 'mh-dan')  mayDan.bat();  else mayDan.dung();
   if(id === 'mh-chat') mayChat.bat(); else mayChat.dung();
-  if(id !== 'mh-chat' && micChatMo) dongMicChat();
+  /* Rời màn Trò chuyện là đóng mic. Kiểm CẢ hen mở đang chờ — không thì bấm
+     micro rồi thoát ngay trong 1,4 giây là mic vẫn mở sau lưng. */
+  if(id !== 'mh-chat' && (micChatMo || henMoMic)) dongMicChat();
   if(id === 'mh-cho') clearTimeout(henCho); else hoatDong();
 }
 
@@ -942,17 +1045,22 @@ function veSoDo(nhanManh, oRieng){
 /* ═══════════ Màn chi tiết ═══════════ */
 let dichDang = null, viTriDang = null, maNhanManh = null;
 
-function moChiTiet(id, iVt, ma){
+/* khongDoc: mở màn nhưng ĐỪNG đọc thành tiếng.
+   Dùng khi tầng AI mở màn hộ — lúc đó TraLoi.kt đã tự đọc "câu dẫn của mô hình +
+   câu vị trí", nên nếu màn này đọc thêm lần nữa là người bệnh nghe câu vị trí HAI
+   LẦN chồng nhau. Bộ thử tools/thu-luong-dan-duong.mjs đếm số câu robot nói, chính
+   nó bắt được lỗi này 08/09/2026. */
+function moChiTiet(id, iVt, ma, khongDoc){
   const d = DS.find(x=>x.id === id); if(!d) return;
   dichDang = d; maNhanManh = ma || null;
 
   /* Khoa nằm ở nhiều toà mà chưa biết toà nào → hỏi lại trước, đừng đoán.
      Trừ khi người ta gõ hẳn mã phòng — mã phòng đã chỉ đích danh một toà rồi. */
-  if(d.vi_tri.length > 1 && iVt == null && !ma){ hoiToa(d); return; }
+  if(d.vi_tri.length > 1 && iVt == null && !ma){ hoiToa(d, khongDoc); return; }
   if(d.vi_tri.length > 1 && ma && iVt == null){
     iVt = d.vi_tri.findIndex(v => v.ma.indexOf(ma) >= 0);
     if(iVt < 0) iVt = null;
-    if(iVt == null){ hoiToa(d); return; }
+    if(iVt == null){ hoiToa(d, khongDoc); return; }
   }
   viTriDang = d.vi_tri.length ? d.vi_tri[iVt || 0] : null;
 
@@ -1053,12 +1161,14 @@ function moChiTiet(id, iVt, ma){
   $('#ct-phai').innerHTML = phai;
 
   ve('mh-ct');
-  doc(viTriDang ? viTriDang.doc : d.doc);
+  if(!khongDoc) doc(viTriDang ? viTriDang.doc : d.doc);
   keManHinhChoAI();
 }
 
 /* Màn hỏi lại toà nhà */
-function hoiToa(d){
+/* khongDoc: xem chú thích ở moChiTiet — khoa nằm ở nhiều toà thì moChiTiet rẽ
+   sang đây, nên cờ phải đi theo, không thì vẫn nghe hai lần. */
+function hoiToa(d, khongDoc){
   dichDang = d;
   $('#toa-hoi').textContent = d.ten + ' có ở ' + d.vi_tri.length + ' toà nhà. Quý vị đang theo dõi ở toà nào?';
   $('#toa-luoi').innerHTML = d.vi_tri.map((v,i)=>`
@@ -1068,7 +1178,7 @@ function hoiToa(d){
       <div class="tn-ma">${v.ma.length ? 'Phòng ' + v.ma.join(' · ') : ''}</div>
     </button>`).join('');
   ve('mh-toa');
-  doc(d.doc);
+  if(!khongDoc) doc(d.doc);
 }
 
 /* Màn cấp cứu — KHÔNG có nút dẫn đường, cố ý. */
@@ -1360,15 +1470,81 @@ function capNhatMic(){
   $('#mic2').classList.toggle('co', co);
   $('#nut-chat').classList.add('co');
 }
+/* ═══════════════════════════════════════════════════════════════════════
+   MICRO BẤM-MỚI-NGHE
+
+   Người bệnh bấm nút micro thì mới thu. Dứt câu khoảng một giây là Kotlin tự
+   tắt mic và gửi câu đi; muốn nói tiếp thì bấm lại. Mục đích: robot đang trả
+   lời thì không hứng tạp âm, và người đứng cạnh nói chuyện riêng không bị tính
+   là câu hỏi. Ở sảnh bệnh viện chuyện đó còn nặng hơn — đó là bệnh tình của
+   người đang ngồi chờ.
+
+   ⚠ PHẢI MỞ MIC TRỄ. Robot ĐÓNG CỬA SỔ NGHE ngay khi chính nó cất tiếng. Chuỗi
+     hỏng đã đo trên máy thật 26/08/2026:
+       bấm micro giữa lúc robot còn đọc dở
+         → app cắt tiếng và mở mic ngay
+         → nhưng luồng chữ TTS còn chảy thêm ~0,5 giây nữa
+         → chính luồng đó đóng lại cửa sổ nghe vừa mở
+         → onASRResult không chạy lần nào, app đứng im, KHÔNG một dòng lỗi.
+     Nên đợi luồng chữ chảy hết rồi mới mở. Robot đang im thì mở gần như ngay —
+     bắt người bệnh đứng đợi 1,4 giây trước một cái micro im lìm là họ tưởng
+     máy hỏng.
+
+   Hai đồng hồ còn lại (1 giây dứt câu · 15 giây trần cứng) nằm bên Kotlin, vì
+   chỉ Kotlin thấy cờ `final` của bộ nhận dạng.
+   ═══════════════════════════════════════════════════════════════════════ */
+const CHO_NIN = 1400;      /* ms — đo được ~500 ms, để dư gấp đôi cho chắc */
+let henMoMic = null;
+
+function veMatNutMic(mo){
+  $('#mic1').classList.toggle('dang-nghe', mo);
+  $('#mic2').classList.toggle('dang-nghe', mo);
+}
+
+function moMic(){
+  if(!coMicRobot()) return;
+  clearTimeout(henMoMic);
+  /* Cắt tiếng TRƯỚC khi mở tai: bấm micro giữa lúc robot đang đọc nghĩa là người
+     bệnh muốn nói xen vào. Và nếu không cắt, chính luồng chữ TTS sẽ đóng lại cửa
+     sổ nghe vừa mở. */
+  const dangNoi = dangDoc;
+  dungDoc();
+  $('#chat-trang-thai').textContent = 'Chờ tôi nín đã…';
+  henMoMic = setTimeout(function(){
+    henMoMic = null;
+    if(manDang !== 'mh-chat'){ return; }       /* đã rời màn Trò chuyện rồi */
+    try{ CAU.batMic(); micChatMo = true; }
+    catch(e){ micChatMo = false; $('#chat-trang-thai').textContent = ''; return; }
+    veMatNutMic(true);
+    $('#chat-trang-thai').textContent = 'Tôi đang nghe…';
+  }, dangNoi ? CHO_NIN : 250);
+}
+
+function dongMic(){
+  clearTimeout(henMoMic); henMoMic = null;
+  micChatMo = false;
+  try{ if(coCau() && CAU.tatMic) CAU.tatMic(); }catch(e){}
+  veMatNutMic(false);
+  $('#chat-trang-thai').textContent = '';
+}
+
 function batTatMic(){
   if(!coMicRobot()) return;
-  micChatMo = !micChatMo;
-  try{ micChatMo ? CAU.batMic() : CAU.tatMic(); }catch(e){ micChatMo = false; }
-  $('#mic1').classList.toggle('dang-nghe', micChatMo);
-  $('#mic2').classList.toggle('dang-nghe', micChatMo);
-  $('#chat-trang-thai').textContent = micChatMo ? 'Tôi đang nghe…' : '';
+  /* Đang chờ mở (henMoMic còn hẹn) cũng tính là "đang mở" — bấm lần nữa là huỷ.
+     Không tính thì bấm hai lần nhanh sẽ ra một cái mic mở mà nút thì tắt. */
+  (micChatMo || henMoMic) ? dongMic() : moMic();
 }
-function dongMicChat(){ if(micChatMo) batTatMic(); }
+
+/* Rời màn Trò chuyện là đóng mic, kể cả khi mới đang chờ mở. */
+function dongMicChat(){ if(micChatMo || henMoMic) dongMic(); }
+
+/** Kotlin đã tự tắt mic (người bệnh dứt câu, hoặc bấm rồi bỏ đi) — đổi nút cho khớp. */
+window.baoMicTuTat = function(){
+  clearTimeout(henMoMic); henMoMic = null;
+  micChatMo = false;
+  veMatNutMic(false);
+  if(manDang === 'mh-chat') $('#chat-trang-thai').textContent = '';
+};
 
 /* Android gọi lên: từng mẩu lời nói đã nghe/đã đọc */
 window.nhanLoiNoi = function(ai, chu, xong){
@@ -1386,7 +1562,9 @@ window.nhanLoiNoi = function(ai, chu, xong){
    đứng nhìn màn hình mà nó nhảy sang khoa khác thì rối hơn là để nguyên. */
 window.goiYTuRobot = function(cauNoi){
   const r = traCuu(cauNoi || '', 3);
-  if(r.muc === 'chac' && r.ds.length){ moChiTiet(r.ds[0].id); return 1; }
+  /* Mở màn nhưng KHÔNG đọc — tầng AI bên Kotlin sẽ đọc câu của nó, trong đó đã
+     có sẵn câu vị trí nguyên văn. Đọc ở cả hai nơi là nghe hai lần. */
+  if(r.muc === 'chac' && r.ds.length){ moChiTiet(r.ds[0].id, null, null, true); return 1; }
   return 0;
 };
 /* ═══════════ Android gọi xuống để TRA — trả JSON, KHÔNG đọc thành tiếng ═══════════

@@ -29,8 +29,14 @@
   };
   window.GIA_LAP = GL;
 
+  /* Bộ thử tự động gọi GIA_LAP.khachNoi('...') để mô phỏng người bệnh nói một vế.
+     Định nghĩa thật nằm trong CAU._khachNoi bên dưới; nối vào đây sau khi dựng CAU. */
+
   var DIEM_GIA = ['Tiep don', 'Vien phi', 'Nha thuoc', 'Can tin',
-                  'Nha ve sinh', 'Truoc hanh lang', 'Sanh cho', 'Tram sac'];
+                  'Nha ve sinh', 'Truoc hanh lang', 'Sanh cho', 'Tram sac',
+                  /* Bốn điểm ở toà A · B · C · F, thêm 08/09/2026 */
+                  'Khoa cap cuu', 'Khu Tham do chuc nang',
+                  'Khoa Rang Ham Mat', 'Khoa chan doan hinh anh'];
 
   /* ── Ghi nhật ký ra bảng điều khiển ───────────────────────────────── */
   function ghi(loai, chu) {
@@ -202,7 +208,11 @@
                r.ds.map(function (x) { return x.ten; }).join(', ') + '.');
       return;
     }
-    if (window.moChiTiet) window.moChiTiet(d.id);
+    /* Mở màn qua ĐÚNG cửa mà Cau.guiGoiYSangManHinh dùng, đừng gọi thẳng moChiTiet:
+       cửa đó mở màn mà KHÔNG đọc, vì câu vị trí đã nằm sẵn trong câu TraLoi.kt đọc
+       ngay dưới đây. Gọi thẳng moChiTiet là màn tự đọc thêm một lần — người bệnh
+       nghe câu vị trí hai lần chồng nhau. */
+    if (window.goiYTuRobot) window.goiYTuRobot(cau);
     // Câu dẫn giả lập + câu vị trí lấy NGUYÊN VĂN từ dữ liệu, đúng như TraLoi.kt ghép
     noiRaMan('Dạ tôi hiểu rồi ạ. ' + (d.vi_tri.length === 1 ? d.vi_tri[0].doc : d.doc));
   }
@@ -227,9 +237,53 @@
       if (window.baoTinhTrangBanDo) window.baoTinhTrangBanDo(j);
     },
 
-    batMic: function () { GL.micMo = true; ghi('lenh', 'CAU.batMic()'); veBang(); },
-    tatMic: function () { GL.micMo = false; ghi('lenh', 'CAU.tatMic()'); veBang(); },
+    /* ── MICRO BẤM-MỚI-NGHE ──
+       Dựng lại đủ hai đồng hồ bên Kotlin, không thì bản thử trên máy tính chạy
+       một kiểu còn robot chạy một kiểu — mà chính chỗ lệch đó là chỗ hay hỏng.
+         · 15 giây : bấm mic rồi không nói gì  → tự tắt
+         · 1 giây  : dứt câu                   → tắt mic rồi mới gửi câu đi
+       Bên Kotlin còn GOM VẾ: mỗi `final` mới đặt lại đồng hồ một giây. Giả lập
+       cũng gom, để thử được câu nói ngắt quãng. */
+    batMic: function () {
+      GL.micMo = true; ghi('lenh', 'CAU.batMic()'); veBang();
+      GL._ve = '';
+      clearTimeout(GL._henMic);
+      GL._henMic = setTimeout(function () {
+        if (!GL.micMo) return;
+        ghi('lenh', 'Mở mic 15000 ms mà không nghe được gì — tự tắt');
+        GL.micMo = false; veBang();
+        if (window.baoMicTuTat) window.baoMicTuTat();
+      }, 15000);
+    },
+    tatMic: function () {
+      GL.micMo = false; GL._ve = '';
+      clearTimeout(GL._henMic); GL._henMic = null;
+      ghi('lenh', 'CAU.tatMic()'); veBang();
+    },
     micDangMo: function () { return GL.micMo; },
+
+    /* Mô phỏng một vế người bệnh vừa nói — thay cho onASRResult bên Kotlin.
+       Bộ thử gọi GIA_LAP.khachNoi('...') để đi đúng đường thật:
+         mic đóng → BỎ câu · mic mở → gom vế, hẹn 1 giây rồi tắt mic và gửi đi.
+       Đặt ở giả lập chứ không ở lớp web là cố ý: bên robot thật đường này cũng
+       nằm bên Kotlin, lớp web không hề biết tới nó. */
+    _khachNoi: function (chu) {
+      if (!GL.micMo) {
+        ghi('lenh', "Nghe được '" + chu + "' nhưng mic đang đóng — bỏ qua");
+        return;
+      }
+      if (window.nhanLoiNoi) window.nhanLoiNoi('nguoi', chu, true);
+      GL._ve = (GL._ve ? GL._ve + ' ' : '') + chu;      // gom vế
+      clearTimeout(GL._henMic);
+      GL._henMic = setTimeout(function () {
+        if (!GL.micMo) return;
+        var cau = GL._ve; GL._ve = '';
+        ghi('lenh', 'Người bệnh dứt câu — tự tắt mic sau 1000 ms');
+        GL.micMo = false; veBang();
+        if (window.baoMicTuTat) window.baoMicTuTat();
+        traLoi(cau);
+      }, 1000);
+    },
     hoiRobot: function (c) {
       ghi('lenh', 'CAU.hoiRobot("' + c + '") → TraLoi.hoi()');
       setTimeout(function () { traLoi(c); }, 900);   // mô phỏng độ trễ gọi mô hình
@@ -323,6 +377,8 @@
     document.getElementById('gl-dh').className = GL.tatDongHo ? 'tat' : '';
     document.getElementById('gl-vecho').textContent = GL.diemVeCho;
   }
+
+  GL.khachNoi = function (chu) { window.CAU._khachNoi(chu); };
 
   function dungBang() {
     var s = document.createElement('style'); s.textContent = CSS;

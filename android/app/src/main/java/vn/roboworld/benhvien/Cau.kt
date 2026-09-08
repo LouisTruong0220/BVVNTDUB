@@ -63,6 +63,19 @@ object Cau {
         w.post { w.evaluateJavascript("window.baoAISanSang && window.baoAISanSang($sanSang)", null) }
     }
 
+    /**
+     * Kotlin vừa TỰ tắt mic — báo lên để nút micro thôi nhấp nháy.
+     *
+     * Có hai đường tự tắt, cả hai đều nằm bên Kotlin vì chỉ Kotlin thấy cờ `final` của
+     * bộ nhận dạng: người bệnh dứt câu (1 giây sau), và bấm mic rồi bỏ đi (15 giây).
+     * Không có hàm này thì mic đã tắt mà nút vẫn sáng "Tôi đang nghe…" — người bệnh cứ
+     * nói tiếp vào một cái micro đã đóng.
+     */
+    fun baoMicTuTat() {
+        val w = web ?: return
+        w.post { w.evaluateJavascript("window.baoMicTuTat && window.baoMicTuTat()", null) }
+    }
+
     /** Báo cho lớp web biết robot đã đọc xong, để nút đổi lại thành "Nghe đọc lại". */
     private fun baoDocXong() {
         val w = web ?: return
