@@ -71,13 +71,23 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
   color:var(--chu);min-width:0}
 .o-tim input::placeholder{color:#9AABA9}
 .nut-mic{
-  width:4rem;height:4rem;border-radius:50%;flex:none;display:none;place-items:center;
-  background:linear-gradient(150deg,var(--xanh-tuoi),var(--xanh));color:#fff;font-size:1.8rem;
+  flex:none;display:none;align-items:center;gap:.7rem;
+  padding:.85rem 1.6rem;border-radius:3rem;
+  background:linear-gradient(150deg,var(--xanh-tuoi),var(--xanh));color:#fff;
   box-shadow:0 .3rem .9rem rgba(14,90,99,.4);transition:transform .12s;user-select:none;
 }
-.nut-mic.co{display:grid}
-.nut-mic:active,.nut-mic.dang-nghe{transform:scale(.93)}
+.nut-mic.co{display:flex}
+.nut-mic .nm-hinh{font-size:1.8rem;line-height:1}
+/* Nhãn chữ cạnh biểu tượng: người già không đoán ra cái vòng tròn có hình micro
+   là thứ để bấm. Chữ đổi theo trạng thái — xem datTrangThaiMic(). */
+.nut-mic .nm-chu{font-size:1.24rem;font-weight:700;white-space:nowrap}
+.nut-mic:active,.nut-mic.dang-nghe{transform:scale(.97)}
+.nut-mic.dang-nghe{background:linear-gradient(150deg,#17A05C,#0E7A45)}
 .nut-mic.dang-nghe{animation:tho-mic 1s ease-in-out infinite}
+/* Nút mic ở MÀN CHÍNH vẫn là nút tròn chỉ có biểu tượng — ở đó nó đứng cạnh ô
+   tìm kiếm, có chữ nữa thì chật. */
+#mic1{padding:0;width:4rem;height:4rem;border-radius:50%;justify-content:center}
+#mic1 .nm-chu{display:none}
 @keyframes tho-mic{0%,100%{box-shadow:0 0 0 0 rgba(18,133,122,.55)}50%{box-shadow:0 0 0 1.1rem rgba(18,133,122,0)}}
 .goi-y-tim{display:flex;gap:.55rem;flex-wrap:wrap;padding:.7rem .4rem 0;font-size:.92rem;
   color:var(--chu-nhat);align-items:center}
@@ -335,22 +345,67 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
 .cc-loi{font-size:2.2rem;font-weight:700;margin-top:.8rem;line-height:1.35;max-width:72rem}
 .cc-chan{flex:none;padding:0 3rem 1.6rem;display:flex;gap:1rem;justify-content:center}
 
-/* ═══════════ Màn trò chuyện ═══════════ */
-#mh-chat .bc{width:38%}
-.chat-noi{position:absolute;right:0;top:0;width:62%;height:100%;z-index:2;
-  display:flex;flex-direction:column;padding:1.5rem 2.2rem 1.5rem .6rem;gap:.9rem}
-.chat-dau{display:flex;align-items:center;gap:.9rem;color:#fff;flex:none}
-.chat-dau b{flex:1;font-size:1.5rem}
-.chat-ds{flex:1;min-height:0;overflow-y:auto;display:flex;flex-direction:column;gap:.75rem;
-  padding-right:.5rem}
-.bong-chat{max-width:88%;padding:.85rem 1.2rem;border-radius:1.1rem;font-size:1.2rem;line-height:1.4}
-.bong-chat.nguoi{align-self:flex-end;background:#fff;color:var(--chu)}
-.bong-chat.robot{align-self:flex-start;background:rgba(255,255,255,.16);color:#fff;
-  border:.1rem solid rgba(255,255,255,.28)}
-.chat-trang-thai{font-size:1rem;color:rgba(255,255,255,.7);flex:none;min-height:1.4rem}
-.chat-go{display:flex;gap:.7rem;flex:none}
-.chat-go input{flex:1;border:0;outline:0;border-radius:3rem;padding:.9rem 1.4rem;
-  font:inherit;font-size:1.2rem}
+/* ═══════════ Màn trò chuyện — dựng lại 08/09/2026 ═══════════
+   Anh Trường yêu cầu: NỀN TRẮNG cho dễ nhìn, và phải có hướng dẫn bấm micro.
+
+   Bản trước là video biểu cảm phủ kín màn hình, chữ trắng đè lên — nhìn thì hợp
+   với màn chờ, nhưng đây là chỗ người bệnh phải ĐỌC. Chữ trắng trên nền video
+   đang chuyển động là thứ khó đọc nhất, nhất là với người già.
+
+   Nay: đầu trang xanh · cột trái là mặt robot trong khung bo · cột phải nền trắng
+   để đọc. Mặt robot giữ lại vì người ta cần biết mình đang nói với ai — nhưng nó
+   lui về một cột, không tranh chỗ với chữ nữa. */
+#mh-chat{background:var(--nen);flex-direction:column}
+
+.chat-dau{flex:none;display:flex;align-items:center;gap:1rem;
+  background:linear-gradient(100deg,var(--xanh-dam),var(--xanh));color:#fff;
+  padding:1rem 2.2rem;padding-top:calc(1rem + var(--dai-hang, 0rem))}
+.chat-dau .cd-ten{flex:1;font-size:1.6rem;font-weight:700}
+.cd-nut{padding:.7rem 1.5rem;border-radius:3rem;font-size:1.12rem;font-weight:600;
+  background:rgba(255,255,255,.16);border:.1rem solid rgba(255,255,255,.4);color:#fff}
+.cd-nut:hover{background:rgba(255,255,255,.3)}
+.cd-nut.dam{background:#fff;color:var(--xanh-dam);border-color:#fff}
+
+.chat-than{flex:1;min-height:0;display:flex;gap:1.4rem;padding:1.4rem 2.2rem 1.6rem}
+
+/* Cột trái — mặt robot */
+.chat-mat{position:relative;flex:none;width:28%;border-radius:1.4rem;overflow:hidden;
+  background:#0B1F22;box-shadow:var(--bong)}
+#mh-chat .bc{width:100%;height:100%;object-fit:cover}
+
+/* Cột phải — khung hội thoại nền trắng */
+.chat-phai{flex:1;min-width:0;display:flex;flex-direction:column;gap:.9rem}
+.chat-ds{flex:1;min-height:0;overflow-y:auto;display:flex;flex-direction:column;gap:.8rem;
+  background:var(--the);border:.1rem solid var(--vien);border-radius:1.4rem;
+  box-shadow:var(--bong);padding:1.2rem 1.4rem}
+/* Chưa ai hỏi gì thì khung trống trơn nhìn như app hỏng — để sẵn một lời mời. */
+.chat-ds:empty::before{content:"Quý vị cứ hỏi tôi bằng lời hoặc gõ chữ. Ví dụ: “Khoa Nhi ở đâu?”, “Tôi bị đau bụng”, “Chỗ đóng viện phí?”";
+  margin:auto;max-width:34rem;text-align:center;font-size:1.3rem;line-height:1.6;
+  color:var(--chu-nhat)}
+
+.bong-chat{max-width:86%;padding:.9rem 1.3rem;border-radius:1.2rem;font-size:1.28rem;
+  line-height:1.45}
+.bong-chat.nguoi{align-self:flex-end;background:var(--xanh);color:#fff;
+  border-bottom-right-radius:.35rem}
+.bong-chat.robot{align-self:flex-start;background:var(--xanh-nhat);color:var(--chu);
+  border:.1rem solid #CFE6E4;border-bottom-left-radius:.35rem}
+
+/* Dải hướng dẫn — thứ người bệnh phải đọc trước khi làm gì */
+.chat-huong-dan{flex:none;display:flex;align-items:center;gap:.9rem;
+  background:var(--cam-nhat);border:.12rem solid #EBC9A8;border-radius:1rem;
+  padding:.75rem 1.2rem;font-size:1.22rem;font-weight:600;color:#7A4B18}
+.chat-huong-dan .hd-icon{font-size:1.6rem;line-height:1;flex:none}
+.chat-huong-dan.nghe{background:#E7F6EE;border-color:#B6E2C4;color:#146B34}
+.chat-huong-dan.cho{background:var(--xanh-nhat);border-color:#CFE6E4;color:var(--xanh-dam)}
+
+.chat-go{display:flex;gap:.8rem;flex:none;align-items:stretch}
+.chat-go input{flex:1;min-width:0;border:.12rem solid var(--vien);outline:0;
+  border-radius:3rem;padding:.95rem 1.5rem;font:inherit;font-size:1.22rem;
+  background:var(--the);color:var(--chu)}
+.chat-go input:focus{border-color:var(--xanh)}
+.nut-gui{flex:none;padding:.95rem 2.1rem;border-radius:3rem;font-size:1.22rem;
+  font-weight:700;background:var(--xanh-dam);color:#fff}
+.nut-gui:hover{background:var(--xanh)}
 
 /* ═══════════ Bàn phím mã phòng ═══════════ */
 /* ⚠ Tên lớp là "lop-phu", KHÔNG phải "phu". Đã từng đặt là "phu" và nó đè lên
@@ -428,7 +483,7 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
       <input id="o-nhap" type="text" autocomplete="off"
              placeholder="Quý vị cần khám gì? Gõ tên khoa, mã phòng, hoặc chỗ đau…"
              oninput="goTim(this.value)">
-      <button class="nut-mic" id="mic1" title="Nói">🎙️</button>
+      <button class="nut-mic" id="mic1" title="Bấm để nói"><span class="nm-hinh">🎙️</span></button>
     </div>
     <div class="goi-y-tim">
       <b>Hay được hỏi:</b>
@@ -570,21 +625,41 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
 <!-- ══════════ 8. MÀN TRÒ CHUYỆN ══════════
      Nút mic tự ẩn khi Agent SDK chưa bind được — xem coMicRobot(). -->
 <div class="man-hinh" id="mh-chat">
-  <video class="bc" id="bc-e" muted playsinline preload="auto"></video>
-  <video class="bc" id="bc-f" muted playsinline preload="auto"></video>
-  <div class="chat-noi">
-    <div class="chat-dau">
-      <b>💬 Trò chuyện với robot</b>
-      <button class="chi-nut" onclick="xoaHoiThoai()">🗑 Xoá</button>
-      <button class="chi-nut" onclick="dongChat()">✕ Đóng</button>
+  <div class="chat-dau">
+    <span class="cd-ten">💬 Trò chuyện với robot</span>
+    <button class="cd-nut" onclick="xoaHoiThoai()">🗑 Xoá đoạn chat</button>
+    <button class="cd-nut dam" onclick="dongChat()">✕ Đóng</button>
+  </div>
+
+  <div class="chat-than">
+    <!-- Cột trái: mặt robot. Giữ video biểu cảm để người bệnh biết mình đang nói
+         với ai — nhưng bo khung lại, không để tràn nền như trước. -->
+    <div class="chat-mat">
+      <video class="bc" id="bc-e" muted playsinline preload="auto"></video>
+      <video class="bc" id="bc-f" muted playsinline preload="auto"></video>
     </div>
-    <div class="chat-ds" id="chat-ds"></div>
-    <div class="chat-trang-thai" id="chat-trang-thai"></div>
-    <div class="chat-go">
-      <input id="chat-nhap" type="text" autocomplete="off"
-             placeholder="Gõ câu hỏi rồi bấm Enter…" onkeydown="if(event.key==='Enter')guiChat()">
-      <button class="nut-mic" id="mic2" title="Nói">🎙️</button>
-      <button class="chi-nut" onclick="guiChat()">Gửi</button>
+
+    <!-- Cột phải: khung hội thoại NỀN TRẮNG -->
+    <div class="chat-phai">
+      <div class="chat-ds" id="chat-ds"></div>
+
+      <!-- Dải hướng dẫn: thứ người bệnh cần đọc trước khi làm gì. Chữ đổi theo
+           trạng thái mic, xem datTrangThaiMic(). -->
+      <div class="chat-huong-dan" id="chat-huong-dan">
+        <span class="hd-icon" id="hd-icon">👇</span>
+        <span class="hd-chu" id="hd-chu">Bấm nút micro rồi nói, hoặc gõ câu hỏi bên dưới</span>
+      </div>
+
+      <div class="chat-go">
+        <button class="nut-mic" id="mic2" title="Bấm để nói">
+          <span class="nm-hinh">🎙️</span>
+          <span class="nm-chu" id="nm-chu">Bấm để nói</span>
+        </button>
+        <input id="chat-nhap" type="text" autocomplete="off"
+               placeholder="…hoặc gõ câu hỏi ở đây rồi bấm Gửi"
+               onkeydown="if(event.key==='Enter')guiChat()">
+        <button class="nut-gui" onclick="guiChat()">Gửi</button>
+      </div>
     </div>
   </div>
 </div>
@@ -1626,6 +1701,7 @@ const mayChat = mayBieuCam('bc-e','bc-f', BIEU_CAM_DAN);
 /* ═══════════ Chuyển màn ═══════════ */
 let manDang = 'mh-cho';
 function ve(id){
+  const manTruoc = manDang;
   document.querySelectorAll('.man-hinh').forEach(m=>m.classList.remove('hien'));
   $('#'+id).classList.add('hien');
   manDang = id;
@@ -1634,9 +1710,14 @@ function ve(id){
   if(id === 'mh-cho')  mayCho.bat();  else mayCho.dung();
   if(id === 'mh-dan')  mayDan.bat();  else mayDan.dung();
   if(id === 'mh-chat') mayChat.bat(); else mayChat.dung();
-  /* Rời màn Trò chuyện là đóng mic. Kiểm CẢ hen mở đang chờ — không thì bấm
-     micro rồi thoát ngay trong 1,4 giây là mic vẫn mở sau lưng. */
-  if(id !== 'mh-chat' && (micChatMo || henMoMic)) dongMicChat();
+  /* Rời màn Trò chuyện là đóng mic VÀ bỏ câu trả lời đang chờ. Kiểm CẢ hen mở
+     đang chờ — không thì bấm micro rồi thoát ngay trong 1,4 giây là mic vẫn mở
+     sau lưng. Đặt ở đây, một chỗ duy nhất, vì mọi đường rời màn đều qua ve():
+     nút Đóng, nút Quay lại, đồng hồ vắng người tự về màn chờ, robot dẫn đường. */
+  if(id !== 'mh-chat' && manTruoc === 'mh-chat'){
+    thaoTac();
+    if(micChatMo || henMoMic) dongMicChat();
+  }
   if(id === 'mh-cho') clearTimeout(henCho); else hoatDong();
 }
 
@@ -1984,6 +2065,31 @@ function lyDoChuaDanDuoc(){
   if(!coDanDuong()) return '';
   try{ return CAU.lyDoChuaDanDuongDuoc() || ''; }catch(e){ return ''; }
 }
+/* ═══ NGƯỜI BỆNH VỪA THAO TÁC — anh Trường chốt 08/09/2026 ═══
+
+   > "Lời thoại của AI chỉ phát khi người dùng không thao tác. Người dùng quay
+   >  lại, thoát ra, xoá đoạn chat, hay bấm mic thu tiếp thì phải dừng ngay lời
+   >  đang phát."
+
+   Hai việc, và việc thứ hai mới là việc khó thấy:
+     ① cắt tiếng robot đang phát
+     ② BỎ câu trả lời còn đang trên đường về từ mô hình
+
+   Chỉ làm ① là hở: tầng hội thoại chạy luồng phụ, câu về sau vài giây, lúc đó
+   chưa phát nên không có gì để cắt — rồi nó cất lên giữa lúc người bệnh đang
+   đọc thứ khác. Việc ② phải làm bên Kotlin, xem MainApplication.nguoiDungThaoTac. */
+/* Bật lên khi CHÍNH APP chuyển màn, không phải người bệnh bấm. Cần vì tầng AI tự
+   mở màn chi tiết khi tra cứu chắc chắn — mà rời màn Trò chuyện thì ve() tưởng
+   người bệnh vừa thao tác và bỏ luôn câu trả lời đang trên đường về. Robot sẽ mở
+   đúng trang rồi đứng câm, là kiểu hỏng khó lần nhất. */
+let appTuChuyenMan = false;
+
+function thaoTac(){
+  if(appTuChuyenMan) return;
+  dungDoc();
+  try{ if(coCau() && CAU.nguoiDungThaoTac) CAU.nguoiDungThaoTac(); }catch(e){}
+}
+
 function coMicRobot(){
   /* Không hỏi "có hàm batMic không" — hàm LÚC NÀO CŨNG CÓ, kể cả khi Agent SDK
      chưa bind được service của hãng, và khi đó bấm mic là chết câm không báo gì.
@@ -2131,9 +2237,10 @@ window.robotDocXong = function(){
    trước mặt lãnh đạo bệnh viện thì đó là một con robot hỏng.
    ═══════════════════════════════════════════════════════════════════════ */
 let micChatMo = false;
-function moChat(){ ve('mh-chat'); capNhatMic(); }
-function dongChat(){ dongMicChat(); veLuoiNhom(); }
+function moChat(){ ve('mh-chat'); capNhatMic(); datTrangThaiMic(''); }
+function dongChat(){ thaoTac(); dongMicChat(); veLuoiNhom(); }
 function xoaHoiThoai(){
+  thaoTac();
   $('#chat-ds').innerHTML = '';
   try{ if(coCau() && CAU.xoaNguCanh) CAU.xoaNguCanh(); }catch(e){}
 }
@@ -2152,9 +2259,13 @@ function themBong(ai, chu){
 function guiChat(){
   const o = $('#chat-nhap'), t = o.value.trim();
   if(!t) return;
+  /* Gõ chữ rồi Gửi cũng là MỘT LƯỢT HỎI MỚI — cắt lời robot đang đọc dở của lượt
+     trước, đúng như bấm micro. */
+  thaoTac();
   o.value = ''; themBong('nguoi', t);
   if(coCau() && typeof CAU.hoiRobot === 'function'){
-    $('#chat-trang-thai').textContent = 'Đang hỏi…';
+    datTrangThaiMic('cho');
+    $('#hd-chu').textContent = 'Tôi đang tìm câu trả lời…';
     try{ CAU.hoiRobot(t); return; }catch(e){}
   }
   /* Chỉ chạy trên máy tính, nơi không có robot. Trên robot không bao giờ tới đây. */
@@ -2182,6 +2293,9 @@ function traLoiNoiBo(q){
 }
 function capNhatMic(){
   const co = coMicRobot();
+  /* Mic vừa hiện ra (AI thông đường giữa chừng) thì dải hướng dẫn phải đổi theo,
+     không thì nó còn kẹt ở câu "gõ câu hỏi vào ô bên dưới". */
+  if(manDang === 'mh-chat' && !micChatMo && !henMoMic) datTrangThaiMic('');
   $('#mic1').classList.toggle('co', co);
   $('#mic2').classList.toggle('co', co);
   $('#nut-chat').classList.add('co');
@@ -2212,6 +2326,33 @@ function capNhatMic(){
 const CHO_NIN = 1400;      /* ms — đo được ~500 ms, để dư gấp đôi cho chắc */
 let henMoMic = null;
 
+/* Ba trạng thái mic, mỗi trạng thái đổi BA thứ cùng lúc: viền nút, nhãn chữ trên
+   nút, và dải hướng dẫn. Gom vào một hàm vì để rải ra là kiểu gì cũng có đường
+   quên đổi một thứ — nút thì sáng mà dải vẫn bảo "bấm nút micro". */
+const TRANG_THAI_MIC = {
+  '':     { lop:'',     icon:'👇', chu:'Bấm nút micro rồi nói, hoặc gõ câu hỏi bên dưới',
+            nut:'Bấm để nói' },
+  'cho':  { lop:'cho',  icon:'⏳', chu:'Chờ tôi nói hết câu đã, rồi hãy nói ạ…',
+            nut:'Chờ một chút…' },
+  'nghe': { lop:'nghe', icon:'🎧', chu:'Tôi đang nghe — quý vị cứ nói, nói xong thì dừng lại',
+            nut:'Đang nghe…' },
+};
+function datTrangThaiMic(t){
+  const c = TRANG_THAI_MIC[t] || TRANG_THAI_MIC[''];
+  const hd = $('#chat-huong-dan');
+  if(hd){
+    hd.className = 'chat-huong-dan' + (c.lop ? ' ' + c.lop : '');
+    $('#hd-icon').textContent = c.icon;
+    /* Nút micro TỰ ẨN khi AI của hãng chưa trả lời được. Lúc đó mà dải vẫn bảo
+       "bấm nút micro" thì người bệnh đi tìm một cái nút không có trên màn hình. */
+    $('#hd-chu').textContent = (!t && !coMicRobot())
+      ? 'Quý vị gõ câu hỏi vào ô bên dưới rồi bấm Gửi'
+      : c.chu;
+  }
+  const nm = $('#nm-chu');
+  if(nm) nm.textContent = c.nut;
+}
+
 function veMatNutMic(mo){
   $('#mic1').classList.toggle('dang-nghe', mo);
   $('#mic2').classList.toggle('dang-nghe', mo);
@@ -2220,19 +2361,22 @@ function veMatNutMic(mo){
 function moMic(){
   if(!coMicRobot()) return;
   clearTimeout(henMoMic);
+  /* Bấm mic giữa lúc robot đang trả lời = người bệnh muốn hỏi tiếp. Bỏ luôn câu
+     của lượt cũ, không thì nó về muộn rồi đọc chồng lên câu vừa hỏi. */
+  thaoTac();
   /* Cắt tiếng TRƯỚC khi mở tai: bấm micro giữa lúc robot đang đọc nghĩa là người
      bệnh muốn nói xen vào. Và nếu không cắt, chính luồng chữ TTS sẽ đóng lại cửa
      sổ nghe vừa mở. */
   const dangNoi = dangDoc;
   dungDoc();
-  $('#chat-trang-thai').textContent = 'Chờ tôi nín đã…';
+  datTrangThaiMic('cho');
   henMoMic = setTimeout(function(){
     henMoMic = null;
     if(manDang !== 'mh-chat'){ return; }       /* đã rời màn Trò chuyện rồi */
     try{ CAU.batMic(); micChatMo = true; }
-    catch(e){ micChatMo = false; $('#chat-trang-thai').textContent = ''; return; }
+    catch(e){ micChatMo = false; datTrangThaiMic(''); return; }
     veMatNutMic(true);
-    $('#chat-trang-thai').textContent = 'Tôi đang nghe…';
+    datTrangThaiMic('nghe');
   }, dangNoi ? CHO_NIN : 250);
 }
 
@@ -2241,7 +2385,7 @@ function dongMic(){
   micChatMo = false;
   try{ if(coCau() && CAU.tatMic) CAU.tatMic(); }catch(e){}
   veMatNutMic(false);
-  $('#chat-trang-thai').textContent = '';
+  datTrangThaiMic('');
 }
 
 function batTatMic(){
@@ -2259,7 +2403,7 @@ window.baoMicTuTat = function(){
   clearTimeout(henMoMic); henMoMic = null;
   micChatMo = false;
   veMatNutMic(false);
-  if(manDang === 'mh-chat') $('#chat-trang-thai').textContent = '';
+  if(manDang === 'mh-chat') datTrangThaiMic('');
 };
 
 /* Android gọi lên: từng mẩu lời nói đã nghe/đã đọc */
@@ -2271,7 +2415,9 @@ window.nhanLoiNoi = function(ai, chu, xong){
   cuoi.textContent = chu;
   if(xong) cuoi.dataset.chot = '1';
   ds.scrollTop = ds.scrollHeight;
-  $('#chat-trang-thai').textContent = '';
+  /* Robot đã đáp thì dải hướng dẫn quay về lời mời hỏi tiếp — nhưng đừng đè lên
+     lúc mic đang mở, không thì đang nghe mà dải lại bảo "bấm nút micro". */
+  if(ai === 'robot' && xong && !micChatMo && !henMoMic) datTrangThaiMic('');
 };
 /* Android gọi lên khi nghe thấy tên một khoa — mở thẳng trang chỉ đường.
    Chỉ mở khi tra cứu CHẮC: mở nhầm trang còn tệ hơn không mở, người bệnh đang
@@ -2280,7 +2426,12 @@ window.goiYTuRobot = function(cauNoi){
   const r = traCuu(cauNoi || '', 3);
   /* Mở màn nhưng KHÔNG đọc — tầng AI bên Kotlin sẽ đọc câu của nó, trong đó đã
      có sẵn câu vị trí nguyên văn. Đọc ở cả hai nơi là nghe hai lần. */
-  if(r.muc === 'chac' && r.ds.length){ moChiTiet(r.ds[0].id, null, null, true); return 1; }
+  if(r.muc === 'chac' && r.ds.length){
+    appTuChuyenMan = true;
+    try{ moChiTiet(r.ds[0].id, null, null, true); }
+    finally{ appTuChuyenMan = false; }
+    return 1;
+  }
   return 0;
 };
 /* ═══════════ Android gọi xuống để TRA — trả JSON, KHÔNG đọc thành tiếng ═══════════
@@ -2317,6 +2468,10 @@ window.tomTatChoAI = function(tuKhoa){
 /* Android gọi lên khi nghe thấy chuyện cấp cứu — bật thẳng màn đỏ.
    Chặn ở tầng Kotlin bằng mã, không chờ mô hình nghĩ. */
 window.moManCapCuuTuAI = function(){
+  appTuChuyenMan = true;
+  try{ return moManCapCuuTuAI_(); }finally{ appTuChuyenMan = false; }
+};
+function moManCapCuuTuAI_(){
   const d = DS.find(x=>x.loai === 'cap-cuu');
   if(d) moChiTiet(d.id);
 };

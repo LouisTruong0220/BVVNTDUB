@@ -69,6 +69,53 @@ class MainApplication : Application() {
          */
         @Volatile private var dangChoNghe = false
 
+        /* ═══════════════════════════════════════════════════════════════
+           LƯỢT HỎI — anh Trường chốt 08/09/2026
+
+           > "Người hỏi 1 → Robot trả lời 1. Và lời thoại của AI chỉ phát khi
+           >  người dùng không thao tác: quay lại, thoát ra, xoá đoạn chat, hay
+           >  bấm mic để thu tiếp thì phải dừng ngay lời đang phát."
+
+           Hai cờ, mỗi cờ bịt một lỗ khác nhau — thiếu một là hở:
+
+           · nhanCauTraLoi — lượt hỏi này CÒN HIỆU LỰC không.
+             Tầng hội thoại chạy ở luồng phụ: người bệnh hỏi xong, mô hình trả lời
+             về sau vài giây, mà trong mấy giây đó họ đã bấm Quay lại và đang đọc
+             thứ khác trên màn hình. Không có cờ này thì robot vẫn cất tiếng đọc
+             câu của lượt cũ đè lên việc họ đang làm. Cắt tiếng KHÔNG đủ — câu về
+             muộn là câu CHƯA phát, không có gì để cắt.
+
+           · daGuiTrongPhien — một lần bấm mic chỉ gửi ĐÚNG MỘT câu.
+             Bộ nhận dạng bắn `final` ở mỗi lần ngắt hơi. Người bệnh già nói chậm,
+             ngắt giữa chừng lâu hơn đồng hồ im lặng, thế là câu bị xé làm đôi và
+             robot trả lời hai lần rời rạc. Cờ này chốt cứng: mở mic lần nào thì
+             gửi được đúng một câu, phần nghe thêm sau đó bỏ.
+           ═══════════════════════════════════════════════════════════════ */
+        @Volatile private var nhanCauTraLoi = false
+        @Volatile private var daGuiTrongPhien = false
+
+        /** Người bệnh vừa hỏi một câu — từ giờ nhận câu trả lời cho lượt này. */
+        fun batDauLuotMoi() { nhanCauTraLoi = true }
+
+        /**
+         * NGƯỜI BỆNH VỪA THAO TÁC — bỏ lượt hỏi đang chờ, và cắt tiếng ngay.
+         *
+         * Lớp web gọi hàm này ở mọi cửa: nút Quay lại · Thoát · Xoá đoạn chat ·
+         * bấm micro nói tiếp · rời màn Trò chuyện. Cắt cả HAI đường tiếng
+         * (SkillApi của app và AgentCore của hãng) — thiếu một đường là robot vẫn
+         * còn nói bằng đường kia.
+         */
+        fun nguoiDungThaoTac() {
+            val coGiDeBo = nhanCauTraLoi
+            nhanCauTraLoi = false
+            RobotHelper.dungDoc()
+            runCatching { AgentCore.stopTTS() }
+            if (coGiDeBo) Log.d(TAG, "Người bệnh thao tác — bỏ lượt hỏi đang chờ, cắt tiếng")
+        }
+
+        /** Tầng hội thoại có được mở miệng lúc này không — chốt CỬA RA của mọi lời nói. */
+        fun choPhepNoi(): Boolean = nhanCauTraLoi
+
         /* ⚠⚠ QUÊN VẾ Ở `batMicro`, TUYỆT ĐỐI KHÔNG Ở `tatMicro`.
          *
          *   Đường gửi câu đi là: dứt câu → hẹn 1 giây → tatMicro() → guiCauDaGom().
@@ -83,7 +130,13 @@ class MainApplication : Application() {
          *   Quên ở batMicro thì đúng ngữ nghĩa hơn: bắt đầu một lượt nói mới là bỏ vế
          *   dở của lượt trước. Vế dở khi người bệnh rời màn giữa chừng cũng không sao —
          *   lúc đó không ai gọi guiCauDaGom, và lần bấm mic sau sẽ xoá nó. */
-        fun batMicro() { huyHenTatMic(); quenVe(); dangChoNghe = true; datMicro(false); henTatMicNeuKhongAiNoi() }
+        fun batMicro() {
+            huyHenTatMic(); quenVe()
+            daGuiTrongPhien = false      // phiên mới — lại được gửi đúng một câu
+            dangChoNghe = true
+            datMicro(false)
+            henTatMicNeuKhongAiNoi()
+        }
         fun tatMicro() { huyHenTatMic(); dangChoNghe = false; datMicro(true) }
 
         /* ═══════════════════════════════════════════════════════════════
@@ -126,7 +179,16 @@ class MainApplication : Application() {
             val cau = synchronized(this) {
                 val t = ve.toString().trim(); ve.setLength(0); t
             }
+            if (daGuiTrongPhien) {
+                /* MỘT PHIÊN MIC = MỘT CÂU. Tới đây lần thứ hai nghĩa là bộ nhận dạng
+                   còn bắn thêm vế sau khi câu đã đi — gửi tiếp là robot trả lời hai
+                   lần rời rạc cho cùng một lần bấm nút. */
+                Log.d(TAG, "Phiên này đã gửi một câu rồi — bỏ phần nghe thêm: ${cau.take(40)}")
+                return
+            }
             if (cau.isNotBlank()) {
+                daGuiTrongPhien = true
+                batDauLuotMoi()          // từ giờ mới nhận câu trả lời cho lượt này
                 Log.d(TAG, "Gửi câu đã gom cho tầng hội thoại: $cau")
                 TraLoi.hoi(cau)
             } else {
@@ -138,7 +200,12 @@ class MainApplication : Application() {
             }
         }
 
-        private const val CHO_DUT_CAU_MS = 1_000L
+        /* ⚠ 1,8 giây chứ không phải 1,0.
+           Đo ở bệnh viện: người già kể bệnh ngắt giữa chừng lâu hơn nhiều so với
+           khách hội chợ — "cho tôi hỏi… (nghĩ) … khoa nhi ở đâu". Một giây là xé
+           câu làm đôi. Đổi lại người nói xong phải chờ thêm nửa giây, đó là cái
+           giá rẻ hơn nhiều so với một câu trả lời trật. */
+        private const val CHO_DUT_CAU_MS = 1_800L
 
         /**
          * TRẦN CỨNG: bấm micro mà KHÔNG NÓI GÌ thì bao lâu tự tắt.
@@ -465,6 +532,13 @@ class MainApplication : Application() {
          */
         fun tuDoc(cau: String) {
             if (cau.isBlank()) return
+            /* CỬA RA của mọi lời robot nói. Người bệnh đã thao tác (quay lại, thoát,
+               xoá đoạn chat, bấm mic nói tiếp) thì lượt hỏi cũ coi như bỏ — câu trả lời
+               về muộn phải câm, đừng đọc đè lên việc họ đang làm. */
+            if (!choPhepNoi()) {
+                Log.d(TAG, "Lượt hỏi đã bị bỏ — không đọc câu: ${cau.take(40)}…")
+                return
+            }
             tuNoi = cau
             RobotHelper.doc(cau) {}
             Cau.guiLoiNoi("robot", cau, true)

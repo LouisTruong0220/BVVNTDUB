@@ -25,7 +25,15 @@
     diemVeCho: '(chưa đặt)',
     dangDi: null,
     dangDoc: null,
-    daNoi: []              // mọi câu robot đã nói — bộ thử tự động đọc ở đây
+    daNoi: [],             // mọi câu robot đã nói — bộ thử tự động đọc ở đây
+    /* Dựng lại cờ nhanCauTraLoi bên Kotlin: lượt hỏi này còn hiệu lực không.
+       Không có nó thì bộ thử không bao giờ bắt được lỗi "người bệnh đã bấm Quay
+       lại mà robot vẫn đọc câu của lượt cũ" — vì lớp web không giữ cờ này. */
+    nhanCauTraLoi: false,
+    /* Dựng lại cờ daGuiTrongPhien bên Kotlin: một lần bấm mic chỉ gửi ĐÚNG MỘT
+       câu. Thiếu nó thì bộ thử không bắt được lỗi "bộ nhận dạng bắn thêm vế sau
+       khi câu đã đi, robot trả lời hai lần cho một lần bấm nút". */
+    daGuiTrongPhien: false
   };
   window.GIA_LAP = GL;
 
@@ -174,6 +182,13 @@
     'quý vị đi nhầm cả toà nhà. Mời quý vị hỏi quầy lễ tân giúp tôi ạ.';
 
   function noiRaMan(cau) {
+    /* CỬA RA — y như MainApplication.tuDoc bên Kotlin. Người bệnh đã thao tác
+       (quay lại, đóng, xoá đoạn chat, bấm mic hỏi tiếp) thì lượt hỏi cũ coi như
+       bỏ: câu trả lời về muộn phải CÂM, không đọc đè lên việc họ đang làm. */
+    if (!GL.nhanCauTraLoi) {
+      ghi('loi', '⛔ Lượt hỏi đã bị bỏ — không đọc: ' + cau.slice(0, 40) + '…');
+      return;
+    }
     if (window.nhanLoiNoi) window.nhanLoiNoi('robot', cau, true);
     doc(cau);
   }
@@ -246,7 +261,8 @@
        cũng gom, để thử được câu nói ngắt quãng. */
     batMic: function () {
       GL.micMo = true; ghi('lenh', 'CAU.batMic()'); veBang();
-      GL._ve = '';          // quên vế dở của lượt trước — ĐÚNG CHỖ, xem MainApplication
+      GL._ve = '';                  // quên vế dở của lượt trước — ĐÚNG CHỖ
+      GL.daGuiTrongPhien = false;   // phiên mới, lại được gửi một câu
       clearTimeout(GL._henMic);
       GL._henMic = setTimeout(function () {
         if (!GL.micMo) return;
@@ -287,15 +303,31 @@
         window.CAU.tatMic();
         if (window.baoMicTuTat) window.baoMicTuTat();
         var cau = GL._ve; GL._ve = '';
-        if (cau) traLoi(cau);
+        if (GL.daGuiTrongPhien) {
+          ghi('loi', '⛔ Phiên này đã gửi một câu rồi — bỏ phần nghe thêm');
+        } else if (cau) {
+          GL.daGuiTrongPhien = true;
+          GL.nhanCauTraLoi = true;
+          traLoi(cau);
+        }
         else ghi('loi', '⚠ Vế đã bị xoá trước khi kịp gửi — robot sẽ đứng im');
       }, 1000);
     },
     hoiRobot: function (c) {
+      GL.nhanCauTraLoi = true;
       ghi('lenh', 'CAU.hoiRobot("' + c + '") → TraLoi.hoi()');
       setTimeout(function () { traLoi(c); }, 900);   // mô phỏng độ trễ gọi mô hình
     },
     xoaNguCanh: function () { ghi('lenh', 'CAU.xoaNguCanh()'); },
+
+    /* Người bệnh vừa thao tác — cắt tiếng VÀ bỏ câu đang chờ. Hai việc, không
+       phải một: câu về muộn chưa phát thì không có gì để cắt. */
+    nguoiDungThaoTac: function () {
+      var coGiDeBo = GL.nhanCauTraLoi;
+      GL.nhanCauTraLoi = false;
+      dungDoc();
+      if (coGiDeBo) ghi('lenh', 'CAU.nguoiDungThaoTac() → bỏ lượt hỏi đang chờ');
+    },
     moTaManHinh: function (m) { ghi('man', '🖥 ' + m); },
     thongTinAI: function () {
       return JSON.stringify({

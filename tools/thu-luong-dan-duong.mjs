@@ -306,6 +306,115 @@ await kiem('Bấm mic ở màn chính → sang màn Trò chuyện',
 await kiem('… và mic mở luôn, không phải chạm lần hai',
   async () => await cho(async () => await micMo(), 4000));
 
+/* ═══════════════════════════════════════════════════════════════════════
+   H. HAI LUẬT anh Trường chốt 08/09/2026
+
+     ① Người hỏi 1 → Robot trả lời 1.
+        Một lần bấm mic chỉ gửi ĐÚNG MỘT câu, dù người bệnh ngắt hơi mấy lần.
+     ② Lời AI chỉ phát khi người dùng KHÔNG thao tác.
+        Quay lại · Đóng · Xoá đoạn chat · bấm mic nói tiếp → cắt tiếng NGAY và
+        bỏ luôn câu trả lời còn đang trên đường về.
+
+   Mấy phép này đếm SỐ CÂU robot nói và soi lệnh gọi xuống Kotlin — lỗi nhóm này
+   không bao giờ hiện ra trong ảnh chụp màn hình.
+   ═══════════════════════════════════════════════════════════════════════ */
+console.log('\n── H. Một lượt hỏi = một câu trả lời · thao tác là ngắt lời ──');
+
+const vaoChat = async () => {
+  await p.evaluate(() => { GIA_LAP.daNoi.length = 0; veTrangChu(); moChat(); });
+  await p.waitForTimeout(250);
+};
+
+/* ① Nói ba vế rời rạc trong CÙNG một lần bấm mic → vẫn chỉ một câu trả lời. */
+await vaoChat();
+await p.click('#mic2');
+await cho(async () => await p.evaluate(() => GIA_LAP.micMo), 4000);
+await p.evaluate(() => GIA_LAP.khachNoi('cho tôi hỏi'));
+await p.waitForTimeout(400);
+await p.evaluate(() => GIA_LAP.khachNoi('cái khoa'));
+await p.waitForTimeout(400);
+await p.evaluate(() => GIA_LAP.khachNoi('mắt ở đâu'));
+await kiem('Ba vế rời rạc trong MỘT lần bấm mic → gom thành một câu',
+  async () => await cho(async () =>
+    (await p.evaluate(() => GIA_LAP.daNoi.length)) > 0, 9000));
+await p.waitForTimeout(1200);          // để câu thứ hai (nếu có) kịp lọt vào
+await kiem('… và robot chỉ trả lời ĐÚNG MỘT lần',
+  async () => (await p.evaluate(() => GIA_LAP.daNoi.length)) === 1);
+
+/* Ép mic mở lại rồi nói thêm — mô phỏng bộ nhận dạng bắn vế muộn SAU khi câu đã
+   đi. Không có chốt "một phiên một câu" thì đây chính là chỗ đẻ ra câu trả lời
+   thứ hai. Ép tay vì đường bình thường đã tắt mic, không lộ ra lỗi này. */
+await p.evaluate(() => { GIA_LAP.micMo = true; GIA_LAP.khachNoi('còn khoa nhi nữa'); });
+await p.waitForTimeout(2600);
+await kiem('Vế nghe được MUỘN sau khi câu đã gửi → KHÔNG trả lời lần hai',
+  async () => (await p.evaluate(() => GIA_LAP.daNoi.length)) === 1);
+await p.evaluate(() => { GIA_LAP.micMo = false; });
+
+/* ② Bấm Xoá đoạn chat giữa lúc robot đang đọc → phải cắt tiếng ngay. */
+await vaoChat();
+await p.evaluate(() => { doc('Đây là một câu rất dài để robot còn đang đọc dở khi ta bấm nút xoá đoạn chat.'); });
+await p.waitForTimeout(300);
+await kiem('Dựng cảnh: robot đang đọc dở',
+  async () => (await p.evaluate(() => !!GIA_LAP.dangDoc)));
+await p.click('.cd-nut');              // nút "Xoá đoạn chat"
+await kiem('Bấm Xoá đoạn chat → cắt tiếng NGAY',
+  async () => (await p.evaluate(() => !GIA_LAP.dangDoc)));
+
+/* Bấm Đóng giữa lúc đang đọc cũng phải cắt. */
+await vaoChat();
+await p.evaluate(() => { doc('Câu dài thứ hai, lần này ta bấm nút Đóng để rời màn trò chuyện.'); });
+await p.waitForTimeout(300);
+await p.evaluate(() => dongChat());
+await kiem('Bấm Đóng → cắt tiếng NGAY',
+  async () => (await p.evaluate(() => !GIA_LAP.dangDoc)));
+
+/* Câu trả lời VỀ MUỘN sau khi người bệnh đã thao tác → phải câm hẳn.
+   Đây là lỗ mà "cắt tiếng" một mình KHÔNG bịt được: lúc họ bấm Đóng thì câu
+   chưa phát, không có gì để cắt; mấy giây sau nó mới về và cất lên. */
+await vaoChat();
+await p.evaluate(() => { GIA_LAP.daNoi.length = 0;
+  document.querySelector('#chat-nhap').value = 'khoa mắt ở đâu'; guiChat(); });
+await p.waitForTimeout(200);           // câu đang trên đường về (giả lập trễ 900 ms)
+await p.evaluate(() => dongChat());    // người bệnh bỏ đi giữa chừng
+await p.waitForTimeout(2500);
+await kiem('Câu trả lời VỀ MUỘN sau khi đã bấm Đóng → robot câm',
+  async () => (await p.evaluate(() => GIA_LAP.daNoi.length)) === 0);
+
+/* Bấm micro nói tiếp giữa lúc robot đang trả lời cũng phải cắt. */
+await vaoChat();
+await p.evaluate(() => { doc('Câu dài thứ ba, người bệnh sẽ bấm micro để hỏi tiếp giữa chừng.'); });
+await p.waitForTimeout(300);
+await p.click('#mic2');
+await kiem('Bấm micro nói tiếp → cắt lời robot NGAY',
+  async () => (await p.evaluate(() => !GIA_LAP.dangDoc)));
+await p.evaluate(() => dongMic());
+
+/* Nhưng app TỰ chuyển màn (tra cứu chắc → mở trang chỉ đường) thì KHÔNG được
+   tính là người bệnh thao tác — không thì robot mở đúng trang rồi đứng câm. */
+await vaoChat();
+await p.evaluate(() => { GIA_LAP.daNoi.length = 0; });
+await p.click('#mic2');
+await cho(async () => await p.evaluate(() => GIA_LAP.micMo), 4000);
+await p.evaluate(() => GIA_LAP.khachNoi('khoa mắt ở đâu'));
+await kiem('App tự mở trang chi tiết → vẫn đọc câu trả lời, không bị bỏ',
+  async () => await cho(async () =>
+    (await p.evaluate(() => GIA_LAP.daNoi.length)) > 0, 9000), '10-ai-mo-trang');
+
+/* ③ Dải hướng dẫn phải đổi chữ theo trạng thái mic — người bệnh đọc dải này
+      để biết phải làm gì. */
+await vaoChat();
+const chuHD = () => p.evaluate(() => document.querySelector('#hd-chu').textContent);
+await kiem('Dải hướng dẫn mời bấm micro khi mic đang đóng',
+  async () => /bấm nút micro/i.test(await chuHD()));
+await p.click('#mic2');
+await cho(async () => await p.evaluate(() => GIA_LAP.micMo), 4000);
+await kiem('Mic mở → dải đổi sang "Tôi đang nghe"',
+  async () => /đang nghe/i.test(await chuHD()), '11-chat-dang-nghe');
+await kiem('Nút micro cũng đổi nhãn thành "Đang nghe…"',
+  async () => /đang nghe/i.test(await p.evaluate(() =>
+    document.querySelector('#nm-chu').textContent)));
+await p.evaluate(() => dongMic());
+
 if (loi.length) { console.log('\n✗ Lỗi JS bắt được:'); loi.forEach(x => console.log('   ' + x)); hong += loi.length; }
 console.log('\n' + (hong ? '✗ ' + hong + ' phép kiểm KHÔNG đạt' : '✓ Tất cả phép kiểm đều đạt'));
 console.log('Ảnh: ' + RA);

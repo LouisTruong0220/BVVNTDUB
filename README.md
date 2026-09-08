@@ -9,11 +9,11 @@ tìm đúng khoa theo cách họ tự mô tả, và **dẫn đường** tới n�
 
 **Chỉ cần cài lên robot, không cần build:**
 
-1. Tải `apk/le-tan-benh-vien-uong-bi-v1.6.apk`
+1. Tải `apk/le-tan-benh-vien-uong-bi-v1.7.apk`
 2. Nối cáp USB vào **đầu robot**, dùng **adb 1.0.41** của Android SDK
    (⚠ **không** dùng `C:\Windows\adb.exe` bản 1.0.39 của PUDU — hai bản giết tiến trình của nhau)
    ```powershell
-   adb install -r le-tan-benh-vien-uong-bi-v1.6.apk
+   adb install -r le-tan-benh-vien-uong-bi-v1.7.apk
    ```
 3. **Mở app từ RobotOS Home**, tuyệt đối không dùng `am start` — dùng `am start` thì `RobotApi`
    trả `handleApiDisabled`, mất cả dẫn đường lẫn giọng nói mà app không báo lỗi gì.
@@ -38,7 +38,7 @@ Hồ sơ dự án đầy đủ nằm trong workspace nội bộ của Roboworld,
 | | |
 |---|---|
 | Trạng thái | **Bản demo HTML xong, APK build xong. Chưa chạy trên robot thật, chưa khảo sát mặt bằng.** |
-| APK | `apk/le-tan-benh-vien-uong-bi-v1.6.apk` — appId riêng · ba toà D dừng ở đầu hành lang · nhà A/B/F dẫn tới tận nơi |
+| APK | `apk/le-tan-benh-vien-uong-bi-v1.7.apk` — appId riêng · ba toà D dừng ở đầu hành lang · nhà A/B/F dẫn tới tận nơi |
 | **Bản thử trên máy tính** | **`demo/thu-nghiem.html`** — có giả lập robot, bấm được nút dẫn đường. Đọc [HUONG-DAN-THU-NGHIEM.md](HUONG-DAN-THU-NGHIEM.md) |
 | Demo bản sạch | `demo/index.html` — giống hệt cái nằm trong APK |
 | Package | `vn.roboworld.benhvien` |
@@ -210,6 +210,38 @@ hãng, ở appId, ở mạng, chứ không nghĩ tới một dòng dọn dẹp �
 
 Bộ thử `thu-luong-dan-duong.mjs` nay canh đúng chỗ này: giả lập gọi **chính** `CAU.tatMic()`
 rồi mới lấy câu ra, đúng thứ tự bên Kotlin. Đã thử ngược — gây lại lỗi thì phép kiểm đỏ.
+
+### Một lượt hỏi = một câu trả lời — anh Trường chốt 08/09/2026
+
+> *"Trong một phiên ghi âm, hãy lưu lại y nguyên và toàn bộ thành một câu thôi, dù dài hay
+> ngắn. Người hỏi 1 → Robot trả lời 1."*
+
+Hai chốt, mỗi chốt bịt một lỗ khác nhau:
+
+| Chốt | Ở đâu | Bịt lỗ gì |
+|---|---|---|
+| `daGuiTrongPhien` | `MainApplication` | Một lần bấm mic gửi **đúng một** câu. Bộ nhận dạng còn bắn thêm vế sau khi câu đã đi — không có chốt này là robot trả lời hai lần cho một lần bấm nút |
+| `CHO_DUT_CAU_MS = 1800` | `MainApplication` | Người già kể bệnh ngắt giữa chừng lâu hơn khách hội chợ. Một giây là **xé câu làm đôi** |
+
+### Lời AI chỉ phát khi người bệnh không thao tác
+
+> *"Người dùng đang nghe robot trả lời, nhưng nếu có thao tác — quay lại, thoát ra, xoá đoạn
+> chat, hay bấm mic thu tiếp — thì cần ngay lập tức dừng lời thoại đang phát."*
+
+⚠ **Cắt tiếng một mình KHÔNG đủ.** Tầng hội thoại chạy luồng phụ: lúc người bệnh bấm Đóng
+thì câu trả lời còn đang trên đường về, **chưa phát nên không có gì để cắt** — mấy giây sau
+nó mới cất lên, giữa lúc họ đang đọc thứ khác. Nên phải làm hai việc:
+
+1. **Cắt tiếng đang phát** — cả hai đường: `RobotHelper.dungDoc()` (app) và `AgentCore.stopTTS()` (hãng).
+2. **Bỏ câu đang chờ** — cờ `nhanCauTraLoi`, kiểm ở `MainApplication.tuDoc()`, là cửa ra của
+   mọi lời robot nói.
+
+Lớp web gọi `CAU.nguoiDungThaoTac()` ở **mọi cửa**: nút Quay lại · Đóng · Xoá đoạn chat ·
+bấm micro · rời màn Trò chuyện (đặt trong `ve()`, một chỗ duy nhất).
+
+⚠ **Trừ khi CHÍNH APP chuyển màn.** Tra cứu chắc chắn thì tầng AI tự mở trang chi tiết —
+`ve()` sẽ tưởng người bệnh vừa thao tác và bỏ luôn câu trả lời, robot mở đúng trang rồi đứng
+câm. Cờ `appTuChuyenMan` trong `khung-app.html` phân biệt hai chuyện đó.
 
 ### ⚠ Gom vế trước khi gửi
 

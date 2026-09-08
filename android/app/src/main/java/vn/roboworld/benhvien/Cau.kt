@@ -181,8 +181,22 @@ object Cau {
      */
     @JavascriptInterface
     fun hoiRobot(cau: String?) {
+        /* Gõ chữ và nói miệng đi CÙNG một đường, nên cũng phải mở lượt hỏi ở đây —
+           thiếu dòng này thì câu gõ tay bị chính chốt choPhepNoi() bịt lại. */
+        MainApplication.batDauLuotMoi()
         TraLoi.hoi(cau.orEmpty())
     }
+
+    /**
+     * NGƯỜI BỆNH VỪA THAO TÁC — lớp web gọi ở mọi cửa: Quay lại · Thoát · Xoá đoạn
+     * chat · bấm micro nói tiếp · rời màn Trò chuyện.
+     *
+     * Hai việc cùng lúc: cắt tiếng đang phát, và BỎ câu trả lời còn đang trên đường
+     * về. Chỉ cắt tiếng là chưa đủ — câu về muộn chưa phát thì không có gì để cắt,
+     * mấy giây sau nó vẫn cất lên giữa lúc người bệnh đang đọc thứ khác.
+     */
+    @JavascriptInterface
+    fun nguoiDungThaoTac() = MainApplication.nguoiDungThaoTac()
 
     /** Bật màn cấp cứu đỏ — tầng Kotlin gọi khi chặn được từ khoá cấp cứu. */
     fun moManCapCuu() {
