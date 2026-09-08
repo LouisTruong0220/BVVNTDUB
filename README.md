@@ -9,11 +9,11 @@ tìm đúng khoa theo cách họ tự mô tả, và **dẫn đường** tới n�
 
 **Chỉ cần cài lên robot, không cần build:**
 
-1. Tải `apk/le-tan-benh-vien-uong-bi-v1.5.apk`
+1. Tải `apk/le-tan-benh-vien-uong-bi-v1.6.apk`
 2. Nối cáp USB vào **đầu robot**, dùng **adb 1.0.41** của Android SDK
    (⚠ **không** dùng `C:\Windows\adb.exe` bản 1.0.39 của PUDU — hai bản giết tiến trình của nhau)
    ```powershell
-   adb install -r le-tan-benh-vien-uong-bi-v1.5.apk
+   adb install -r le-tan-benh-vien-uong-bi-v1.6.apk
    ```
 3. **Mở app từ RobotOS Home**, tuyệt đối không dùng `am start` — dùng `am start` thì `RobotApi`
    trả `handleApiDisabled`, mất cả dẫn đường lẫn giọng nói mà app không báo lỗi gì.
@@ -38,7 +38,7 @@ Hồ sơ dự án đầy đủ nằm trong workspace nội bộ của Roboworld,
 | | |
 |---|---|
 | Trạng thái | **Bản demo HTML xong, APK build xong. Chưa chạy trên robot thật, chưa khảo sát mặt bằng.** |
-| APK | `apk/le-tan-benh-vien-uong-bi-v1.5.apk` — appId riêng · ba toà D dừng ở đầu hành lang · nhà A/B/F dẫn tới tận nơi |
+| APK | `apk/le-tan-benh-vien-uong-bi-v1.6.apk` — appId riêng · ba toà D dừng ở đầu hành lang · nhà A/B/F dẫn tới tận nơi |
 | **Bản thử trên máy tính** | **`demo/thu-nghiem.html`** — có giả lập robot, bấm được nút dẫn đường. Đọc [HUONG-DAN-THU-NGHIEM.md](HUONG-DAN-THU-NGHIEM.md) |
 | Demo bản sạch | `demo/index.html` — giống hệt cái nằm trong APK |
 | Package | `vn.roboworld.benhvien` |
@@ -186,6 +186,30 @@ Muốn nói tiếp thì bấm lại. Mic **chỉ** sống ở màn Trò chuyện
 ⚠ **Trần 15 giây không phải cho đẹp.** Đồng hồ một giây chỉ khởi động **sau khi nghe được
 một câu** — không có trần thì người bệnh bấm mic rồi bỏ đi là mic mở suốt, đúng cái "thu tạp
 âm" mà cả chế độ này sinh ra để tránh.
+
+### ⚠⚠ Quên vế phải đặt ở `batMicro`, KHÔNG phải `tatMicro`
+
+Lỗi đã dính thật trên máy ngày 08/09/2026, bản v1.5: **mic thu tốt, chữ hiện đầy đủ, nút micro
+tắt đúng lúc — nhưng robot không trả lời câu nào.**
+
+Nguyên nhân là một dòng. Đường gửi câu đi là:
+
+```
+dứt câu → hẹn 1 giây → tatMicro() → guiCauDaGom() → TraLoi.hoi()
+```
+
+`tatMicro()` có gọi `quenVe()`, nên nó **xoá sạch vế vừa gom ngay trước khi** `guiCauDaGom()`
+đọc tới. Hàm này lấy được chuỗi rỗng, `TraLoi.hoi` không bao giờ chạy, robot đứng im.
+
+Nhìn từ ngoài y hệt "AI hỏng" — và đó là chỗ nguy hiểm: người ta sẽ đi tìm lỗi ở đám mây của
+hãng, ở appId, ở mạng, chứ không nghĩ tới một dòng dọn dẹp đặt sai chỗ. Từ v1.6:
+
+- `batMicro()` quên vế — bắt đầu lượt nói mới thì bỏ vế dở của lượt trước.
+- `tatMicro()` **không** đụng vào vế.
+- `guiCauDaGom()` ghi hẳn một dòng `WARN` khi tới nơi mà không còn vế nào.
+
+Bộ thử `thu-luong-dan-duong.mjs` nay canh đúng chỗ này: giả lập gọi **chính** `CAU.tatMic()`
+rồi mới lấy câu ra, đúng thứ tự bên Kotlin. Đã thử ngược — gây lại lỗi thì phép kiểm đỏ.
 
 ### ⚠ Gom vế trước khi gửi
 

@@ -69,8 +69,22 @@ class MainApplication : Application() {
          */
         @Volatile private var dangChoNghe = false
 
-        fun batMicro() { huyHenTatMic(); dangChoNghe = true;  datMicro(false); henTatMicNeuKhongAiNoi() }
-        fun tatMicro() { huyHenTatMic(); dangChoNghe = false; datMicro(true);  quenVe() }
+        /* ⚠⚠ QUÊN VẾ Ở `batMicro`, TUYỆT ĐỐI KHÔNG Ở `tatMicro`.
+         *
+         *   Đường gửi câu đi là: dứt câu → hẹn 1 giây → tatMicro() → guiCauDaGom().
+         *   Để `quenVe()` trong tatMicro thì nó xoá sạch vế vừa gom NGAY TRƯỚC khi
+         *   guiCauDaGom đọc tới — hàm này lấy được chuỗi rỗng, `TraLoi.hoi` không bao
+         *   giờ được gọi, và robot đứng im sau khi nghe xong.
+         *
+         *   Nhìn từ ngoài y hệt "AI hỏng": mic thu tốt, chữ hiện lên màn hình đầy đủ,
+         *   nút micro tắt đúng lúc — chỉ là không có câu trả lời nào. Đã dính thật trên
+         *   máy 08/09/2026 ở bản v1.5.
+         *
+         *   Quên ở batMicro thì đúng ngữ nghĩa hơn: bắt đầu một lượt nói mới là bỏ vế
+         *   dở của lượt trước. Vế dở khi người bệnh rời màn giữa chừng cũng không sao —
+         *   lúc đó không ai gọi guiCauDaGom, và lần bấm mic sau sẽ xoá nó. */
+        fun batMicro() { huyHenTatMic(); quenVe(); dangChoNghe = true; datMicro(false); henTatMicNeuKhongAiNoi() }
+        fun tatMicro() { huyHenTatMic(); dangChoNghe = false; datMicro(true) }
 
         /* ═══════════════════════════════════════════════════════════════
            MICRO BẤM-MỚI-NGHE — chép lối đã chạy thật ở app Medinova (v1.6)
@@ -112,7 +126,16 @@ class MainApplication : Application() {
             val cau = synchronized(this) {
                 val t = ve.toString().trim(); ve.setLength(0); t
             }
-            if (cau.isNotBlank()) TraLoi.hoi(cau)
+            if (cau.isNotBlank()) {
+                Log.d(TAG, "Gửi câu đã gom cho tầng hội thoại: $cau")
+                TraLoi.hoi(cau)
+            } else {
+                /* Tới đây mà rỗng là có kẻ xoá vế trước khi kịp gửi. Ghi rõ chứ đừng
+                   im: nhìn từ ngoài, "nghe xong rồi đứng im" trông y hệt AI hỏng, và
+                   không có dòng log này thì đi tìm nhầm sang tận đám mây của hãng. */
+                Log.w(TAG, "guiCauDaGom: KHÔNG CÒN VẾ NÀO để gửi — ai đó đã gọi quenVe() " +
+                           "giữa lúc tắt mic và lúc gửi. Robot sẽ đứng im.")
+            }
         }
 
         private const val CHO_DUT_CAU_MS = 1_000L

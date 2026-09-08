@@ -246,7 +246,7 @@
        cũng gom, để thử được câu nói ngắt quãng. */
     batMic: function () {
       GL.micMo = true; ghi('lenh', 'CAU.batMic()'); veBang();
-      GL._ve = '';
+      GL._ve = '';          // quên vế dở của lượt trước — ĐÚNG CHỖ, xem MainApplication
       clearTimeout(GL._henMic);
       GL._henMic = setTimeout(function () {
         if (!GL.micMo) return;
@@ -256,7 +256,10 @@
       }, 15000);
     },
     tatMic: function () {
-      GL.micMo = false; GL._ve = '';
+      /* ⚠ KHÔNG xoá GL._ve ở đây. Trình tự thật là: dứt câu → tắt mic → RỒI MỚI
+         gửi câu đã gom. Xoá ở đây là câu bốc hơi trước khi kịp gửi, robot đứng im
+         sau khi nghe xong — đúng lỗi đã dính trên máy thật ngày 08/09/2026. */
+      GL.micMo = false;
       clearTimeout(GL._henMic); GL._henMic = null;
       ghi('lenh', 'CAU.tatMic()'); veBang();
     },
@@ -277,11 +280,15 @@
       clearTimeout(GL._henMic);
       GL._henMic = setTimeout(function () {
         if (!GL.micMo) return;
-        var cau = GL._ve; GL._ve = '';
         ghi('lenh', 'Người bệnh dứt câu — tự tắt mic sau 1000 ms');
-        GL.micMo = false; veBang();
+        /* Gọi ĐÚNG hàm tatMic của cầu nối, rồi MỚI lấy câu ra — y hệt thứ tự bên
+           Kotlin (tatMicro → guiCauDaGom). Mô phỏng bằng cách tự xoá cờ ở đây thì
+           bộ thử không bao giờ bắt được lỗi "câu bị xoá trước khi gửi". */
+        window.CAU.tatMic();
         if (window.baoMicTuTat) window.baoMicTuTat();
-        traLoi(cau);
+        var cau = GL._ve; GL._ve = '';
+        if (cau) traLoi(cau);
+        else ghi('loi', '⚠ Vế đã bị xoá trước khi kịp gửi — robot sẽ đứng im');
       }, 1000);
     },
     hoiRobot: function (c) {
