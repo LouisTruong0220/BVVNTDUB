@@ -48,7 +48,7 @@ Năm thứ phải điền:
 | Trường | Điền gì | Lưu ý |
 |---|---|---|
 | `ten` | Tên khoa đúng như bệnh viện gọi | Có dấu, viết hoa chữ đầu mỗi từ. Đây là chữ hiện trên màn hình **và** là chữ robot đọc |
-| `nhom` | Một mã trong bảng `NHOM` | Chép **đúng ký tự**: `me-be` · `tre-em` · `mat-tai-rang` · `noi-khoa` · `ngoai-khoa` · `xuong-khop` · `cap-cuu` · `tien-ich` · `hanh-chinh`. Gõ sai là khoa đó không hiện trong ô nào |
+| `nhom` | Một mã trong bảng `NHOM` | Chép **đúng ký tự**: `me-be` · `tre-em` · `mat-tai-rang` · `noi-khoa` · `ngoai-khoa` · `xuong-khop` · `cap-cuu` · `tien-ich` · `chieu-chup` · `hanh-chinh`. Gõ sai là khoa đó không hiện trong ô nào |
 | `ghi_chu` | Một dòng mô tả ngắn | Hiện dưới tên khoa trong danh sách kết quả |
 | `vi_tri` | Danh sách chỗ khoa đó có mặt | Xem ngay dưới |
 | `tu_dan` | Từ người dân dùng để tìm | Xem mục riêng — đây là trường quan trọng nhất |
@@ -63,7 +63,8 @@ Mỗi phần tử là `("TOÀ", tầng, ["mã phòng", ...])`:
     vi_tri=[("DIII", 3, [])],                           # có tầng, chưa có mã phòng
 ```
 
-- Toà chỉ nhận **`"DI"` · `"DII"` · `"DIII"`**. Toà khác → xem mục *Việc không làm được*.
+- Toà chỉ nhận **`"DI"` · `"DII"` · `"DIII"`** ở bảng này. Chỗ ở nhà A · B · C · F khai
+  ở bảng khác — xem **Việc 1b**.
 - Tầng là **số**, không phải chữ: `4`, không phải `"bốn"`. Robot tự đổi sang chữ khi đọc.
 - Mã phòng viết y như trên phiếu khám: `"D25"`. Không có mã thì để `[]`.
 - **Nhiều hơn một phần tử** thì app tự hiện màn hỏi lại *"Quý vị đang theo dõi ở toà nào?"*
@@ -107,6 +108,38 @@ và khi robot **tới nơi**:
 
 Muốn đổi **cách nói** cho mọi khoa cùng lúc thì sửa hàm `cau_vi_tri()` / `cau_chi_duong()`
 ở nửa dưới file — sửa một chỗ, cả 16 khoa đổi theo.
+
+---
+
+## Việc 1b — Thêm một chỗ ở toà A · B · C · F (robot dẫn tới tận nơi)
+
+Từ 08/09/2026 bệnh viện có thêm bốn chỗ **ngoài ba toà D**: Khu Thăm dò chức năng (Nhà A),
+Khoa Răng Hàm Mặt (Nhà B), Khoa Cấp cứu (Nhà C) và Khoa Chẩn đoán hình ảnh (Nhà F).
+Mấy chỗ này bản đồ robot **có điểm riêng** nên robot đi tới tận nơi, không dừng ở đầu hành lang.
+
+Thêm vào bảng `BANG_TOA_KHAC`:
+
+```python
+    dict(ten="Khoa Vật lý trị liệu", nhom="xuong-khop", diem="vat-ly-tri-lieu",
+         toa="A", tang=2, ma=[],
+         ghi_chu="Tập phục hồi chức năng sau mổ, sau tai biến",
+         tu_dan="vat ly tri lieu phuc hoi chuc nang tap di tap van dong"),
+```
+
+Khác `BANG_KHOA` ở ba điểm:
+
+| | `BANG_KHOA` (ba toà D) | `BANG_TOA_KHAC` (A · B · C · F) |
+|---|---|---|
+| Robot đi tới đâu | Đầu hành lang, rồi chỉ đường bằng lời | **Tới tận nơi** |
+| Khai vị trí | `vi_tri=[("DI", 2, ["D3"])]` — nhiều chỗ được | `toa=` `tang=` `ma=` — **đúng một chỗ** |
+| Điểm bản đồ | Dùng chung `truoc-hanh-lang` | **Phải khai `diem=`** riêng, và kỹ thuật viên phải đặt điểm đó trên robot |
+
+⚠ **Không đếm thứ tự toà nhà cho nhóm này.** Cách nói *"toà nhà thứ hai"* chỉ đúng với ba
+toà D xếp dọc hành lang. Nhà A, B, C, F nằm chỗ khác — script tự biết điều đó, đừng sửa lại.
+
+⚠ **Nhớ khai điểm bản đồ trước** (xem Việc 2, Bước A) rồi mới trỏ `diem=` vào.
+Trỏ vào một khoá không có trong bảng `DIEM` thì `dung-du-lieu.py` **dừng và báo lỗi**
+chứ không sinh file — cổng kiểm thêm 08/09/2026.
 
 ---
 
@@ -177,10 +210,16 @@ Lệnh 1 in ra dòng tổng kết — **đọc dòng này**, nó là phép kiể
 
 ```
    22 đích  ·  25 mã phòng  ·  9 nhóm  ·  6 điểm bản đồ
-   Mã phòng thiếu so với D1–D24: không thiếu mã nào
+   Mã phòng khớp danh mục: D1–D22 · C1 · CĐHA (D23–D24 đã bỏ theo yêu cầu)
 ```
 
 Số đích tăng đúng bằng số khoa vừa thêm thì mới đúng.
+
+⚠ Thêm một mã phòng **kiểu mới** (không phải D1–D22, C1, CĐHA) thì lệnh 1 sẽ **dừng lại**
+và báo *"Mã phòng LỆCH danh mục — thừa: …"*. Đó là cổng kiểm cố ý: nó bắt người thêm mã
+phải xác nhận danh mục. Sửa tập `MONG_DOI` ở cuối `dung-du-lieu.py` rồi chạy lại.
+Mã không theo khuôn "một chữ cái + số" (như `CĐHA`) còn phải khai cách đọc trong
+`MA_DOC_RIENG`, không thì robot đọc trọ trẹ từng chữ cái.
 
 Lệnh 3 chỉ cần chạy khi có sửa nội dung, và **phải nạp lại lên cổng** thì phần trò chuyện AI
 mới biết khoa mới — xem mục cuối.
@@ -248,7 +287,7 @@ là chưa biết khoa mới. Không nguy hiểm, nhưng đừng để quên.
 
 | Muốn | Vì sao khó | Phải làm gì |
 |---|---|---|
-| Thêm toà nhà thứ tư (ví dụ nhà A, nhà B) | Bốn bảng `TOA_CHU` · `TOA_TEN` · `TOA_TANG` · `TOA_THU_TU` đang khai đúng ba toà, và câu chỉ đường đếm theo thứ tự dọc hành lang | Gọi tôi — sửa cả bốn bảng cùng lúc, và phải khảo sát lại xem đứng ở đầu hành lang có nhìn thấy toà đó không |
+| Thêm một toà nhà HOÀN TOÀN mới (ngoài A · B · C · F · DI · DII · DIII) | Hai bảng `TOA_CHU` và `TOA_TEN` phải có cách đọc chữ cái toà nhà — thiếu là script dừng | Thêm một dòng vào mỗi bảng, ví dụ `"G": "giê"` và `"G": "Nhà G"`. Rồi khai chỗ đó trong `BANG_TOA_KHAC` như Việc 1b |
 | Đổi **thứ tự** ba toà nhà | Robot chỉ đường bằng *"toà nhà thứ hai"*. Sai thứ tự là chỉ sai toà, người bệnh đi nhầm | Sửa bảng `TOA_THU_TU`, nhưng **phải ra hiện trường đếm lại** trước |
 | Thêm ô mới trên màn hình chính | Lưới 5 cột đang đủ 10 ô = 2 hàng vừa khít màn. Ô thứ 11 đẩy xuống hàng ba, người già ít khi cuộn | Thêm vào bảng `NHOM` thì ô tự hiện, nhưng nên giữ tổng số ô là **10 hoặc 15** |
 | Cho robot đi vào trong toà DI/DII/DIII | Ràng buộc vật lý, không phải phần mềm | Ngoài phạm vi bản 1 |

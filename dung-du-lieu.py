@@ -45,6 +45,20 @@ DIEM = {
     #   Trường xem lại mặt bằng. Vì thế câu chỉ đường KHÔNG được nói "toà nhà trước mặt"
     #   nữa mà phải ĐẾM THỨ TỰ toà nhà dọc hành lang — xem cau_chi_duong().
     "truoc-hanh-lang": {"ten": "Đầu hành lang", "diem_ban_do": "Truoc hanh lang", "mau": "#0E5A63"},
+
+    # ── Bốn chỗ ở các toà A · B · C · F (bổ sung 08/09/2026) ─────────────
+    # Khác 16 khoa trong ba toà D: mấy chỗ này robot ĐI TỚI TẬN NƠI, không
+    # dừng ở đầu hành lang rồi chỉ đường. Anh Trường xác nhận bản đồ robot
+    # ĐÃ CÓ sẵn hai điểm cấp cứu và chẩn đoán hình ảnh; hai điểm còn lại
+    # anh đặt thêm.
+    # ⚠ Tên dưới đây phải khớp tên THẬT trên bản đồ. App không tự sửa tên,
+    #   nhưng RobotHelper nay dò khớp mềm (bỏ dấu, không phân biệt hoa
+    #   thường) nên viết "Khoa cap cuu" hay "Khoa Cấp cứu" đều tìm ra.
+    #   Kiểm bằng CAU.kiemTraBanDo() trên máy thật, đừng tin bằng mắt.
+    "khoa-cap-cuu":   {"ten": "Khoa Cấp cứu",             "diem_ban_do": "Khoa cap cuu",              "mau": "#7A4B2A"},
+    "tham-do-cn":     {"ten": "Khu Thăm dò chức năng",    "diem_ban_do": "Khu Tham do chuc nang",     "mau": "#5A6E8C"},
+    "rang-ham-mat":   {"ten": "Khoa Răng Hàm Mặt",        "diem_ban_do": "Khoa Rang Ham Mat",         "mau": "#3F7A6B"},
+    "chan-doan-ha":   {"ten": "Khoa Chẩn đoán hình ảnh",  "diem_ban_do": "Khoa chan doan hinh anh",   "mau": "#6B5B95"},
 }
 DIEM_VE_CHO = "Sanh cho"   # chỗ robot tự quay về sau khi dẫn xong
 
@@ -71,6 +85,8 @@ NHOM = [
      "goi_y": "Nguy kịch, cần cấp cứu ngay"},
     {"ma": "tien-ich",     "ten": "Viện phí · Thuốc · Tiện ích", "icon": "💳",
      "goi_y": "Đóng tiền, lấy thuốc, căn tin, nhà vệ sinh"},
+    {"ma": "chieu-chup",   "ten": "Xét nghiệm · Chiếu chụp",   "icon": "🩻",
+     "goi_y": "Chụp X-quang, siêu âm, điện tim, nội soi"},
     {"ma": "hanh-chinh",   "ten": "Hành chính · Khác",         "icon": "🏛️",
      "goi_y": "Phòng ban, giải phẫu bệnh, xin giấy tờ"},
 ]
@@ -107,10 +123,9 @@ BANG_KHOA = [
          vi_tri=[("DI", 5, ["D10"])],
          tu_dan="tai mui hong tmh viem hong u tai ngat mui viem xoang amidan "
                 "khan tieng chay mau cam diec noi soi tai mui hong"),
-    dict(ten="Khoa Răng Hàm Mặt", nhom="mat-tai-rang", ghi_chu="Nha khoa, hàm mặt",
-         vi_tri=[("DI", 4, ["D7"])],
-         tu_dan="rang dau rang nho rang sau rang ham mat nha khoa nieng rang "
-                "chua rang han rang lam rang loi sung"),
+    # Khoa Răng Hàm Mặt ĐÃ CHUYỂN sang Nhà B tầng 1 — xem BANG_TOA_KHAC bên dưới.
+    # Anh Trường chốt 08/09/2026 theo tài liệu mới của bệnh viện; tài liệu gốc
+    # ghi D7 ở Nhà DI tầng 4, nay không còn đúng.
 
     # ── Nội khoa ──────────────────────────────────────────────────────
     dict(ten="Khoa Nội Tiêu Hóa", nhom="noi-khoa", ghi_chu="Tiêu hóa nội khoa",
@@ -151,13 +166,14 @@ BANG_KHOA = [
                 "phuc hoi chuc nang y hoc co truyen keo gian cot song"),
 
     # ── Cấp cứu ───────────────────────────────────────────────────────
-    dict(ten="Khoa Hồi Sức Cấp Cứu Nội", nhom="cap-cuu", ghi_chu="Cấp cứu nội khoa", loai="cap-cuu",
-         vi_tri=[("DIII", 2, ["D23", "D24"])],
-         # ⚠ "ngat xiu" phải nằm ở đây. Bỏ dấu thì "ngất" và "ngạt" (ngạt mũi) là một
-         #   chữ, mà Tai Mũi Họng có "ngat mui" — người nhà gõ "ngất xỉu" lại ra khoa
-         #   tai mũi họng trước khoa cấp cứu. Có thêm "xiu" thì cấp cứu thắng rõ.
-         tu_dan="cap cuu nguy kich hoi suc ngat xiu ngat xiu choang dot quy cap cuu noi "
-                "kho tho nang bat tinh co giat tai nan khan cap nguy hiem sap chet"),
+    # Khoa Hồi Sức Cấp Cứu Nội (D23-D24, tầng 2 Nhà DIII) ĐÃ BỎ KHỎI APP
+    # ngày 08/09/2026 theo yêu cầu anh Trường.
+    #
+    # ⚠ Đó là khoa KHÁC với "Khoa Cấp cứu" C1 ở Nhà C: một bên là nơi tiếp
+    #   nhận người nguy kịch, một bên là khoa hồi sức điều trị nội trú. Để cả
+    #   hai trong nút CẤP CỨU thì người đang hoảng phải đọc và chọn — mất đúng
+    #   những giây quý nhất. Nay nút cấp cứu chỉ ra một chỗ duy nhất: C1, Nhà C.
+    #   Khoa cấp cứu nằm ở BANG_TOA_KHAC bên dưới.
 
     # ── Hành chính · Khác ─────────────────────────────────────────────
     dict(ten="Khoa Giải Phẫu Bệnh", nhom="hanh-chinh", ghi_chu="Giải phẫu, sinh thiết bệnh lý",
@@ -168,6 +184,47 @@ BANG_KHOA = [
          vi_tri=[("DIII", 3, [])],
          tu_dan="hanh chinh ke hoach tong hop dieu duong cham soc khach hang marketing "
                 "truyen thong giam doc ban lanh dao xin giay to xac nhan phong ban"),
+]
+
+# ═══════════════════════════════════════════════════════════════════════
+#  BỐN CHỖ Ở CÁC TOÀ A · B · C · F — robot dẫn THẲNG tới nơi
+#  (bổ sung 08/09/2026, nguồn: "Thông tin phòng cần thêm.docx")
+#
+#  Khác 16 khoa trong ba toà D ở chỗ nào: ba toà D nằm cuối hành lang, robot
+#  chỉ đi được tới ĐẦU hành lang rồi đứng đó chỉ đường bằng lời. Còn bốn chỗ
+#  này bản đồ robot có điểm riêng nên robot đi tới TẬN NƠI — người bệnh chỉ
+#  việc đi theo, không phải nhớ "toà thứ mấy, tầng mấy".
+#
+#  ⚠ Vì robot đi thật nên quãng đường tới bốn chỗ này phải đạt điều kiện của
+#    máy trong nhà: bậc ≤ 2 cm · dốc ≤ 5° · sàn phẳng liền mạch · có mái che.
+#    Chỗ nào không đạt thì BỎ trường `diem` của chỗ đó đi (để None), app sẽ tự
+#    chuyển sang chỉ đường bằng lời thay vì dẫn.
+# ═══════════════════════════════════════════════════════════════════════
+BANG_TOA_KHAC = [
+    dict(ten="Khoa Cấp cứu", nhom="cap-cuu", diem="khoa-cap-cuu", loai="cap-cuu",
+         toa="C", tang=1, ma=["C1"],
+         ghi_chu="Tiếp nhận, xử trí ban đầu ca nguy kịch — trực 24/7",
+         tu_dan="cap cuu khan cap nguy kich ngat xiu ngat xiu bat tinh co giat "
+                "tai nan giao thong tai nan lao dong ngo doc dot quy ngung tuan hoan "
+                "kho tho nang chay mau nhieu sap chet cuu voi"),
+
+    dict(ten="Khu Thăm dò chức năng", nhom="chieu-chup", diem="tham-do-cn",
+         toa="A", tang=1, ma=[],
+         ghi_chu="Điện tim, siêu âm tim, điện cơ, điện não, nội soi thường",
+         tu_dan="tham do chuc nang dien tim sieu am tim dien co dien nao noi soi "
+                "do dien tim dien tam do do chuc nang"),
+
+    dict(ten="Khoa Răng Hàm Mặt", nhom="mat-tai-rang", diem="rang-ham-mat",
+         toa="B", tang=1, ma=["D7"],
+         ghi_chu="Sâu răng, viêm tuỷ, nhổ răng khôn, chỉnh hình hàm mặt",
+         tu_dan="rang dau rang nho rang sau rang ham mat nha khoa nieng rang "
+                "chua rang han rang lam rang loi sung viem tuy rang khon chinh hinh ham mat"),
+
+    dict(ten="Khoa Chẩn đoán hình ảnh", nhom="chieu-chup", diem="chan-doan-ha",
+         toa="F", tang=1, ma=["CĐHA"],
+         ghi_chu="X-quang, siêu âm, CT, MRI",
+         tu_dan="chan doan hinh anh chup x quang xquang chup phim sieu am chup ct "
+                "chup em ra ai mri chieu chup chup chieu chup cat lop cong huong tu"),
 ]
 
 # ═══════════════════════════════════════════════════════════════════════
@@ -222,9 +279,20 @@ QUY_TRINH_KHAM = {
 #  Công cụ
 # ═══════════════════════════════════════════════════════════════════════
 SO_CHU = ["không", "một", "hai", "ba", "bốn", "năm", "sáu", "bảy", "tám", "chín", "mười"]
-TOA_CHU = {"DI": "đê một", "DII": "đê hai", "DIII": "đê ba"}
-TOA_TEN = {"DI": "Nhà DI", "DII": "Nhà DII", "DIII": "Nhà DIII"}
-TOA_TANG = {"DI": 5, "DII": 5, "DIII": 8}
+
+# Ba toà D nằm cuối hành lang — robot chỉ ra tới đầu hành lang rồi chỉ đường.
+# Bốn toà A · B · C · F có điểm riêng trên bản đồ — robot đi tới tận nơi.
+TOA_CHU = {"DI": "đê một", "DII": "đê hai", "DIII": "đê ba",
+           "A": "a", "B": "bê", "C": "xê", "F": "ép"}
+TOA_TEN = {"DI": "Nhà DI", "DII": "Nhà DII", "DIII": "Nhà DIII",
+           "A": "Nhà A", "B": "Nhà B", "C": "Nhà C", "F": "Nhà F"}
+TOA_TANG = {"DI": 5, "DII": 5, "DIII": 8}   # số tầng, chỉ ba toà D là biết chắc
+
+# ⚠ CHỖ CẦN ĐIỀN SAU KHẢO SÁT — hướng đi tới bốn toà mới, tính từ chỗ robot
+#   đứng. Để rỗng thì robot chỉ đọc tên toà (an toàn, không chỉ sai). Điền vào
+#   thì robot nói thêm hướng, ví dụ "bên tay phải quý vị" / "phía đài phun nước".
+#   ĐỪNG đoán bừa: chỉ sai hướng cho một ca cấp cứu là mất những giây quý nhất.
+HUONG_TOA = {"A": "", "B": "", "C": "", "F": ""}
 
 # Thứ tự các toà nhà tính từ ĐẦU HÀNH LANG — chỗ robot dừng lại.
 # ⚠ Đây là thứ người bệnh thật sự dùng để tìm đường: đứng ở đầu hành lang thì ba toà
@@ -242,17 +310,30 @@ def khong_dau(s):
     return re.sub(r"\s+", " ", re.sub(r"[^a-z0-9]+", " ", s)).strip()
 
 
-def ma_doc(ma):
-    """Mã phòng D3 → 'đê ba' để máy đọc. Người ta đối chiếu với phiếu khám nên phải đọc rõ.
+# Mã phòng không theo khuôn "chữ cái + số" thì khai thẳng cách đọc ở đây.
+# CĐHA là viết tắt của Chẩn đoán hình ảnh — đánh vần từng chữ cái thì người
+# nghe không hiểu, mà đọc trại cũng không ra. Đọc luôn nghĩa của nó.
+# None = có mã, nhưng KHÔNG đọc ra tiếng. CĐHA là viết tắt của chính tên khoa
+# nên đọc lên thành "Khoa Chẩn đoán hình ảnh... phòng chẩn đoán hình ảnh" — lặp.
+# Mã vẫn hiện trên màn hình và vẫn tìm kiếm được.
+MA_DOC_RIENG = {"CĐHA": None}
 
-    ⚠ Hai chỗ tiếng Việt đổi chữ khi ghép số, máy đọc sai là người bệnh nghe ra mã khác:
-      · đơn vị 5 sau hàng chục đọc là "lăm", không phải "năm" — D15 là "mười lăm".
-      · đơn vị 1 từ hai mươi trở lên đọc là "mốt" — D21 là "hai mươi mốt" (nhưng D11
-        vẫn là "mười một").
+# Chữ cái đầu mã phòng đọc thành lời. D là "đê" chứ không phải "dê" —
+# người bệnh đối chiếu với phiếu khám nên phải nghe ra đúng chữ.
+CHU_DOC = {"D": "đê", "C": "xê", "A": "a", "B": "bê", "F": "ép", "E": "e", "G": "giê"}
+
+
+def so_doc(n):
+    """Số 0-99 đọc thành chữ.
+
+    ⚠ Hai chỗ tiếng Việt đổi chữ khi ghép số, máy đọc sai là người bệnh nghe ra
+      mã khác:
+      · đơn vị 5 sau hàng chục đọc là "lăm", không phải "năm" — 15 là "mười lăm".
+      · đơn vị 1 từ hai mươi trở lên đọc là "mốt" — 21 là "hai mươi mốt" (nhưng
+        11 vẫn là "mười một").
     """
-    n = int(ma[1:])
     if n <= 10:
-        return "đê " + SO_CHU[n]
+        return SO_CHU[n]
     chuc, don = divmod(n, 10)
     dau = "mười" if chuc == 1 else SO_CHU[chuc] + " mươi"
     if don == 0:
@@ -263,10 +344,25 @@ def ma_doc(ma):
         duoi = "lăm"
     else:
         duoi = SO_CHU[don]
-    return ("đê " + dau + " " + duoi).strip()
+    return (dau + " " + duoi).strip()
+
+
+def ma_doc(ma):
+    """Mã phòng D3 → 'đê ba', C1 → 'xê một' để máy đọc."""
+    if ma in MA_DOC_RIENG:
+        return MA_DOC_RIENG[ma]
+    m = re.match(r"^([A-Za-z])(\d+)$", ma)
+    if not m:
+        # Mã lạ chưa khai cách đọc — đọc nguyên văn còn hơn đọc sai, và in
+        # cảnh báo để người thêm mã biết mà khai vào MA_DOC_RIENG.
+        print("   ! Mã '%s' chưa biết cách đọc — khai vào MA_DOC_RIENG" % ma)
+        return ma
+    chu, so = m.group(1).upper(), int(m.group(2))
+    return "%s %s" % (CHU_DOC.get(chu, chu.lower()), so_doc(so))
 
 
 def ds_ma_doc(ma):
+    ma = [m for m in ma if MA_DOC_RIENG.get(m, "") is not None]
     if not ma:
         return ""
     if len(ma) == 1:
@@ -317,6 +413,77 @@ def cau_chi_duong(ten, toa, tang, ma):
             % (cau_toa_thu_tu(toa).capitalize(), SO_CHU[tang], ten, p))
 
 
+def cum_huong(toa):
+    """Phần chỉ hướng, rỗng khi chưa khảo sát — xem HUONG_TOA."""
+    h = HUONG_TOA.get(toa, "").strip()
+    return (" " + h.rstrip(".") + ".") if h else ""
+
+
+def cau_toi_noi_toa_khac(ten, toa, tang, ma):
+    """Robot đã dẫn tới tận cửa toà nhà — nói nốt phần nó không đi theo được."""
+    p = (" Tìm " + ds_ma_doc(ma).lower().replace(".", "") + ".") if ds_ma_doc(ma) else ""
+    # Tầng 1 thì KHÔNG nói "lên tầng một" — robot đang đứng ngay đó, bảo người ta
+    # lên tầng một là câu vô nghĩa và làm người già bối rối đi tìm cầu thang.
+    len_tang = "" if tang == 1 else " lên tầng %s," % SO_CHU[tang]
+    return ("Đã tới nơi. Đây là toà nhà %s. Quý vị%s vào %s.%s Chúc quý vị mau khoẻ."
+            % (TOA_CHU[toa], len_tang, ten, p))
+
+
+def cau_chi_duong_toa_khac(ten, toa, tang, ma):
+    """Câu đọc KHI ĐÃ TỚI NƠI — chỉ dùng nếu bỏ `diem` vì robot không đi được.
+
+    Không đếm thứ tự toà nhà như ba toà D: A · B · C · F không nằm cùng một
+    hàng dọc hành lang nên đếm thứ tự là chỉ sai.
+    """
+    p = (" " + ds_ma_doc(ma)) if ma else ""
+    return ("%s ở tầng %s, toà nhà %s.%s%s Chúc quý vị mau khoẻ."
+            % (ten, SO_CHU[tang], TOA_CHU[toa], p, cum_huong(toa))).replace("  ", " ")
+
+
+def cau_dan_thang(ten, toa, tang, ma):
+    """Câu robot đọc lúc mở màn chi tiết của bốn chỗ ở toà A · B · C · F.
+
+    Khác cau_vi_tri() ở chỗ KHÔNG hứa "ra đầu hành lang rồi chỉ đường tiếp" —
+    mấy chỗ này bản đồ có điểm riêng nên robot đi tới tận nơi.
+    """
+    p = (" " + ds_ma_doc(ma)) if ma else ""
+    return ("%s ở tầng %s, %s.%s%s Tôi dẫn quý vị tới nơi."
+            % (ten, SO_CHU[tang], "toà nhà " + TOA_CHU[toa],
+               p, cum_huong(toa))).replace("  ", " ")
+
+
+def cau_cap_cuu_toa(ten, toa, tang, ma):
+    """Câu robot HÔ khi người nhà bấm CẤP CỨU.
+
+    ⚠ Vẫn KHÔNG có chữ "tôi dẫn quý vị", dù bản đồ nay đã có điểm Khoa Cấp cứu.
+      Robot đi 0,5–0,8 m/s, chậm hơn người chạy — bảo người đang cấp cứu đi theo
+      robot là làm chậm họ. Robot hô to và chỉ chỗ, còn người nhà tự chạy.
+      Muốn đổi ý thì mở nút dẫn ở màn cấp cứu, dữ liệu đã có sẵn `diem`.
+    """
+    p = (" " + ds_ma_doc(ma)) if ma else ""
+    return ("%s ở tầng %s, %s.%s%s "
+            "Quý vị cần cấp cứu thì xin đi ngay, đừng chờ tôi dẫn."
+            % (ten, SO_CHU[tang], "toà nhà " + TOA_CHU[toa],
+               p, cum_huong(toa))).replace("  ", " ")
+
+
+def mo_ta_ma():
+    """'D1 đến D22, C1 và CĐHA' — gộp dải số liên tục, liệt kê phần còn lại."""
+    ds = sorted({m for k in BANG_KHOA for _, _, ma in k["vi_tri"] for m in ma}
+                | {m for k in BANG_TOA_KHAC for m in k["ma"]})
+    so_d = sorted(int(m[1:]) for m in ds if re.match(r"^D\d+$", m))
+    khac = [m for m in ds if not re.match(r"^D\d+$", m)]
+    phan = []
+    if so_d:
+        lien_tuc = so_d == list(range(so_d[0], so_d[-1] + 1))
+        phan.append("D%d đến D%d" % (so_d[0], so_d[-1]) if lien_tuc
+                    else ", ".join("D%d" % n for n in so_d))
+    phan += khac
+    if len(phan) == 1:
+        return phan[0]
+    return ", ".join(phan[:-1]) + " và " + phan[-1]
+
+
 # ═══════════════════════════════════════════════════════════════════════
 #  Dựng
 # ═══════════════════════════════════════════════════════════════════════
@@ -365,18 +532,62 @@ for t in BANG_TIEN_ICH:
         "tim": khong_dau(t["ten"] + " " + t["ghi_chu"]) + " " + t["tu_dan"],
     })
 
+# ── Bốn chỗ ở toà A · B · C · F ──────────────────────────────────────────
+# loai = "toa-khac": robot ĐI TỚI TẬN NƠI (có điểm bản đồ riêng), khác
+# "ngoai-khu" là dừng ở đầu hành lang rồi chỉ đường bằng lời.
+for k in BANG_TOA_KHAC:
+    _id += 1
+    loai = k.get("loai", "toa-khac")
+    toa, tang, ma = k["toa"], k["tang"], k["ma"]
+    dich.append({
+        "id": _id,
+        "ten": k["ten"],
+        "nhom": k["nhom"],
+        "loai": loai,
+        # Cấp cứu CÓ điểm bản đồ nhưng app cố ý không hiện nút dẫn —
+        # xem cau_cap_cuu_toa(). Giữ điểm ở đây để bật lên chỉ là một dòng.
+        "diem": k["diem"],
+        "ghi_chu": k["ghi_chu"],
+        "ma": ma,
+        # Sinh `vi_tri` một phần tử y hệt khuôn của 16 khoa trong ba toà D —
+        # cố ý, để lớp giao diện không phải học thêm một hình dạng dữ liệu thứ ba.
+        # Chỗ DUY NHẤT khác nhau là lúc tới nơi: "ngoai-khu" mở màn chỉ đường,
+        # còn "toa-khac" thì robot đã tới tận nơi nên đọc lại từ đầu.
+        "vi_tri": [{
+            "toa": toa, "toa_ten": TOA_TEN[toa], "tang": tang, "ma": ma,
+            "doc": (cau_cap_cuu_toa if loai == "cap-cuu" else cau_dan_thang)(
+                    k["ten"], toa, tang, ma),
+            # Dùng tới khi khảo sát thấy robot KHÔNG đi được tới chỗ đó và
+            # phải bỏ trường `diem` — lúc ấy app quay về lối chỉ đường bằng lời.
+            "chi_duong": cau_chi_duong_toa_khac(k["ten"], toa, tang, ma),
+            # Câu robot đọc KHI ĐÃ ĐỨNG trước toà nhà. Khác chi_duong ở chỗ
+            # không chỉ đường nữa — chỉ nhắc tầng và số phòng, là hai thứ robot
+            # không đi theo lên được.
+            "doc_toi_noi": cau_toi_noi_toa_khac(k["ten"], toa, tang, ma),
+        }],
+        "doc": (cau_cap_cuu_toa if loai == "cap-cuu" else cau_dan_thang)(
+                k["ten"], toa, tang, ma),
+        "tim": khong_dau(k["ten"] + " " + k["ghi_chu"] + " " + " ".join(ma))
+               + " " + k["tu_dan"],
+    })
+
+
 D = {
     "don_vi": "Bệnh viện Việt Nam – Thụy Điển Uông Bí",
     "khu_vuc": "Khu lễ tân",
     "nguon": "Tài liệu hướng dẫn robot lễ tân do bệnh viện cung cấp — "
              "10-project/Benh-vien-Uong-Bi/01-khao-sat/",
-    "cap_nhat": "11/08/2026",
+    "cap_nhat": "08/09/2026",
     "diem": DIEM,
     "diem_ve_cho": DIEM_VE_CHO,
     "toa": [{"ma": m, "ten": TOA_TEN[m], "so_tang": TOA_TANG[m],
              "thu_tu": TOA_THU_TU[m], "thu_tu_chu": THU_TU_CHU[TOA_THU_TU[m]]}
             for m in ("DI", "DII", "DIII")],
     "nhom": NHOM,
+    # Câu mô tả danh mục mã phòng, sinh từ chính dữ liệu. Trước đây bốn chỗ trong
+    # giao diện ghi cứng "D1 đến D24" — bỏ D23/D24 xong là cả bốn chỗ nói sai mà
+    # không có gì báo. Sinh ở đây thì đổi danh mục là mọi chỗ đổi theo.
+    "mo_ta_ma": mo_ta_ma(),
     "quy_trinh_kham": QUY_TRINH_KHAM,
     "dich": dich,
 }
@@ -389,5 +600,22 @@ so_ma = sum(len(d["ma"]) for d in dich)
 print("→ %s" % RA)
 print("   %d đích  ·  %d mã phòng  ·  %d nhóm  ·  %d điểm bản đồ"
       % (len(dich), so_ma, len(NHOM), len(DIEM)))
-thieu = sorted({"D%d" % i for i in range(1, 25)} - {m for d in dich for m in d["ma"]})
-print("   Mã phòng thiếu so với D1–D24: %s" % (", ".join(thieu) if thieu else "không thiếu mã nào"))
+# ── Cổng kiểm: mã phòng phải đủ, không thừa không thiếu ──
+# Danh mục hiện hành sau khi bệnh viện cập nhật 08/09/2026:
+#   D1-D22 ở ba toà D  ·  D7 đã chuyển sang Nhà B  ·  C1 ở Nhà C
+#   CĐHA ở Nhà F  ·  D23-D24 (Hồi Sức Cấp Cứu Nội) đã BỎ khỏi app
+MONG_DOI = {"D%d" % i for i in range(1, 23)} | {"C1", "CĐHA"}
+dang_co = {m for d in dich for m in d["ma"]}
+thieu, thua = sorted(MONG_DOI - dang_co), sorted(dang_co - MONG_DOI)
+if thieu or thua:
+    print("   ! Mã phòng LỆCH danh mục — thiếu: %s · thừa: %s"
+          % (", ".join(thieu) or "không", ", ".join(thua) or "không"))
+    raise SystemExit(1)
+print("   Mã phòng khớp danh mục: D1–D22 · C1 · CĐHA (D23–D24 đã bỏ theo yêu cầu)")
+
+# Mọi đích có dẫn đường đều phải trỏ vào một điểm CÓ THẬT trong bảng DIEM —
+# gõ sai khoá ở đây thì app im lặng bỏ qua nút dẫn, không báo lỗi gì.
+lac = sorted({d["diem"] for d in dich if d["diem"] and d["diem"] not in DIEM})
+if lac:
+    print("   ! Đích trỏ vào điểm không có trong bảng DIEM: %s" % ", ".join(lac))
+    raise SystemExit(1)

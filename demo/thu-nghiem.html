@@ -132,7 +132,21 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
   border-color:var(--do-cc);color:#fff}
 .the-nhom.cc .goi-y{color:rgba(255,255,255,.86)}
 .the-nhom.cc .dem{background:rgba(255,255,255,.2);color:#fff}
-.the-nhom.ma-phong{background:var(--xanh-dam);border-color:var(--xanh-dam);color:#fff}
+/* Dải "Tìm theo mã phòng" — để NGOÀI lưới, vì nó không phải một nhóm khoa mà là
+   công cụ khác loại (mở bàn phím). Nhét vào lưới thì 10 nhóm + 1 ô công cụ = 11,
+   lưới 5 cột đẻ ra một ô lẻ ở hàng ba trông như bị bỏ quên. */
+.bang-ma-phong{
+  flex:none;display:flex;align-items:center;gap:1.1rem;margin:0 2.25rem .8rem;
+  padding:.9rem 1.4rem;border:0;border-radius:1.15rem;text-align:left;
+  background:var(--xanh-dam);color:#fff;box-shadow:var(--bong);cursor:pointer;
+}
+.bang-ma-phong.an{display:none}
+.bang-ma-phong .bm-icon{font-size:2.1rem;line-height:1;flex:none}
+.bang-ma-phong .bm-chu{flex:1;min-width:0;display:flex;align-items:baseline;gap:.9rem;flex-wrap:wrap}
+.bang-ma-phong .bm-chu b{font-size:1.32rem;font-weight:700}
+.bang-ma-phong .bm-chu span{font-size:1rem;color:rgba(255,255,255,.82)}
+.bang-ma-phong .bm-dem{flex:none;font-size:.85rem;font-weight:700;
+  background:rgba(255,255,255,.18);padding:.28rem .8rem;border-radius:2rem}
 .the-nhom.ma-phong .goi-y{color:rgba(255,255,255,.82)}
 .the-nhom.ma-phong .dem{background:rgba(255,255,255,.18);color:#fff}
 
@@ -443,6 +457,11 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
       <span class="dem-kq" id="ds-dem"></span>
     </div>
     <div class="luoi" id="luoi-nhom"></div>
+    <button class="bang-ma-phong" id="bang-ma-phong" onclick="moBanPhim()">
+      <span class="bm-icon">🔢</span>
+      <span class="bm-chu"><b>Tìm theo mã phòng</b><span id="bang-ma-mo"></span></span>
+      <span class="bm-dem" id="bang-ma-dem"></span>
+    </button>
     <div class="ds" id="ds-noi"></div>
   </div>
 
@@ -540,7 +559,7 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
       <div class="cc-o"><small>TẦNG</small><b id="cc-tang">—</b></div>
       <div class="cc-o"><small>PHÒNG</small><b id="cc-ma">—</b></div>
     </div>
-    <div class="cc-loi">Quý vị đi ngay, đừng chờ tôi dẫn.<br>Đi thẳng qua sân, sang toà nhà, lên tầng như trên.</div>
+    <div class="cc-loi">Quý vị đi ngay, đừng chờ tôi dẫn.<br><span id="cc-loi-di"></span></div>
   </div>
   <div class="cc-chan">
     <button class="chi-nut" onclick="docLai()">🔊 Đọc lại</button>
@@ -593,7 +612,7 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
  "don_vi": "Bệnh viện Việt Nam – Thụy Điển Uông Bí",
  "khu_vuc": "Khu lễ tân",
  "nguon": "Tài liệu hướng dẫn robot lễ tân do bệnh viện cung cấp — 10-project/Benh-vien-Uong-Bi/01-khao-sat/",
- "cap_nhat": "11/08/2026",
+ "cap_nhat": "08/09/2026",
  "diem": {
   "tiep-don": {
    "ten": "Quầy tiếp đón · Đăng ký khám",
@@ -624,6 +643,26 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
    "ten": "Đầu hành lang",
    "diem_ban_do": "Truoc hanh lang",
    "mau": "#0E5A63"
+  },
+  "khoa-cap-cuu": {
+   "ten": "Khoa Cấp cứu",
+   "diem_ban_do": "Khoa cap cuu",
+   "mau": "#7A4B2A"
+  },
+  "tham-do-cn": {
+   "ten": "Khu Thăm dò chức năng",
+   "diem_ban_do": "Khu Tham do chuc nang",
+   "mau": "#5A6E8C"
+  },
+  "rang-ham-mat": {
+   "ten": "Khoa Răng Hàm Mặt",
+   "diem_ban_do": "Khoa Rang Ham Mat",
+   "mau": "#3F7A6B"
+  },
+  "chan-doan-ha": {
+   "ten": "Khoa Chẩn đoán hình ảnh",
+   "diem_ban_do": "Khoa chan doan hinh anh",
+   "mau": "#6B5B95"
   }
  },
  "diem_ve_cho": "Sanh cho",
@@ -700,12 +739,19 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
    "goi_y": "Đóng tiền, lấy thuốc, căn tin, nhà vệ sinh"
   },
   {
+   "ma": "chieu-chup",
+   "ten": "Xét nghiệm · Chiếu chụp",
+   "icon": "🩻",
+   "goi_y": "Chụp X-quang, siêu âm, điện tim, nội soi"
+  },
+  {
    "ma": "hanh-chinh",
    "ten": "Hành chính · Khác",
    "icon": "🏛️",
    "goi_y": "Phòng ban, giải phẫu bệnh, xin giấy tờ"
   }
  ],
+ "mo_ta_ma": "D1 đến D22, C1 và CĐHA",
  "quy_trinh_kham": {
   "tieu_de": "Quý vị đến khám lần đầu, chưa có phiếu",
   "diem": "tiep-don",
@@ -898,31 +944,6 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
   },
   {
    "id": 6,
-   "ten": "Khoa Răng Hàm Mặt",
-   "nhom": "mat-tai-rang",
-   "loai": "ngoai-khu",
-   "diem": "truoc-hanh-lang",
-   "ghi_chu": "Nha khoa, hàm mặt",
-   "ma": [
-    "D7"
-   ],
-   "vi_tri": [
-    {
-     "toa": "DI",
-     "toa_ten": "Nhà DI",
-     "tang": 4,
-     "ma": [
-      "D7"
-     ],
-     "doc": "Khoa Răng Hàm Mặt ở tầng bốn, toà nhà đê một. Phòng đê bảy. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.",
-     "chi_duong": "Đã tới nơi. Xin mời quý vị đi thẳng. Toà nhà đầu tiên, đó là toà đê một. Quý vị vào đó, lên tầng bốn, vào Khoa Răng Hàm Mặt. Tìm phòng đê bảy. Chúc quý vị mau khoẻ."
-    }
-   ],
-   "doc": "Khoa Răng Hàm Mặt ở tầng bốn, toà nhà đê một. Phòng đê bảy. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.",
-   "tim": "khoa rang ham mat nha khoa ham mat d7 rang dau rang nho rang sau rang ham mat nha khoa nieng rang chua rang han rang lam rang loi sung"
-  },
-  {
-   "id": 7,
    "ten": "Khoa Nội Tiêu Hóa",
    "nhom": "noi-khoa",
    "loai": "ngoai-khu",
@@ -947,7 +968,7 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
    "tim": "khoa noi tieu hoa tieu hoa noi khoa d8 dau bung da day dai trang tieu hoa o chua tao bon gan noi soi da day viem loet da day roi loan tieu hoa dau da day"
   },
   {
-   "id": 8,
+   "id": 7,
    "ten": "Khoa Nội Phổi – Tiết Niệu – Hô Hấp",
    "nhom": "noi-khoa",
    "loai": "ngoai-khu",
@@ -974,7 +995,7 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
    "tim": "khoa noi phoi tiet nieu ho hap ho hap phoi tiet nieu d17 d18 ho kho tho phoi hen suyen viem phoi ho hap than tieu buot soi than tiet nieu tuc nguc lao phoi kho tho ve dem di tieu nhieu"
   },
   {
-   "id": 9,
+   "id": 8,
    "ten": "Khoa Ngoại Thận – Tiết Niệu",
    "nhom": "ngoai-khoa",
    "loai": "ngoai-khu",
@@ -999,7 +1020,7 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
    "tim": "khoa ngoai than tiet nieu phau thuat than tiet nieu d5 mo than soi than tan soi mo tiet nieu phi dai tuyen tien liet ngoai than soi nieu quan soi bang quang"
   },
   {
-   "id": 10,
+   "id": 9,
    "ten": "Khoa Ngoại Tiêu Hóa – Tổng Hợp",
    "nhom": "ngoai-khoa",
    "loai": "ngoai-khu",
@@ -1024,7 +1045,7 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
    "tim": "khoa ngoai tieu hoa tong hop ngoai tieu hoa tong hop d6 mo ruot thua mo bung thoat vi tri mo da day ngoai tong hop phau thuat mo noi soi o bung cat tui mat"
   },
   {
-   "id": 11,
+   "id": 10,
    "ten": "Khoa Ngoại Thần Kinh",
    "nhom": "ngoai-khoa",
    "loai": "ngoai-khu",
@@ -1049,7 +1070,7 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
    "tim": "khoa ngoai than kinh ngoai than kinh nao bo d16 chan thuong so nao mo nao u nao cot song ngoai than kinh nga dap dau chan thuong dau mo cot song"
   },
   {
-   "id": 12,
+   "id": 11,
    "ten": "Khoa Tâm Thần Kinh – Cơ Xương Khớp",
    "nhom": "xuong-khop",
    "loai": "ngoai-khu",
@@ -1076,7 +1097,7 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
    "tim": "khoa tam than kinh co xuong khop tam than xuong khop d19 d20 dau lung thoat vi dia dem khop dau khop tai bien dot quy mat ngu tam than than kinh dau vai gay te chan te tay gut viem khop dau dau hoa mat chong mat run tay"
   },
   {
-   "id": 13,
+   "id": 12,
    "ten": "Khoa Y Học Cổ Truyền",
    "nhom": "xuong-khop",
    "loai": "ngoai-khu",
@@ -1101,34 +1122,7 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
    "tim": "khoa y hoc co truyen y hoc co truyen cham cuu d15 dong y cham cuu thuoc nam thuoc bac bam huyet xoa bop phuc hoi chuc nang y hoc co truyen keo gian cot song"
   },
   {
-   "id": 14,
-   "ten": "Khoa Hồi Sức Cấp Cứu Nội",
-   "nhom": "cap-cuu",
-   "loai": "cap-cuu",
-   "diem": null,
-   "ghi_chu": "Cấp cứu nội khoa",
-   "ma": [
-    "D23",
-    "D24"
-   ],
-   "vi_tri": [
-    {
-     "toa": "DIII",
-     "toa_ten": "Nhà DIII",
-     "tang": 2,
-     "ma": [
-      "D23",
-      "D24"
-     ],
-     "doc": "Khoa Hồi Sức Cấp Cứu Nội ở tầng hai, toà nhà đê ba. Phòng đê hai mươi ba hoặc đê hai mươi bốn. Quý vị cần cấp cứu thì xin đi ngay, đừng chờ tôi dẫn. Xin mời đi thẳng, toà nhà thứ ba, đó là toà đê ba, rồi lên tầng hai.",
-     "chi_duong": "Đã tới nơi. Xin mời quý vị đi thẳng. Toà nhà thứ ba, đó là toà đê ba. Quý vị vào đó, lên tầng hai, vào Khoa Hồi Sức Cấp Cứu Nội. Tìm phòng đê hai mươi ba hoặc đê hai mươi bốn. Chúc quý vị mau khoẻ."
-    }
-   ],
-   "doc": "Khoa Hồi Sức Cấp Cứu Nội ở tầng hai, toà nhà đê ba. Phòng đê hai mươi ba hoặc đê hai mươi bốn. Quý vị cần cấp cứu thì xin đi ngay, đừng chờ tôi dẫn. Xin mời đi thẳng, toà nhà thứ ba, đó là toà đê ba, rồi lên tầng hai.",
-   "tim": "khoa hoi suc cap cuu noi cap cuu noi khoa d23 d24 cap cuu nguy kich hoi suc ngat xiu ngat xiu choang dot quy cap cuu noi kho tho nang bat tinh co giat tai nan khan cap nguy hiem sap chet"
-  },
-  {
-   "id": 15,
+   "id": 13,
    "ten": "Khoa Giải Phẫu Bệnh",
    "nhom": "hanh-chinh",
    "loai": "ngoai-khu",
@@ -1149,7 +1143,7 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
    "tim": "khoa giai phau benh giai phau sinh thiet benh ly sinh thiet giai phau benh xet nghiem mo te bao ket qua sinh thiet"
   },
   {
-   "id": 16,
+   "id": 14,
    "ten": "Các Phòng Ban Hành Chính",
    "nhom": "hanh-chinh",
    "loai": "ngoai-khu",
@@ -1170,7 +1164,7 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
    "tim": "cac phong ban hanh chinh ke hoach tong hop dieu duong cham soc khach hang marketing truyen thong hanh chinh ke hoach tong hop dieu duong cham soc khach hang marketing truyen thong giam doc ban lanh dao xin giay to xac nhan phong ban"
   },
   {
-   "id": 17,
+   "id": 15,
    "ten": "Quầy tiếp đón · Đăng ký khám",
    "nhom": "tien-ich",
    "loai": "trong-khu",
@@ -1182,7 +1176,7 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
    "tim": "quay tiep don dang ky kham lay so xuat trinh bao hiem dang ky kham dang ky kham lay so kham lan dau bao hiem bhyt the bao hiem tiep don phieu kham dat lich chua co phieu moi den kham"
   },
   {
-   "id": 18,
+   "id": 16,
    "ten": "Phòng thu viện phí",
    "nhom": "tien-ich",
    "loai": "trong-khu",
@@ -1194,7 +1188,7 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
    "tim": "phong thu vien phi dong tien thanh toan vien phi lay hoa don dong tien thanh toan vien phi thu ngan nop tien hoa don thanh toan vien phi tra tien quyet toan bao hiem"
   },
   {
-   "id": 19,
+   "id": 17,
    "ten": "Nhà thuốc bệnh viện",
    "nhom": "tien-ich",
    "loai": "trong-khu",
@@ -1206,7 +1200,7 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
    "tim": "nha thuoc benh vien lay thuoc theo don mua thuoc lay thuoc mua thuoc nha thuoc quay thuoc don thuoc hieu thuoc linh thuoc thuoc bao hiem"
   },
   {
-   "id": 20,
+   "id": 18,
    "ten": "Căn tin",
    "nhom": "tien-ich",
    "loai": "trong-khu",
@@ -1218,7 +1212,7 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
    "tim": "can tin an uong nuoc do dung cho nguoi nha an uong nuoc com can tin cang tin quan an do an mua nuoc chao chay"
   },
   {
-   "id": 21,
+   "id": 19,
    "ten": "Nhà vệ sinh",
    "nhom": "tien-ich",
    "loai": "trong-khu",
@@ -1228,6 +1222,106 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
    "vi_tri": [],
    "doc": "Nhà vệ sinh ở trong khu lễ tân. Tôi dẫn quý vị tới nơi.",
    "tim": "nha ve sinh nha ve sinh khu le tan nha ve sinh wc toilet di ve sinh nha xi rua tay di nang di nhe"
+  },
+  {
+   "id": 20,
+   "ten": "Khoa Cấp cứu",
+   "nhom": "cap-cuu",
+   "loai": "cap-cuu",
+   "diem": "khoa-cap-cuu",
+   "ghi_chu": "Tiếp nhận, xử trí ban đầu ca nguy kịch — trực 24/7",
+   "ma": [
+    "C1"
+   ],
+   "vi_tri": [
+    {
+     "toa": "C",
+     "toa_ten": "Nhà C",
+     "tang": 1,
+     "ma": [
+      "C1"
+     ],
+     "doc": "Khoa Cấp cứu ở tầng một, toà nhà xê. Phòng xê một. Quý vị cần cấp cứu thì xin đi ngay, đừng chờ tôi dẫn.",
+     "chi_duong": "Khoa Cấp cứu ở tầng một, toà nhà xê. Phòng xê một. Chúc quý vị mau khoẻ.",
+     "doc_toi_noi": "Đã tới nơi. Đây là toà nhà xê. Quý vị vào Khoa Cấp cứu. Tìm phòng xê một. Chúc quý vị mau khoẻ."
+    }
+   ],
+   "doc": "Khoa Cấp cứu ở tầng một, toà nhà xê. Phòng xê một. Quý vị cần cấp cứu thì xin đi ngay, đừng chờ tôi dẫn.",
+   "tim": "khoa cap cuu tiep nhan xu tri ban dau ca nguy kich truc 24 7 c1 cap cuu khan cap nguy kich ngat xiu ngat xiu bat tinh co giat tai nan giao thong tai nan lao dong ngo doc dot quy ngung tuan hoan kho tho nang chay mau nhieu sap chet cuu voi"
+  },
+  {
+   "id": 21,
+   "ten": "Khu Thăm dò chức năng",
+   "nhom": "chieu-chup",
+   "loai": "toa-khac",
+   "diem": "tham-do-cn",
+   "ghi_chu": "Điện tim, siêu âm tim, điện cơ, điện não, nội soi thường",
+   "ma": [],
+   "vi_tri": [
+    {
+     "toa": "A",
+     "toa_ten": "Nhà A",
+     "tang": 1,
+     "ma": [],
+     "doc": "Khu Thăm dò chức năng ở tầng một, toà nhà a. Tôi dẫn quý vị tới nơi.",
+     "chi_duong": "Khu Thăm dò chức năng ở tầng một, toà nhà a. Chúc quý vị mau khoẻ.",
+     "doc_toi_noi": "Đã tới nơi. Đây là toà nhà a. Quý vị vào Khu Thăm dò chức năng. Chúc quý vị mau khoẻ."
+    }
+   ],
+   "doc": "Khu Thăm dò chức năng ở tầng một, toà nhà a. Tôi dẫn quý vị tới nơi.",
+   "tim": "khu tham do chuc nang dien tim sieu am tim dien co dien nao noi soi thuong tham do chuc nang dien tim sieu am tim dien co dien nao noi soi do dien tim dien tam do do chuc nang"
+  },
+  {
+   "id": 22,
+   "ten": "Khoa Răng Hàm Mặt",
+   "nhom": "mat-tai-rang",
+   "loai": "toa-khac",
+   "diem": "rang-ham-mat",
+   "ghi_chu": "Sâu răng, viêm tuỷ, nhổ răng khôn, chỉnh hình hàm mặt",
+   "ma": [
+    "D7"
+   ],
+   "vi_tri": [
+    {
+     "toa": "B",
+     "toa_ten": "Nhà B",
+     "tang": 1,
+     "ma": [
+      "D7"
+     ],
+     "doc": "Khoa Răng Hàm Mặt ở tầng một, toà nhà bê. Phòng đê bảy. Tôi dẫn quý vị tới nơi.",
+     "chi_duong": "Khoa Răng Hàm Mặt ở tầng một, toà nhà bê. Phòng đê bảy. Chúc quý vị mau khoẻ.",
+     "doc_toi_noi": "Đã tới nơi. Đây là toà nhà bê. Quý vị vào Khoa Răng Hàm Mặt. Tìm phòng đê bảy. Chúc quý vị mau khoẻ."
+    }
+   ],
+   "doc": "Khoa Răng Hàm Mặt ở tầng một, toà nhà bê. Phòng đê bảy. Tôi dẫn quý vị tới nơi.",
+   "tim": "khoa rang ham mat sau rang viem tuy nho rang khon chinh hinh ham mat d7 rang dau rang nho rang sau rang ham mat nha khoa nieng rang chua rang han rang lam rang loi sung viem tuy rang khon chinh hinh ham mat"
+  },
+  {
+   "id": 23,
+   "ten": "Khoa Chẩn đoán hình ảnh",
+   "nhom": "chieu-chup",
+   "loai": "toa-khac",
+   "diem": "chan-doan-ha",
+   "ghi_chu": "X-quang, siêu âm, CT, MRI",
+   "ma": [
+    "CĐHA"
+   ],
+   "vi_tri": [
+    {
+     "toa": "F",
+     "toa_ten": "Nhà F",
+     "tang": 1,
+     "ma": [
+      "CĐHA"
+     ],
+     "doc": "Khoa Chẩn đoán hình ảnh ở tầng một, toà nhà ép. Tôi dẫn quý vị tới nơi.",
+     "chi_duong": "Khoa Chẩn đoán hình ảnh ở tầng một, toà nhà ép. Chúc quý vị mau khoẻ.",
+     "doc_toi_noi": "Đã tới nơi. Đây là toà nhà ép. Quý vị vào Khoa Chẩn đoán hình ảnh. Chúc quý vị mau khoẻ."
+    }
+   ],
+   "doc": "Khoa Chẩn đoán hình ảnh ở tầng một, toà nhà ép. Tôi dẫn quý vị tới nơi.",
+   "tim": "khoa chan doan hinh anh x quang sieu am ct mri cdha chan doan hinh anh chup x quang xquang chup phim sieu am chup ct chup em ra ai mri chieu chup chup chieu chup cat lop cong huong tu"
   }
  ]
 };</script>
@@ -1883,20 +1977,16 @@ function veLuoi(){
       <div class="goi-y">${thoat(n.goi_y)}</div>
       <div class="dem">${dem[n.ma]||0} nơi</div>
     </button>`).join('');
-  h += `
-    <button class="the-nhom ma-phong" onclick="moBanPhim()">
-      <div class="bieu-tuong">🔢</div>
-      <div class="ten">Tìm theo mã phòng</div>
-      <div class="goi-y">Trên phiếu khám có ghi mã từ D1 đến D24</div>
-      <div class="dem">24 mã phòng</div>
-    </button>`;
   $('#luoi-nhom').innerHTML = h;
+  $('#bang-ma-mo').textContent  = 'Trên phiếu khám có ghi mã ' + D.mo_ta_ma;
+  $('#bang-ma-dem').textContent = DS.reduce((t,d)=>t+d.ma.length,0) + ' mã phòng';
 }
 function veLuoiNhom(){
   ve('mh-chinh');
   $('#thanh-nhom').classList.remove('hien');
   $('#ds-noi').classList.remove('hien');
   $('#luoi-nhom').classList.remove('an');
+  $('#bang-ma-phong').classList.remove('an');
   $('#bang-moi').style.display = '';
 }
 function moNhom(ma){
@@ -1911,13 +2001,15 @@ function moDs(tieuDe, ds){
   $('#thanh-nhom').classList.add('hien');
   $('#ds-noi').classList.add('hien');
   $('#luoi-nhom').classList.add('an');
+  $('#bang-ma-phong').classList.add('an');
   $('#bang-moi').style.display = 'none';
   $('#ds-tieu-de').textContent = tieuDe;
   $('#ds-dem').textContent = ds.length ? ds.length + ' nơi' : '';
   $('#ds-noi').innerHTML = ds.length ? ds.map(d=>{
     const v = d.vi_tri[0];
     const mau = d.loai === 'cap-cuu' ? 'var(--do-cc)'
-              : (d.loai === 'trong-khu' ? (D.diem[d.diem]||{}).mau : 'var(--xanh)');
+              : (d.loai === 'trong-khu' || d.loai === 'toa-khac'
+                 ? (D.diem[d.diem]||{}).mau : 'var(--xanh)');
     const nhan = d.loai === 'trong-khu' ? 'KHU LỄ TÂN'
                : (d.vi_tri.length > 1 ? 'NHIỀU TOÀ' : 'NHÀ ' + v.toa);
     const gt = d.loai === 'trong-khu' ? '📍'
@@ -1942,7 +2034,7 @@ function goTim(q){
     if(theoMa){
       if(theoMa.dich){ moChiTiet(theoMa.dich.id, null, theoMa.ma); return; }
       moDs('🔍 Mã ' + theoMa.ma, []);
-      baoLoi('Không có phòng ' + theoMa.ma + ' trong hệ thống. Bệnh viện chỉ có mã từ D1 đến D24.');
+      baoLoi('Không có phòng ' + theoMa.ma + ' trong hệ thống. Bệnh viện chỉ có mã ' + D.mo_ta_ma + '.');
       return;
     }
     moDs('🔍 Kết quả cho “' + t + '”', timDich(t));
@@ -1950,8 +2042,12 @@ function goTim(q){
 }
 
 /* ═══════════ Sơ đồ khu lễ tân + 3 toà ═══════════ */
-function veSoDo(nhanManh){
-  const o = [{k:'LT', ten:'Khu lễ tân', ph:'robot ở đây'}]
+/* nhanManh: mã toà đang tới ('LT' là khu lễ tân).
+   oRieng: danh sách ô tự khai — dùng cho toà A/B/C/F, vì mấy toà đó KHÔNG nằm
+   cùng hàng với ba toà D. Vẽ chung một dãy là người bệnh hiểu nhầm rằng cứ đi
+   dọc hành lang ba toà là gặp. */
+function veSoDo(nhanManh, oRieng){
+  const o = oRieng || [{k:'LT', ten:'Khu lễ tân', ph:'robot ở đây'}]
     .concat(D.toa.map(t=>({k:t.ma, ten:t.ten, ph:t.so_tang + ' tầng'})));
   return '<div class="so-do">' + o.map(x=>{
     const cl = (x.k === 'LT' ? ' le-tan' : '') + (x.k === nhanManh ? ' dang' : '');
@@ -1978,9 +2074,17 @@ function moChiTiet(id, iVt, ma){
 
   if(d.loai === 'cap-cuu'){ moCapCuu(d); return; }
 
+  /* BA loại đích, khác nhau ở chỗ robot đi được tới đâu:
+       trong-khu : tiện ích ngay khu lễ tân — robot tới tận nơi
+       toa-khac  : nhà A · B · C · F, bản đồ có điểm riêng — robot tới tận nơi
+       ngoai-khu : 16 khoa trong ba toà D — robot chỉ ra tới ĐẦU hành lang
+     Hai loại đầu gộp thành "dẫn thẳng": người bệnh chỉ việc đi theo robot,
+     không phải nhớ toà nào tầng mấy. */
   const trongKhu = d.loai === 'trong-khu';
-  const diem = trongKhu ? D.diem[d.diem] : D.diem['truoc-hanh-lang'];
-  const mau = trongKhu ? diem.mau : 'var(--xanh)';
+  const toaKhac  = d.loai === 'toa-khac';
+  const danThang = trongKhu || toaKhac;
+  const diem = danThang ? D.diem[d.diem] : D.diem['truoc-hanh-lang'];
+  const mau = danThang ? (diem||{}).mau || 'var(--xanh)' : 'var(--xanh)';
 
   $('#ct-dau-ten').textContent = d.ten;
   $('#ct-dau-phu').textContent = d.ghi_chu || '';
@@ -1996,18 +2100,24 @@ function moChiTiet(id, iVt, ma){
   }else{
     const v = viTriDang;
     trai += `<div class="bang-vt" style="background:${mau}">
-      <div class="nhan">MỜI QUÝ VỊ TỚI</div>
+      <div class="nhan">${toaKhac ? 'TÔI DẪN QUÝ VỊ TỚI' : 'MỜI QUÝ VỊ TỚI'}</div>
       <div class="toa">${thoat(v.toa_ten.replace('Nhà ',''))}</div>
       <div class="tang">Tầng ${v.tang}</div>
       ${v.ma.length ? '<div class="ma-ds">' + v.ma.map(m=>
         `<span${m===maNhanManh?' style="background:#fff;color:var(--xanh)"':''}>${m}</span>`).join('') + '</div>' : ''}
       <div class="bo-phan">${thoat(d.ten)}</div></div>`;
   }
-  trai += veSoDo(trongKhu ? 'LT' : viTriDang.toa);
+  /* Toà A/B/C/F vẽ sơ đồ RIÊNG hai ô. Vẽ chung dãy ba toà D là người bệnh
+     tưởng cứ đi dọc hành lang ba toà là gặp — mà không phải. */
+  trai += toaKhac
+    ? veSoDo(viTriDang.toa, [{k:'LT', ten:'Khu lễ tân', ph:'robot ở đây'},
+                             {k:viTriDang.toa, ten:viTriDang.toa_ten,
+                              ph:'tầng ' + viTriDang.tang}])
+    : veSoDo(trongKhu ? 'LT' : viTriDang.toa);
 
   const ly = lyDoChuaDanDuoc();
-  const nhanNut = trongKhu
-    ? '🚶 Robot dẫn tôi tới ' + d.ten.replace(/^Quầy |^Phòng /,'').toLowerCase()
+  const nhanNut = danThang
+    ? '🚶 Robot dẫn tôi tới ' + d.ten.replace(/^Quầy |^Phòng |^Khoa |^Khu /,'').toLowerCase()
     : '🚶 Robot dẫn tôi ra ' + D.diem['truoc-hanh-lang'].ten.toLowerCase();
   if(coDanDuong()){
     trai += `<button class="nut-to${ly?' tat':''}" id="nut-dan" onclick="danDuong()">${thoat(nhanNut)}</button>`;
@@ -2023,6 +2133,19 @@ function moChiTiet(id, iVt, ma){
     phai += `<div class="the-trang"><h4>Quý vị làm gì ở đây</h4>
       <ul><li>${thoat(d.ghi_chu)}</li>
       <li>Bấm nút bên trái, tôi dẫn quý vị đi. Quý vị đi theo tôi là được.</li></ul></div>`;
+  }else if(toaKhac){
+    /* KHÔNG dùng lối "toà nhà thứ mấy" ở đây: cách đếm đó chỉ đúng cho ba toà D
+       xếp thành hàng dọc hành lang. Nhà A · B · C · F nằm chỗ khác, mà robot thì
+       đi tới tận nơi nên cũng không cần đếm. */
+    const v = viTriDang;
+    phai += `<div class="the-trang"><h4>Tôi dẫn quý vị tới tận nơi</h4><ol>
+      <li>Bấm nút bên trái, rồi <b>đi theo tôi</b>. Quãng này tôi đi được.</li>
+      <li>Tới nơi là <b>${thoat(v.toa_ten)}</b>${v.tang > 1
+            ? ', quý vị lên <b>tầng ' + v.tang + '</b>' : ', khoa ở ngay <b>tầng một</b>'}
+          ${v.ma.length ? '— tìm <b>phòng ' + v.ma.join(' hoặc ') + '</b>' : ''}.</li>
+      </ol></div>`;
+    phai += `<div class="the-trang"><h4>Quý vị làm gì ở đây</h4>
+      <ul><li>${thoat(d.ghi_chu)}</li></ul></div>`;
   }else{
     const v = viTriDang;
     const t = (D.toa.find(x=>x.ma === v.toa) || {});
@@ -2071,6 +2194,9 @@ function moCapCuu(d){
   $('#cc-toa').textContent = v.toa_ten.replace('Nhà ','');
   $('#cc-tang').textContent = v.tang;
   $('#cc-ma').textContent = v.ma.join(' · ');
+  $('#cc-loi-di').textContent = v.tang > 1
+    ? 'Tới ' + v.toa_ten + ', lên tầng ' + v.tang + '.'
+    : 'Tới ' + v.toa_ten + ', khoa ở ngay tầng một.';
   ve('mh-cc');
   /* Đọc hai lần: lần đầu người đang hoảng thường không nghe kịp câu nào cả. */
   doc(v.doc, ()=> doc(v.doc));
@@ -2133,7 +2259,7 @@ function chotMa(){
   if(d) moChiTiet(d.id, null, ma);
   else{
     moDs('🔢 Mã ' + ma, []);
-    baoLoi('Không có phòng ' + ma + '. Bệnh viện chỉ có mã từ D1 đến D24 — quý vị xem lại phiếu khám giúp tôi.');
+    baoLoi('Không có phòng ' + ma + '. Bệnh viện chỉ có mã ' + D.mo_ta_ma + ' — quý vị xem lại phiếu khám giúp tôi.');
   }
 }
 
@@ -2161,7 +2287,8 @@ let dangDanDuong = false;
 function danDuong(){
   if(!coDanDuong() || !dichDang) return;
   if(dangDanDuong){ dungDanDuongNgay(); return; }
-  const khoa = D.diem[dichDang.loai === 'trong-khu' ? dichDang.diem : 'truoc-hanh-lang'];
+  const danThang = dichDang.loai === 'trong-khu' || dichDang.loai === 'toa-khac';
+  const khoa = D.diem[danThang ? dichDang.diem : 'truoc-hanh-lang'];
   if(!khoa){ baoLoi('Đích này chưa gắn điểm trên bản đồ.'); return; }
   $('#dan-diem').textContent = khoa.ten;
   dungDoc();
@@ -2202,6 +2329,17 @@ function toiNoi(){
        Suốt quãng đường robot im lặng, giờ mới là lúc người ta nghe được. */
     ve('mh-ct');
     doc('Đã tới nơi. Đây là ' + dichDang.ten + '. Chúc quý vị mọi việc thuận lợi.', batDauVeCho);
+    return;
+  }
+  if(dichDang.loai === 'toa-khac'){
+    /* Robot đã đứng ngay trước toà nhà. Không mở màn chỉ đường — chỉ đường lúc
+       này là thừa và làm người ta tưởng còn phải đi tiếp. Nhưng vẫn phải nhắc
+       TẦNG và SỐ PHÒNG, vì đó là thứ robot không đi theo lên được. */
+    /* Câu này do dung-du-lieu.py sinh sẵn, KHÔNG ghép ở đây: chỉ Python mới
+       biết đọc "tầng một" thay vì "tầng 1" và "đê bảy" thay vì "D7". */
+    const v = viTriDang || dichDang.vi_tri[0];
+    ve('mh-ct');
+    doc(v.doc_toi_noi || ('Đã tới nơi. Đây là ' + dichDang.ten + '.'), batDauVeCho);
     return;
   }
   /* Ngoài khu: đây là khoảnh khắc quan trọng nhất của app — người bệnh đứng giữa
@@ -2322,7 +2460,7 @@ function traLoiNoiBo(q){
   const r = traCuu(q, 3);
   if(r.muc === 'ma-khong-co')
     return {chu:'Tôi không tìm thấy phòng ' + r.ma +
-                '. Bệnh viện chỉ có mã từ D1 đến D24, quý vị xem lại phiếu khám giúp tôi.'};
+                '. Bệnh viện chỉ có mã ' + D.mo_ta_ma + ', quý vị xem lại phiếu khám giúp tôi.'};
   if(r.muc === 'khong-thay' || !r.ds.length)
     return {chu:'Câu này tôi chưa có trong dữ liệu nên không dám đoán. ' +
                 'Mời quý vị hỏi quầy lễ tân giúp tôi ạ.'};

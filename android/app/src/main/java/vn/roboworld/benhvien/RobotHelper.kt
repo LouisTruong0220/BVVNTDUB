@@ -80,6 +80,8 @@ object RobotHelper {
                     }
                 })
                 baoTrangThai()
+                // Nạp sẵn danh sách điểm để lần dẫn đầu tiên đã dò được tên.
+                napDanhSachDiem()
             }
 
             override fun handleApiDisconnected() {
@@ -157,12 +159,74 @@ object RobotHelper {
         })
     }
 
+    // ─────────────────── Khớp tên điểm bản đồ ────────────────────
+    //
+    // Vì sao cần: tên điểm do KỸ THUẬT VIÊN gõ tay lúc quét bản đồ, còn tên trong
+    // app do người soạn dữ liệu gõ. Hai người, hai bàn phím, một dấu tiếng Việt
+    // hoặc một chữ hoa lệch nhau là robot ném ERROR_DESTINATION_NOT_EXIST rồi đứng
+    // im — nhìn từ ngoài y hệt máy hỏng, mất cả buổi mới lần ra.
+    //
+    // Nên trước khi gửi lệnh, app hỏi robot danh sách điểm THẬT rồi tự dò: bỏ dấu,
+    // hạ chữ thường, gộp khoảng trắng. Khớp thì dùng ĐÚNG tên robot đang giữ.
+    // Không khớp thì vẫn gửi tên khai (không tệ hơn trước) nhưng ghi log rõ ràng.
+
+    /** Danh sách tên điểm lấy về gần nhất. Rỗng nghĩa là chưa hỏi được. */
+    @Volatile private var tenDiemTrenBanDo: List<String> = emptyList()
+
+    private fun chuanHoa(s: String): String {
+        val bo = java.text.Normalizer.normalize(s.lowercase(), java.text.Normalizer.Form.NFD)
+            .replace(Regex("\\p{Mn}+"), "")
+            .replace('đ', 'd')
+        return bo.replace(Regex("[^a-z0-9]+"), " ").trim()
+    }
+
+    /** Đọc danh sách điểm về bộ nhớ. Gọi lúc khởi động và trước mỗi lần dẫn. */
+    fun napDanhSachDiem(xong: () -> Unit = {}) {
+        layDanhSachDiem { json ->
+            tenDiemTrenBanDo = docTenDiem(json)
+            Log.d(TAG, "Bản đồ có ${tenDiemTrenBanDo.size} điểm: $tenDiemTrenBanDo")
+            xong()
+        }
+    }
+
+    /** Bóc tên điểm từ JSON getPlaceList. Hãng trả mảng object có trường "name". */
+    private fun docTenDiem(json: String?): List<String> {
+        if (json.isNullOrBlank()) return emptyList()
+        return try {
+            val arr = org.json.JSONArray(json)
+            (0 until arr.length()).mapNotNull { i ->
+                val o = arr.optJSONObject(i)
+                (o?.optString("name") ?: arr.optString(i)).takeIf { !it.isNullOrBlank() }
+            }
+        } catch (e: Exception) {
+            Log.w(TAG, "Không đọc được danh sách điểm: ${e.message}")
+            emptyList()
+        }
+    }
+
+    /**
+     * Đổi tên điểm khai trong app sang tên THẬT trên bản đồ.
+     * Chưa lấy được danh sách, hoặc không tìm ra chỗ nào khớp → trả nguyên tên khai.
+     */
+    fun tenDiemThat(tenKhai: String): String {
+        if (tenDiemTrenBanDo.isEmpty()) return tenKhai
+        tenDiemTrenBanDo.firstOrNull { it == tenKhai }?.let { return it }
+        val can = chuanHoa(tenKhai)
+        val khop = tenDiemTrenBanDo.firstOrNull { chuanHoa(it) == can }
+        if (khop != null) {
+            Log.d(TAG, "Điểm '$tenKhai' khớp mềm với '$khop' trên bản đồ")
+            return khop
+        }
+        Log.w(TAG, "KHÔNG có điểm nào khớp '$tenKhai'. Bản đồ đang có: $tenDiemTrenBanDo")
+        return tenKhai
+    }
+
     // ───────────────────────── Dẫn đường ─────────────────────────
 
     /**
      * Dẫn khách tới một điểm đã đặt tên trên bản đồ.
      *
-     * @param tenDiem  tên điểm, phải khớp TUYỆT ĐỐI với tên trong Công cụ bản đồ
+     * @param tenDiem  tên điểm khai trong app; hàm tự dò sang tên thật trên bản đồ
      * @param khiToiNoi  gọi khi tới nơi thành công
      * @param khiLoi     gọi kèm câu giải thích tiếng Việt đã dịch sẵn từ mã lỗi
      * @param khiCapNhat gọi khi có sự kiện dọc đường (gặp vật cản, vật cản đã dọn…)
@@ -175,11 +239,15 @@ object RobotHelper {
     ) {
         if (!sanSang()) { main.post { khiLoi("Robot chưa sẵn sàng — chưa kết nối RobotOS.") }; return }
 
+        // Dò sang tên THẬT trên bản đồ. Chưa nạp được danh sách thì dùng nguyên
+        // tên khai — không tệ hơn cách cũ, và log sẽ nói rõ đã gửi tên nào.
+        val ten = tenDiemThat(tenDiem)
+
         // coordinateDeviation 0.2 m và time 30 s là giá trị tài liệu hãng khuyến nghị.
         // Ghi lại MÃ TRẢ VỀ: nếu lệnh bị từ chối ngay thì ActionListener không bao giờ
         // được gọi, không ghi mã này thì robot đứng im mà không có lấy một dòng log.
         val ma = RobotApi.getInstance().startNavigation(
-            nextReqId(), tenDiem, 0.2, 30_000L,
+            nextReqId(), ten, 0.2, 30_000L,
             object : ActionListener() {
 
                 override fun onResult(status: Int, response: String?) {
@@ -233,7 +301,8 @@ object RobotHelper {
                 }
             }
         )
-        Log.d(TAG, "startNavigation('$tenDiem') trả mã = $ma")
+        Log.d(TAG, "startNavigation('$ten') trả mã = $ma" +
+                   if (ten != tenDiem) "  (app khai '$tenDiem')" else "")
         if (ma < 0) {
             main.post { khiLoi("Robot chưa nhận lệnh đi (mã $ma). Nhờ nhân viên kỹ thuật kiểm tra giúp ạ.") }
         }

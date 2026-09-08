@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Đặt điểm bản đồ robot — Bệnh viện Việt Nam – Thụy Điển Uông Bí</title>
-<meta name="description" content="Tám điểm bản đồ phải đặt cho robot lễ tân Bệnh viện Việt Nam – Thụy Điển Uông Bí: tên từng điểm, sơ đồ khu lễ tân, quy trình quét bản đồ và cách tự kiểm sau khi đặt.">
+<meta name="description" content="Mười hai điểm bản đồ phải đặt cho robot lễ tân Bệnh viện Việt Nam – Thụy Điển Uông Bí: tên từng điểm, sơ đồ khu lễ tân, quy trình quét bản đồ và cách tự kiểm sau khi đặt.">
 
 <!-- Ảnh bìa khi gửi link qua Zalo / Messenger / Telegram.
      og:image BẮT BUỘC là URL tuyệt đối — crawler không hiểu đường dẫn tương đối.
@@ -260,7 +260,7 @@ ba toà nhà một quãng — <b>không</b> vào trong toà nhà, <b>không</b> 
 </div>
 
 <!-- ══════════ 2. TÁM ĐIỂM ══════════ -->
-<h2><span class="so">2</span> Tám điểm phải đặt</h2>
+<h2><span class="so">2</span> Mười hai điểm phải đặt</h2>
 
 <p>Gõ <b>đúng từng ký tự</b> như trong ô đen. Gõ xong đọc lại một lượt.</p>
 
@@ -290,6 +290,43 @@ ba toà nhà một quãng — <b>không</b> vào trong toà nhà, <b>không</b> 
   <div class="the phu"><span class="stt">8</span><div class="noi">
     <span class="ten-diem">Tram sac</span>
     <div class="mo">Cọc sạc. Bật máy và định vị tại đây.</div></div></div>
+</div>
+
+<h3>Bốn điểm bổ sung 08/09/2026 — các toà A · B · C · F</h3>
+<p>Bệnh viện thêm bốn chỗ nằm ngoài ba toà D. Khác tám điểm trên ở chỗ robot đi
+<b>tới tận nơi</b>, không dừng ở đầu hành lang rồi chỉ đường.</p>
+
+<div class="luoi-diem">
+  <div class="the xa"><span class="stt">9</span><div class="noi">
+    <span class="ten-diem">Khoa cap cuu</span>
+    <div class="mo"><b>Nhà C, tầng 1, phòng C1.</b> Trực suốt ngày đêm.
+    Robot <b>không dẫn</b> tới đây — nó chỉ hô to và chỉ chỗ, vì robot đi chậm hơn
+    người chạy. Điểm vẫn phải đặt để dùng về sau.</div></div></div>
+  <div class="the xa"><span class="stt">10</span><div class="noi">
+    <span class="ten-diem">Khu Tham do chuc nang</span>
+    <div class="mo">Nhà A, tầng 1. Điện tim, siêu âm tim, điện cơ, điện não, nội soi thường.</div></div></div>
+  <div class="the xa"><span class="stt">11</span><div class="noi">
+    <span class="ten-diem">Khoa Rang Ham Mat</span>
+    <div class="mo">Nhà B, tầng 1, phòng D7. <b>Khoa đã chuyển</b> — trước ở Nhà DI tầng 4.</div></div></div>
+  <div class="the xa"><span class="stt">12</span><div class="noi">
+    <span class="ten-diem">Khoa chan doan hinh anh</span>
+    <div class="mo">Nhà F, tầng 1. X-quang, siêu âm, CT, MRI.</div></div></div>
+</div>
+
+<div class="hop xanh">
+  <b>💡 Bốn điểm này app dò tên MỀM</b>
+  Từ bản 1.4, trước khi gửi lệnh đi, app hỏi robot danh sách điểm thật rồi tự dò:
+  bỏ dấu, không phân biệt hoa thường, gộp khoảng trắng. Nên <code>Khoa cap cuu</code>,
+  <code>Khoa Cấp cứu</code> hay <code>KHOA CAP CUU</code> đều tìm ra nhau.
+  Nhưng dò mềm <b>không cứu được tên khác nghĩa</b> — đặt <code>Cap cuu</code> (thiếu chữ
+  “Khoa”) là app vẫn chịu. Cứ kiểm bằng <code>CAU.kiemTraBanDo()</code> cho chắc.
+</div>
+
+<div class="hop cam">
+  <b>⚠ Robot đi THẬT tới bốn chỗ này</b>
+  Nên quãng đường tới đó phải đạt điều kiện của máy trong nhà, giống hệt phần khảo sát
+  <code>Truoc hanh lang</code> ở mục 4: bậc ≤ 2 cm · dốc ≤ 5° · sàn phẳng liền mạch · có mái che.
+  Chỗ nào không đạt thì <b>báo lại</b>, đừng đặt điểm rồi để robot tự đi ra ngoài trời.
 </div>
 
 <h3>Bốn điều tuyệt đối phải giữ</h3>
@@ -413,7 +450,7 @@ adb forward tcp:9222 localabstract:webview_devtools_remote_<span class="hl">&lt;
 <span class="cm"># rồi mở chrome://inspect trên máy tính</span></pre>
 
 <p>Trong Console gõ:</p>
-<pre><span class="hl">CAU.kiemTraBanDo()</span>   <span class="cm">// đủ 8 điểm chưa, tên có đúng từng ký tự không</span>
+<pre><span class="hl">CAU.kiemTraBanDo()</span>   <span class="cm">// đủ 12 điểm chưa, tên có đúng không</span>
 <span class="hl">CAU.thongTinAI()</span>     <span class="cm">// appId phải là app_70eef22c4a6d4777af413ac942ea0153</span></pre>
 
 <p>Rồi thử dẫn đường <b>theo thứ tự tăng dần độ rủi ro</b>:</p>

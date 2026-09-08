@@ -17,7 +17,7 @@ tìm đúng khoa theo cách họ tự mô tả, và **dẫn đường** tới n�
    ```
 3. **Mở app từ RobotOS Home**, tuyệt đối không dùng `am start` — dùng `am start` thì `RobotApi`
    trả `handleApiDisabled`, mất cả dẫn đường lẫn giọng nói mà app không báo lỗi gì.
-4. Quét bản đồ và đặt 8 điểm theo **hướng dẫn đặt điểm bản đồ**:
+4. Quét bản đồ và đặt 12 điểm theo **hướng dẫn đặt điểm bản đồ**:
    - Bản dễ nhìn, có sơ đồ và danh sách kiểm, in ra mang theo được:
      [`huong-dan-dat-ten-diem-ban-do.html`](huong-dan-dat-ten-diem-ban-do.html)
      — ⚠ GitHub **không hiển thị** file HTML, nó chỉ hiện mã nguồn. Bấm nút **Download raw file**
@@ -31,13 +31,14 @@ tìm đúng khoa theo cách họ tự mô tả, và **dẫn đường** tới n�
 
 ---
 
-Nguồn dữ liệu: tài liệu khoa phòng bệnh viện cung cấp (24 mã D1–D24) + sơ đồ mặt bằng vẽ tay.
+Nguồn dữ liệu: tài liệu khoa phòng bệnh viện cung cấp (mã D1–D22 · C1 · CĐHA) + sơ đồ
+mặt bằng vẽ tay + bản bổ sung bốn phòng ngày 08/09/2026.
 Hồ sơ dự án đầy đủ nằm trong workspace nội bộ của Roboworld, không có trong kho này.
 
 | | |
 |---|---|
 | Trạng thái | **Bản demo HTML xong, APK build xong. Chưa chạy trên robot thật, chưa khảo sát mặt bằng.** |
-| APK | `apk/le-tan-benh-vien-uong-bi-v1.3.apk` (6,9 MB) — appId riêng · robot dừng ở đầu hành lang |
+| APK | `apk/le-tan-benh-vien-uong-bi-v1.4.apk` — appId riêng · ba toà D dừng ở đầu hành lang · nhà A/B/F dẫn tới tận nơi |
 | **Bản thử trên máy tính** | **`demo/thu-nghiem.html`** — có giả lập robot, bấm được nút dẫn đường. Đọc [HUONG-DAN-THU-NGHIEM.md](HUONG-DAN-THU-NGHIEM.md) |
 | Demo bản sạch | `demo/index.html` — giống hệt cái nằm trong APK |
 | Package | `vn.roboworld.benhvien` |
@@ -53,8 +54,12 @@ các toà nhà một quãng. Nó **không vào** DI/DII/DIII, không lên thang 
 | Loại | Gồm | Robot làm gì |
 |---|---|---|
 | `trong-khu` | Quầy tiếp đón · Phòng thu viện phí · Nhà thuốc · Căn tin · Nhà vệ sinh | Dẫn **thẳng tới nơi** |
-| `ngoai-khu` | 16 khoa trong 3 toà, 24 mã phòng D1–D24 | Dẫn ra **`Truoc hanh lang`**, bật màn CHỈ ĐƯỜNG chữ khổng lồ, đọc câu hướng dẫn, rồi **tự quay về sảnh** |
-| `cap-cuu` | Khoa Hồi sức Cấp cứu Nội (D23–D24) | **KHÔNG dẫn.** Màn đỏ, hô to, chỉ hướng |
+| `ngoai-khu` | 16 khoa trong 3 toà D, mã D1–D22 | Dẫn ra **`Truoc hanh lang`**, bật màn CHỈ ĐƯỜNG chữ khổng lồ, đọc câu hướng dẫn, rồi **tự quay về sảnh** |
+| `toa-khac` | Khu Thăm dò chức năng (nhà A) · Khoa Răng Hàm Mặt (nhà B, D7) · Khoa Chẩn đoán hình ảnh (nhà F) | Dẫn **tới tận nơi** — bản đồ có điểm riêng. Tới nơi thì nhắc tầng và số phòng, **không** mở màn chỉ đường |
+| `cap-cuu` | Khoa Cấp cứu (nhà C, C1, tầng 1) | **KHÔNG dẫn.** Màn đỏ, hô to, chỉ chỗ |
+
+⚠ Ba toà D chỉ đường bằng **thứ tự** (“toà nhà thứ hai”). Nhà A · B · C · F **không** nằm dọc
+hành lang đó nên tuyệt đối không đếm thứ tự cho chúng — bộ thử canh đúng chỗ này.
 
 **Vì sao cấp cứu không dẫn:** robot đi 0,5–0,8 m/s, chậm hơn người đang chạy. Bảo người nhà
 bệnh nhân cấp cứu đi theo robot là làm chậm họ. Màn cấp cứu vì thế **không có nút dẫn đường** —
@@ -139,7 +144,8 @@ hình tự nghĩ.
 
 | Muốn đổi | Sửa file | Rồi chạy |
 |---|---|---|
-| Khoa, tầng, mã phòng, từ khoá tìm kiếm | `dung-du-lieu.py` → `BANG_KHOA` | `dung-du-lieu.py` + `dung-app.py` |
+| Khoa trong ba toà DI · DII · DIII | `dung-du-lieu.py` → `BANG_KHOA` | `dung-du-lieu.py` + `dung-app.py` |
+| Chỗ ở nhà A · B · C · F (robot dẫn tới tận nơi) | `dung-du-lieu.py` → `BANG_TOA_KHAC` | như trên |
 | Tên điểm bản đồ, chỗ robot về đứng | `dung-du-lieu.py` → `DIEM`, `DIEM_VE_CHO` | như trên |
 | Nhóm trên màn hình chính | `dung-du-lieu.py` → `NHOM` | như trên |
 | Quy trình khám lần đầu | `dung-du-lieu.py` → `QUY_TRINH_KHAM` | như trên |
@@ -289,16 +295,17 @@ Chụp màn hình: `adb shell screencap -p /sdcard/_s.png` rồi `adb pull` — 
 Trong DevTools của WebView (hoặc Console của Chrome khi mở `demo/index.html`):
 
 ```js
-CAU.kiemTraBanDo()              // tám điểm bản đồ đã đặt đúng tên chưa
+CAU.kiemTraBanDo()              // mười hai điểm bản đồ đã đặt đúng tên chưa
 CAU.thongTinAI()                // appId, Agent SDK bind chưa, mic đang mở/tắt
 CAU.thuLLM('Xin chào', true)    // mô hình đám mây có trả lời không
 
 timDich('đau bụng')             // → Khoa Nội Tiêu Hóa
 timDich('đi đẻ')                // → Khoa Phụ Sản  (KHÔNG được ra nhà vệ sinh)
-timDich('ngất xỉu')             // → Khoa Hồi Sức Cấp Cứu Nội  (phải đứng trước Tai Mũi Họng)
+timDich('ngất xỉu')             // → Khoa Cấp cứu  (phải đứng trước Tai Mũi Họng)
 timDich('đóng viện phí')        // → Phòng thu viện phí  (KHÔNG được ra đông y)
 timDich('u não')                // → Khoa Ngoại Thần Kinh
 timTheoMa('D3').dich.ten        // → Khoa Nhi
+timTheoMa('C1').dich.ten        // → Khoa Cấp cứu
 timTheoMa('D25').dich           // → null  (mã không có thật, phải báo không tìm thấy)
 ```
 

@@ -35,9 +35,11 @@ D = json.load(io.open(os.path.join(HERE, "du-lieu", "app-data.json"), encoding="
 DICH = D["dich"]
 BV = D["don_vi"]
 
-khoa = [d for d in DICH if d["loai"] == "ngoai-khu"]
-cap_cuu = next(d for d in DICH if d["loai"] == "cap-cuu")
-tien_ich = [d for d in DICH if d["loai"] == "trong-khu"]
+khoa = [d for d in DICH if d["loai"] == "ngoai-khu"]      # 16 khoa trong ba toà D
+cap_cuu = next(d for d in DICH if d["loai"] == "cap-cuu")  # Khoa Cấp cứu, Nhà C
+tien_ich = [d for d in DICH if d["loai"] == "trong-khu"]   # tiện ích khu lễ tân
+toa_khac = [d for d in DICH if d["loai"] == "toa-khac"]    # nhà A · B · F — robot tới tận nơi
+MO_TA_MA = D.get("mo_ta_ma", "")
 tong_ma = sum(len(d["ma"]) for d in DICH)
 
 
@@ -53,8 +55,14 @@ def cho_dan(d):
     """Một câu trọn vẹn nói vị trí của một đích đến."""
     if d["loai"] == "trong-khu":
         return "%s nằm ngay trong khu lễ tân. Tôi dẫn quý vị tới tận nơi được." % d["ten"]
+    if d["loai"] in ("toa-khac", "cap-cuu"):
+        # Mấy chỗ này bản đồ robot có điểm riêng nên robot đi tới tận nơi — trừ
+        # cấp cứu, chỗ duy nhất robot cố ý KHÔNG dẫn (robot chậm hơn người chạy).
+        c = "%s ở %s." % (d["ten"], vi_tri_chu(d["vi_tri"][0]))
+        return c + (" Nếu quý vị cần cấp cứu thì xin đi ngay, đừng chờ tôi dẫn."
+                    if d["loai"] == "cap-cuu" else " Tôi dẫn quý vị tới tận nơi được.")
     if len(d["vi_tri"]) == 1:
-        return "%s ở %s. Tôi dẫn quý vị ra trước cửa toà nhà DI, rồi quý vị đi tiếp vào trong." \
+        return "%s ở %s. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp." \
                % (d["ten"], vi_tri_chu(d["vi_tri"][0]))
     ds = " · ".join(vi_tri_chu(v) for v in d["vi_tri"])
     return "%s có ở %d toà nhà: %s. Quý vị xem trên phiếu khám xem mình theo dõi ở toà nào, " \
@@ -73,7 +81,9 @@ VAI_TRO = (
 GIOI_THIEU = (
     "%s là bệnh viện đa khoa tại thành phố Uông Bí, tỉnh Quảng Ninh. "
     "Khu khám và điều trị gồm ba toà nhà: Nhà DI năm tầng, Nhà DII năm tầng và Nhà DIII tám tầng. "
-    "Các khoa được đánh mã phòng từ D1 đến D24 để người bệnh dễ tìm. "
+    "Ngoài ra còn Nhà A có Khu Thăm dò chức năng, Nhà B có Khoa Răng Hàm Mặt, "
+    "Nhà C có Khoa Cấp cứu trực suốt ngày đêm, và Nhà F có Khoa Chẩn đoán hình ảnh. "
+    "Các khoa được đánh mã phòng " + MO_TA_MA + " để người bệnh dễ tìm. "
     "Khu lễ tân có quầy tiếp đón và đăng ký khám, phòng thu viện phí, nhà thuốc, căn tin và nhà vệ sinh. "
     "Robot lễ tân do Công ty Cổ phần Tập đoàn Roboworld triển khai, làm nhiệm vụ hướng dẫn và "
     "dẫn đường trong khu lễ tân."
@@ -83,10 +93,16 @@ GIOI_THIEU = (
 # là lời nhắc ưu tiên cao, ảnh hưởng thẳng tới câu trả lời. Bảng 24 mã phòng phải nằm ở đây
 # thì mô hình mới hết tự nghĩ ra số tầng.
 bang_ma = []
-for d in khoa + [cap_cuu]:
+for d in khoa + toa_khac + [cap_cuu]:
     for v in d["vi_tri"]:
         ma = ", ".join(v["ma"]) if v["ma"] else "(không có mã riêng)"
         bang_ma.append("- %s | %s | tầng %d | %s" % (ma, d["ten"], v["tang"], v["toa_ten"]))
+
+# Chỗ cấp cứu ghép từ dữ liệu, KHÔNG gõ tay vào prompt. Bản trước ghi cứng
+# "Khoa Hồi sức Cấp cứu Nội, tầng 2 Nhà DIII, phòng D23 và D24"; khi bệnh viện
+# đổi sang C1 Nhà C thì màn hình đổi mà persona vẫn chỉ chỗ cũ — mô hình đọc
+# persona nên nó vẫn đọc chỗ cũ ra loa. Đúng loại sai chỉ lộ lúc có người cần thật.
+CHO_CAP_CUU = "%s, %s" % (cap_cuu["ten"], vi_tri_chu(cap_cuu["vi_tri"][0]))
 
 BO_SUNG = """QUY TẮC BẮT BUỘC — đọc trước khi trả lời bất cứ câu nào:
 
@@ -97,11 +113,12 @@ BO_SUNG = """QUY TẮC BẮT BUỘC — đọc trước khi trả lời bất c�
    không nhận xét kết quả xét nghiệm, không nói bệnh nặng hay nhẹ. Ai kể triệu chứng thì tôi
    chỉ giúp tìm khoa phù hợp, và nói rõ bác sĩ mới là người quyết định.
 3. CẤP CỨU là ưu tiên cao nhất. Ai nhắc tới cấp cứu, nguy kịch, ngất xỉu, khó thở nặng, chảy
-   máu nhiều, đau ngực dữ dội, co giật, tai nạn — việc đầu tiên là chỉ ngay Khoa Hồi sức Cấp
-   cứu Nội, tầng 2 Nhà DIII, phòng D23 và D24, rồi giục quý vị đi ngay và ĐỪNG chờ tôi dẫn.
-   Tôi đi chậm hơn người chạy.
-4. PHẠM VI ĐI LẠI: tôi chỉ đi trong khu lễ tân, xa nhất là ra trước cửa toà nhà DI. Tôi KHÔNG
-   vào trong ba toà nhà, KHÔNG lên thang máy, KHÔNG lên tầng. Đừng bao giờ hứa dẫn vào phòng khám.
+   máu nhiều, đau ngực dữ dội, co giật, tai nạn — việc đầu tiên là chỉ ngay """ + CHO_CAP_CUU + """,
+   rồi giục quý vị đi ngay và ĐỪNG chờ tôi dẫn. Tôi đi chậm hơn người chạy.
+4. PHẠM VI ĐI LẠI: với 16 khoa trong ba toà DI, DII, DIII thì tôi chỉ ra tới ĐẦU HÀNH LANG rồi
+   chỉ đường bằng lời. Với Khu Thăm dò chức năng (Nhà A), Khoa Răng Hàm Mặt (Nhà B) và Khoa Chẩn
+   đoán hình ảnh (Nhà F) thì tôi dẫn TỚI TẬN NƠI. Với Khoa Cấp cứu (Nhà C) tôi KHÔNG dẫn, chỉ nói
+   chỗ và giục đi ngay. Tôi KHÔNG vào trong toà nhà, KHÔNG lên thang máy, KHÔNG lên tầng.
 5. Khoa có ở nhiều toà nhà (Khoa Phụ Sản, Khoa Nhi) thì phải HỎI LẠI quý vị đang theo dõi ở
    toà nào trước khi chỉ đường. Không được tự chọn một toà.
 6. Những thứ tôi CHƯA có dữ liệu, tuyệt đối không đoán: giờ làm việc, lịch trực, số điện thoại,
@@ -225,7 +242,7 @@ def them(hoi, dap):
 CHUA_CO = "Thông tin này tôi chưa có trong dữ liệu. Mời quý vị hỏi quầy lễ tân giúp tôi ạ."
 
 # --- Theo tên khoa ---
-for d in khoa:
+for d in khoa + toa_khac:
     c = cho_dan(d)
     ten = d["ten"]
     them("%s ở đâu?" % ten, c)
@@ -237,11 +254,15 @@ for d in khoa:
 for d in khoa + [cap_cuu]:
     for v in d["vi_tri"]:
         for m in v["ma"]:
-            c = "Phòng %s là %s, ở %s." % (m, d["ten"], vi_tri_chu(v))
+            # Bỏ phần "phòng X" khi vế trước đã nói chính mã đó — không thì ra
+            # câu "Phòng C1 là Khoa Cấp cứu, ở tầng 1, Nhà C, phòng C1".
+            vt = vi_tri_chu(v) if v["ma"] != [m] else "tầng %d, %s" % (v["tang"], v["toa_ten"])
+            c = "Phòng %s là %s, ở %s." % (m, d["ten"], vt)
             if d["loai"] == "cap-cuu":
                 c += " Nếu quý vị cần cấp cứu thì xin đi ngay, đừng chờ tôi dẫn."
             else:
-                c += " Tôi dẫn quý vị ra trước cửa toà nhà DI, rồi quý vị đi tiếp vào trong."
+                c += (" Tôi dẫn quý vị tới tận nơi được." if d["loai"] == "toa-khac"
+                      else " Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.")
             them("Phòng %s ở đâu?" % m, c)
             them("%s là khoa gì?" % m, c)
             them("Cho tôi tìm %s" % m, c)
@@ -253,16 +274,22 @@ for d in tien_ich:
 
 # --- Cấp cứu ---
 v_cc = cap_cuu["vi_tri"][0]
-DAP_CC = ("Khoa Hồi sức Cấp cứu Nội ở %s. Quý vị cần cấp cứu thì xin đi ngay, ĐỪNG chờ tôi dẫn — "
-          "tôi đi chậm hơn người chạy. Đi thẳng qua sân, sang %s, lên tầng %d."
-          % (vi_tri_chu(v_cc), v_cc["toa_ten"], v_cc["tang"]))
+# ⚠ Lấy TÊN từ dữ liệu, đừng gõ tay: bản trước ghi cứng "Khoa Hồi sức Cấp cứu Nội"
+#   và khi bệnh viện đổi khoa cấp cứu sang C1 Nhà C thì câu này vẫn chỉ về chỗ cũ —
+#   đúng loại sai không ai phát hiện cho tới lúc có người cần thật.
+DAP_CC = ("%s ở %s. Quý vị cần cấp cứu thì xin đi ngay, ĐỪNG chờ tôi dẫn — "
+          "tôi đi chậm hơn người chạy."
+          % (cap_cuu["ten"], vi_tri_chu(v_cc)))
 for h in ["Cấp cứu ở đâu?", "Tôi cần cấp cứu", "Có người ngất xỉu", "Khoa cấp cứu đi lối nào?",
-          "Người nhà tôi khó thở nặng", "Chảy máu nhiều thì đi đâu?", "Tai nạn thì vào đâu?"]:
+          "Người nhà tôi khó thở nặng", "Chảy máu nhiều thì đi đâu?", "Tai nạn thì vào đâu?",
+          "Ngộ độc thì đi đâu?", "Có người đột quỵ", "Phòng C1 ở đâu?",
+          "Tai nạn giao thông đưa vào đâu?", "Cấp cứu có trực ban đêm không?"]:
     them(h, DAP_CC)
 
 # --- Phạm vi robot ---
-PHAM_VI = ("Tôi chỉ đi lại trong khu lễ tân, xa nhất là ra trước cửa toà nhà DI. Tôi không vào "
-           "trong ba toà nhà và không lên tầng được. Tôi dẫn quý vị ra tới đó rồi chỉ đường "
+PHAM_VI = ("Tôi đi lại trong khu lễ tân. Với ba toà DI, DII, DIII thì tôi ra tới đầu hành lang; "
+           "với Nhà A, Nhà B và Nhà F thì tôi dẫn tới tận nơi. Tôi không vào "
+           "trong toà nhà và không lên tầng được. Tôi dẫn quý vị tới rồi chỉ đường "
            "để quý vị đi tiếp.")
 for h in ["Robot dẫn tôi lên tầng được không?", "Bạn đưa tôi vào phòng khám nhé",
           "Robot đi được tới đâu?", "Bạn dẫn tôi vào nhà DII được không?"]:
@@ -281,10 +308,13 @@ for h in ["Tôi đến khám lần đầu thì làm gì?", "Tôi chưa có phi�
 them("Bạn là ai?", "Tôi là robot lễ tân của %s. Tôi giúp quý vị tìm khoa, tìm phòng và dẫn "
                    "đường trong khu lễ tân." % BV)
 them("Bệnh viện có mấy toà nhà?",
-     "Bệnh viện có ba toà nhà: %s." % ", ".join("%s %d tầng" % (t["ten"], t["so_tang"]) for t in D["toa"]))
+     "Khu khám và điều trị có ba toà: %s. Ngoài ra còn %s."
+     % (", ".join("%s %d tầng" % (t["ten"], t["so_tang"]) for t in D["toa"]),
+        ", ".join("%s ở %s" % (d["ten"], d["vi_tri"][0]["toa_ten"]) for d in toa_khac + [cap_cuu])))
 them("Bệnh viện có những khoa nào?",
-     "Bệnh viện có %d khoa với %d mã phòng từ D1 đến D24: %s."
-     % (len(khoa) + 1, tong_ma, ", ".join(d["ten"] for d in khoa + [cap_cuu])))
+     "Bệnh viện có %d khoa với %d mã phòng %s: %s."
+     % (len(khoa) + len(toa_khac) + 1, tong_ma, MO_TA_MA,
+        ", ".join(d["ten"] for d in khoa + toa_khac + [cap_cuu])))
 
 # --- Những thứ CHƯA CÓ dữ liệu: cố ý dạy mô hình cách từ chối ---
 for h in ["Bệnh viện làm việc mấy giờ?", "Hôm nay bác sĩ nào trực?", "Khám ở đây hết bao nhiêu tiền?",
@@ -328,13 +358,15 @@ kt = ["# Kiến thức robot lễ tân — %s" % BV, "",
       "> Sinh tự động từ `du-lieu/app-data.json` bởi `dung-kho-tri-thuc.py`. Đừng sửa tay.",
       "> Cập nhật: %s · Nguồn: %s" % (D["cap_nhat"], D["nguon"]), "",
       "## Phạm vi hoạt động của robot", "",
-      "Robot chỉ đi lại trong **khu lễ tân**, xa nhất là ra **trước cửa toà nhà DI**.",
-      "Robot **không** vào trong ba toà nhà, **không** lên thang máy, **không** lên tầng.", "",
-      "## Ba toà nhà", ""]
+      "16 khoa trong ba toà **DI · DII · DIII**: robot ra tới **đầu hành lang** rồi chỉ đường bằng lời.",
+      "**Nhà A · Nhà B · Nhà F**: robot dẫn **tới tận nơi** — bản đồ có điểm riêng.",
+      "**Khoa Cấp cứu (Nhà C)**: robot **không dẫn**, chỉ hô to và chỉ chỗ — robot chậm hơn người chạy.",
+      "Robot **không** vào trong toà nhà, **không** lên thang máy, **không** lên tầng.", "",
+      "## Các toà nhà", ""]
 kt += ["- **%s** — %d tầng" % (t["ten"], t["so_tang"]) for t in D["toa"]]
 kt += ["", "## Bảng khoa phòng", "",
        "| Mã phòng | Khoa | Tầng | Toà nhà | Ghi chú |", "|---|---|---:|---|---|"]
-for d in khoa + [cap_cuu]:
+for d in khoa + toa_khac + [cap_cuu]:
     for v in d["vi_tri"]:
         kt.append("| %s | %s | %d | %s | %s |" % (
             ", ".join(v["ma"]) if v["ma"] else "—", d["ten"], v["tang"], v["toa_ten"], d["ghi_chu"]))
@@ -378,3 +410,41 @@ if qua:
         print("    %s: %d ký tự, giới hạn %d" % (t, n, h))
     raise SystemExit(1)
 print("\nTất cả các ô đều nằm trong giới hạn.")
+
+# ═══════════════════════════════════════════════════════════════════════
+#  CỔNG KIỂM — kho tri thức phải KHỚP dữ liệu app
+#
+#  Vì sao cần: kho này là thứ MÔ HÌNH đọc, còn app-data.json là thứ MÀN HÌNH đọc.
+#  Hai bên lệch nhau thì robot nói một đằng, hiện một nẻo — mà lệch kiểu đó không
+#  có gì báo, chỉ lộ ra khi có người hỏi đúng chỗ lệch.
+#
+#  Đã bắt được thật 08/09/2026: bỏ khoa cấp cứu cũ khỏi dữ liệu xong, persona vẫn
+#  ghi cứng "Khoa Hồi sức Cấp cứu Nội, tầng 2 Nhà DIII, phòng D23 và D24", và bảng
+#  khoa phòng trong kien-thuc.md bỏ sót cả ba khoa mới ở nhà A · B · F.
+# ═══════════════════════════════════════════════════════════════════════
+_kt = io.open(f_kt, encoding="utf-8").read()
+_qa = " ".join(h + " " + d for h, d in qa_sach)   # mọi cặp hỏi–đáp đã sinh
+_pe = VAI_TRO + GIOI_THIEU + BO_SUNG
+
+_loi = []
+for _d in DICH:
+    if _d["ten"] not in _kt:
+        _loi.append("kien-thuc.md thiếu: " + _d["ten"])
+    if _d["ten"] not in _qa:
+        _loi.append("hoi-dap.csv thiếu: " + _d["ten"])
+
+# Tên và mã của những chỗ ĐÃ BỎ không được còn sót lại chỗ nào
+_con_dung = {m for _d in DICH for m in _d["ma"]} | {_d["ten"] for _d in DICH}
+for _cho, _van in (("hoi-dap.csv", _qa), ("kien-thuc.md", _kt), ("persona", _pe)):
+    for _ma in ("D23", "D24"):
+        if _ma not in _con_dung and _ma in _van:
+            _loi.append("%s còn nhắc mã đã bỏ: %s" % (_cho, _ma))
+    if "Hồi sức Cấp cứu" in _van or "Hồi Sức Cấp Cứu" in _van:
+        _loi.append("%s còn nhắc khoa đã bỏ: Hồi sức Cấp cứu Nội" % _cho)
+
+if _loi:
+    print("\n!!! KHO TRI THỨC LỆCH DỮ LIỆU APP:")
+    for _x in _loi:
+        print("    " + _x)
+    raise SystemExit(1)
+print("Kho tri thức khớp dữ liệu app: %d đích, không sót, không thừa." % len(DICH))

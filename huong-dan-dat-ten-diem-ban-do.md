@@ -10,7 +10,7 @@ xong đứng im và báo `ERROR_DESTINATION_NOT_EXIST` — nhìn từ ngoài tr�
 
 ---
 
-## Tám điểm phải đặt
+## Mười hai điểm phải đặt
 
 | # | Tên điểm — gõ **đúng từng ký tự** | Đặt ở đâu |
 |---|---|---|
@@ -22,6 +22,29 @@ xong đứng im và báo `ERROR_DESTINATION_NOT_EXIST` — nhìn từ ngoài tr�
 | 6 | `Truoc hanh lang` | **Đầu hành lang** dẫn ra ba toà nhà — chỗ đứng nhìn thẳng thấy được cả DI, DII, DIII xếp theo thứ tự |
 | 7 | `Sanh cho` | Chỗ robot đứng đợi khách giữa sảnh lễ tân |
 | 8 | `Tram sac` | Cọc sạc |
+
+**Bốn điểm bổ sung 08/09/2026** — bệnh viện thêm bốn chỗ ở các toà A · B · C · F.
+Khác tám điểm trên ở chỗ robot đi **tới tận nơi**, không dừng ở đầu hành lang:
+
+| # | Tên điểm | Đặt ở đâu |
+|---|---|---|
+| 9 | `Khoa cap cuu` | Trước cửa Khoa Cấp cứu, Nhà C tầng 1 (phòng C1) |
+| 10 | `Khu Tham do chuc nang` | Trước cửa Khu Thăm dò chức năng, Nhà A tầng 1 |
+| 11 | `Khoa Rang Ham Mat` | Trước cửa Khoa Răng Hàm Mặt, Nhà B tầng 1 (phòng D7) |
+| 12 | `Khoa chan doan hinh anh` | Trước cửa Khoa Chẩn đoán hình ảnh, Nhà F tầng 1 |
+
+> 💡 **Bốn điểm này app dò tên MỀM.** Từ bản 1.4, trước khi gửi lệnh đi, app hỏi robot
+> danh sách điểm thật rồi tự dò: bỏ dấu, không phân biệt hoa thường, gộp khoảng trắng.
+> Nên `Khoa cap cuu`, `Khoa Cấp cứu` hay `KHOA CAP CUU` đều tìm ra nhau. Tám điểm đầu
+> vẫn nên giữ đúng nguyên văn cho thống nhất.
+>
+> ⚠ Dò mềm **không cứu được tên khác nghĩa**: đặt `Cap cuu` (thiếu chữ "Khoa") là app
+> vẫn chịu. Cứ kiểm bằng `CAU.kiemTraBanDo()` cho chắc.
+
+⚠ **Robot đi thật tới bốn chỗ này**, nên quãng đường tới đó phải đạt điều kiện của máy
+trong nhà — giống hệt phần khảo sát `Truoc hanh lang` bên dưới: bậc ≤ 2 cm, dốc ≤ 5°,
+sàn phẳng liền mạch, có mái che. Chỗ nào không đạt thì **báo lại**, đừng đặt điểm rồi
+để robot tự đi ra ngoài trời.
 
 **Bốn điều tuyệt đối phải giữ:**
 
@@ -109,7 +132,7 @@ CAU.kiemTraBanDo()
 ```
 
 Kết quả trả về qua `window.baoTinhTrangBanDo(json)` gồm `daDinhVi` và `danhSachDiem`.
-**Đối chiếu đủ tám tên ở bảng trên, từng ký tự một.**
+**Đối chiếu đủ mười hai tên ở bảng trên.**
 
 Rồi thử dẫn đường theo thứ tự tăng dần độ rủi ro:
 

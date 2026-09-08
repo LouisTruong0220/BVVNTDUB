@@ -1,14 +1,16 @@
 # Kiến thức robot lễ tân — Bệnh viện Việt Nam – Thụy Điển Uông Bí
 
 > Sinh tự động từ `du-lieu/app-data.json` bởi `dung-kho-tri-thuc.py`. Đừng sửa tay.
-> Cập nhật: 11/08/2026 · Nguồn: Tài liệu hướng dẫn robot lễ tân do bệnh viện cung cấp — 10-project/Benh-vien-Uong-Bi/01-khao-sat/
+> Cập nhật: 08/09/2026 · Nguồn: Tài liệu hướng dẫn robot lễ tân do bệnh viện cung cấp — 10-project/Benh-vien-Uong-Bi/01-khao-sat/
 
 ## Phạm vi hoạt động của robot
 
-Robot chỉ đi lại trong **khu lễ tân**, xa nhất là ra **trước cửa toà nhà DI**.
-Robot **không** vào trong ba toà nhà, **không** lên thang máy, **không** lên tầng.
+16 khoa trong ba toà **DI · DII · DIII**: robot ra tới **đầu hành lang** rồi chỉ đường bằng lời.
+**Nhà A · Nhà B · Nhà F**: robot dẫn **tới tận nơi** — bản đồ có điểm riêng.
+**Khoa Cấp cứu (Nhà C)**: robot **không dẫn**, chỉ hô to và chỉ chỗ — robot chậm hơn người chạy.
+Robot **không** vào trong toà nhà, **không** lên thang máy, **không** lên tầng.
 
-## Ba toà nhà
+## Các toà nhà
 
 - **Nhà DI** — 5 tầng
 - **Nhà DII** — 5 tầng
@@ -26,7 +28,6 @@ Robot **không** vào trong ba toà nhà, **không** lên thang máy, **không**
 | D13 | Khoa Nhi | 2 | Nhà DII | Nhi khoa, trẻ em |
 | D9 | Khoa Mắt | 5 | Nhà DI | Nhãn khoa |
 | D10 | Khoa Tai Mũi Họng | 5 | Nhà DI | Tai, mũi, họng (TMH) |
-| D7 | Khoa Răng Hàm Mặt | 4 | Nhà DI | Nha khoa, hàm mặt |
 | D8 | Khoa Nội Tiêu Hóa | 4 | Nhà DI | Tiêu hóa nội khoa |
 | D17, D18 | Khoa Nội Phổi – Tiết Niệu – Hô Hấp | 4 | Nhà DII | Hô hấp, phổi, tiết niệu |
 | D5 | Khoa Ngoại Thận – Tiết Niệu | 3 | Nhà DI | Phẫu thuật thận, tiết niệu |
@@ -36,7 +37,10 @@ Robot **không** vào trong ba toà nhà, **không** lên thang máy, **không**
 | D15 | Khoa Y Học Cổ Truyền | 3 | Nhà DII | Y học cổ truyền, châm cứu |
 | — | Khoa Giải Phẫu Bệnh | 2 | Nhà DIII | Giải phẫu, sinh thiết bệnh lý |
 | — | Các Phòng Ban Hành Chính | 3 | Nhà DIII | Kế hoạch tổng hợp, điều dưỡng, chăm sóc khách hàng, marketing, truyền thông |
-| D23, D24 | Khoa Hồi Sức Cấp Cứu Nội | 2 | Nhà DIII | Cấp cứu nội khoa |
+| — | Khu Thăm dò chức năng | 1 | Nhà A | Điện tim, siêu âm tim, điện cơ, điện não, nội soi thường |
+| D7 | Khoa Răng Hàm Mặt | 1 | Nhà B | Sâu răng, viêm tuỷ, nhổ răng khôn, chỉnh hình hàm mặt |
+| CĐHA | Khoa Chẩn đoán hình ảnh | 1 | Nhà F | X-quang, siêu âm, CT, MRI |
+| C1 | Khoa Cấp cứu | 1 | Nhà C | Tiếp nhận, xử trí ban đầu ca nguy kịch — trực 24/7 |
 
 ## Các chỗ trong khu lễ tân — robot dẫn thẳng tới nơi
 
@@ -57,7 +61,7 @@ Gặp mấy khoa này thì **phải hỏi lại** người bệnh đang theo dõ
 
 ## Cấp cứu
 
-Khoa Hồi sức Cấp cứu Nội ở tầng 2, Nhà DIII, phòng D23 hoặc D24. Quý vị cần cấp cứu thì xin đi ngay, ĐỪNG chờ tôi dẫn — tôi đi chậm hơn người chạy. Đi thẳng qua sân, sang Nhà DIII, lên tầng 2.
+Khoa Cấp cứu ở tầng 1, Nhà C, phòng C1. Quý vị cần cấp cứu thì xin đi ngay, ĐỪNG chờ tôi dẫn — tôi đi chậm hơn người chạy.
 
 Robot **không dẫn** người cấp cứu: robot đi 0,5–0,8 m/s, chậm hơn người chạy.
 

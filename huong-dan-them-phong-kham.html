@@ -223,7 +223,7 @@ vào đúng cụm (file đã chia sẵn bằng những dòng <code># ── Nộ
 <tr><td data-nhan="Trường"><code>nhom</code></td><td data-nhan="Điền gì">Một mã trong bảng <code>NHOM</code></td>
     <td data-nhan="Lưu ý">Chép <b>đúng ký tự</b>: <code>me-be</code> · <code>tre-em</code> · <code>mat-tai-rang</code> ·
         <code>noi-khoa</code> · <code>ngoai-khoa</code> · <code>xuong-khop</code> · <code>cap-cuu</code> ·
-        <code>tien-ich</code> · <code>hanh-chinh</code>. Gõ sai thì khoa đó <b class="xau">không hiện trong ô nào</b></td></tr>
+        <code>tien-ich</code> · <code>chieu-chup</code> · <code>hanh-chinh</code>. Gõ sai thì khoa đó <b class="xau">không hiện trong ô nào</b></td></tr>
 <tr><td data-nhan="Trường"><code>ghi_chu</code></td><td data-nhan="Điền gì">Một dòng mô tả ngắn</td>
     <td data-nhan="Lưu ý">Hiện mờ dưới tên khoa trong danh sách kết quả</td></tr>
 <tr><td data-nhan="Trường"><code>vi_tri</code></td><td data-nhan="Điền gì">Toà · tầng · mã phòng</td>
@@ -306,7 +306,45 @@ vào đúng cụm (file đã chia sẵn bằng những dòng <code># ── Nộ
 <p>Cách chữa: thêm <b>cụm hai từ</b> thay vì từ đơn (<code>ngat xiu</code> chứ không phải <code>ngat</code>),
 rồi <b>luôn chạy bộ thử</b> ở mục 6.</p>
 
-<h2><span class="so">4</span> Thêm một chỗ trong khu lễ tân (robot dẫn thẳng tới nơi)</h2>
+<h2><span class="so">4</span> Thêm một chỗ ở toà A · B · C · F</h2>
+
+<p>Từ 08/09/2026 bệnh viện có thêm bốn chỗ <b>ngoài ba toà D</b>: Khu Thăm dò chức năng (Nhà A),
+Khoa Răng Hàm Mặt (Nhà B), Khoa Cấp cứu (Nhà C) và Khoa Chẩn đoán hình ảnh (Nhà F).
+Mấy chỗ này bản đồ robot <b>có điểm riêng</b> nên robot đi tới tận nơi, không dừng ở đầu hành lang.
+Khai vào bảng <code>BANG_TOA_KHAC</code>:</p>
+
+<pre>    dict(ten=<span class="s">"Khoa Vật lý trị liệu"</span>, nhom=<span class="s">"xuong-khop"</span>, diem=<span class="s">"vat-ly-tri-lieu"</span>,
+         toa=<span class="s">"A"</span>, tang=<span class="n">2</span>, ma=[],
+         ghi_chu=<span class="s">"Tập phục hồi chức năng sau mổ, sau tai biến"</span>,
+         tu_dan=<span class="s">"vat ly tri lieu phuc hoi chuc nang tap di tap van dong"</span>),</pre>
+
+<table>
+<tr><th></th><th>BANG_KHOA (ba toà D)</th><th>BANG_TOA_KHAC (A · B · C · F)</th></tr>
+<tr><td data-nhan="">Robot đi tới đâu</td>
+    <td data-nhan="Ba toà D">Đầu hành lang, rồi chỉ đường bằng lời</td>
+    <td data-nhan="A · B · C · F"><b class="ok">Tới tận nơi</b></td></tr>
+<tr><td data-nhan="">Khai vị trí</td>
+    <td data-nhan="Ba toà D"><code>vi_tri=[("DI", 2, ["D3"])]</code> — nhiều chỗ được</td>
+    <td data-nhan="A · B · C · F"><code>toa=</code> <code>tang=</code> <code>ma=</code> — <b>đúng một chỗ</b></td></tr>
+<tr><td data-nhan="">Điểm bản đồ</td>
+    <td data-nhan="Ba toà D">Dùng chung <code>truoc-hanh-lang</code></td>
+    <td data-nhan="A · B · C · F"><b>Phải khai <code>diem=</code></b> riêng, và kỹ thuật viên phải đặt điểm đó trên robot</td></tr>
+</table>
+
+<div class="hop do">
+  <b>⚠ Không đếm thứ tự toà nhà cho nhóm này</b>
+  Cách nói <i>“toà nhà thứ hai”</i> chỉ đúng với ba toà D xếp dọc hành lang. Nhà A, B, C, F
+  nằm chỗ khác — đếm là chỉ sai chỗ. Script tự biết điều đó, và bộ thử canh đúng chuyện này.
+</div>
+
+<div class="hop cam">
+  <b>⚠ Khai điểm bản đồ TRƯỚC rồi mới trỏ <code>diem=</code> vào</b>
+  Trỏ vào một khoá không có trong bảng <code>DIEM</code> thì <code>dung-du-lieu.py</code>
+  <b>dừng và báo lỗi</b> chứ không sinh file — cổng kiểm thêm 08/09/2026.
+  Cách khai điểm xem mục 5 ngay dưới.
+</div>
+
+<h2><span class="so">5</span> Thêm một chỗ trong khu lễ tân (robot dẫn thẳng tới nơi)</h2>
 
 <p>Ví dụ thêm <b>Phòng xét nghiệm</b> ngay trong sảnh. Khác mục 2 ở chỗ robot đi <b>tới tận nơi</b>,
 nên phải làm đủ <b>ba bước</b> — thiếu bước nào robot cũng đứng im.</p>
@@ -339,7 +377,7 @@ trên bản đồ thật thì lệnh dẫn mới chạy. Nhớ <b>thêm điểm 
 <a href="huong-dan-dat-ten-diem-ban-do.html">hướng dẫn đặt điểm bản đồ</a>, không thì lần quét map
 sau người ta lại quét thiếu.</p>
 
-<h2><span class="so">5</span> Sửa khoa đã có</h2>
+<h2><span class="so">6</span> Sửa khoa đã có</h2>
 
 <table>
 <tr><th>Muốn</th><th>Sửa gì</th></tr>
@@ -352,7 +390,7 @@ sau người ta lại quét thiếu.</p>
 <tr><td data-nhan="Muốn">Khoa ngừng hoạt động</td><td data-nhan="Sửa">Xoá cả khối <code>dict(...)</code>, hoặc thêm <code>#</code> đầu mỗi dòng để tạm tắt</td></tr>
 </table>
 
-<h2><span class="so">6</span> Ba lệnh phải chạy, rồi kiểm</h2>
+<h2><span class="so">7</span> Ba lệnh phải chạy, rồi kiểm</h2>
 
 <pre><span class="k">cd</span> D:\RBW_Claude\11-app-nova\le-tan-benh-vien-uong-bi
 python dung-du-lieu.py        <span class="cm"># 1. sinh lại dữ liệu</span>
@@ -395,7 +433,7 @@ lúc phải thu hẹp lại.</p>
       tuyệt đối không lôi ra một khoa nào</small></span></div>
 </div>
 
-<h2><span class="so">7</span> Sửa xong phải build lại APK và nạp lại kho tri thức</h2>
+<h2><span class="so">8</span> Sửa xong phải build lại APK và nạp lại kho tri thức</h2>
 
 <div class="hop do">
   <b>⚠ Không build lại APK thì robot vẫn chạy y bản cũ</b>
@@ -431,15 +469,15 @@ với AI sau khi nạp lại:</p>
   Không nguy hiểm, nhưng đừng để quên.
 </div>
 
-<h2><span class="so">8</span> Việc KHÔNG làm được bằng cách trên</h2>
+<h2><span class="so">9</span> Việc KHÔNG làm được bằng cách trên</h2>
 
 <table>
 <tr><th>Muốn</th><th>Vì sao khó</th><th>Phải làm gì</th></tr>
-<tr><td data-nhan="Muốn">Thêm toà nhà thứ tư (nhà A, nhà B…)</td>
-    <td data-nhan="Vì sao">Bốn bảng <code>TOA_CHU</code> · <code>TOA_TEN</code> · <code>TOA_TANG</code> ·
-        <code>TOA_THU_TU</code> đang khai đúng ba toà, và câu chỉ đường đếm theo thứ tự dọc hành lang</td>
-    <td data-nhan="Làm gì">Gọi tôi — sửa cả bốn bảng cùng lúc, và phải khảo sát xem đứng ở đầu hành lang
-        có nhìn thấy toà đó không</td></tr>
+<tr><td data-nhan="Muốn">Thêm một toà nhà hoàn toàn mới (ngoài A · B · C · F · DI · DII · DIII)</td>
+    <td data-nhan="Vì sao">Hai bảng <code>TOA_CHU</code> và <code>TOA_TEN</code> phải có cách đọc chữ cái
+        toà nhà — thiếu là script dừng</td>
+    <td data-nhan="Làm gì">Thêm một dòng vào mỗi bảng, ví dụ <code>"G": "giê"</code> và
+        <code>"G": "Nhà G"</code>. Rồi khai chỗ đó trong <code>BANG_TOA_KHAC</code> như mục 4</td></tr>
 <tr><td data-nhan="Muốn">Đổi <b>thứ tự</b> ba toà nhà</td>
     <td data-nhan="Vì sao">Robot chỉ đường bằng <i>“toà nhà thứ hai”</i>. Sai thứ tự là chỉ sai toà,
         người bệnh đi nhầm</td>
@@ -457,7 +495,7 @@ với AI sau khi nạp lại:</p>
     <td data-nhan="Làm gì">Cài đặt của robot</td></tr>
 </table>
 
-<h2><span class="so">9</span> Lỗi hay gặp</h2>
+<h2><span class="so">10</span> Lỗi hay gặp</h2>
 
 <table>
 <tr><th>Hiện tượng</th><th>Nguyên nhân gần như chắc chắn</th></tr>

@@ -124,7 +124,7 @@ await kiem('Tới nơi → KHÔNG qua màn chỉ đường, về thẳng màn ch
 
 console.log('\n── B2. Toà DII và DIII phải được gọi là toà thứ hai / thứ ba ──');
 for (const [khoa, iVt, mongDoi] of [['Khoa Sơ Sinh', 0, /toà nhà thứ hai/i],
-                                    ['Khoa Hồi Sức Cấp Cứu Nội', 0, /toà nhà thứ ba/i]]) {
+                                    ['Khoa Phụ Sản', 2, /toà nhà thứ ba/i]]) {
   const noiDung = await p.evaluate(([k, i]) => {
     const d = DU_LIEU.dich.find(x => x.ten === k);
     return d.vi_tri[i].chi_duong;
@@ -133,12 +133,59 @@ for (const [khoa, iVt, mongDoi] of [['Khoa Sơ Sinh', 0, /toà nhà thứ hai/i]
     async () => mongDoi.test(noiDung));
 }
 
+/* Bốn chỗ ở nhà A · B · C · F KHÔNG nằm dọc hành lang ba toà D. Đếm thứ tự cho
+   chúng là chỉ sai chỗ — mà cách đếm ấy có mặt ở ba nơi (dữ liệu, màn chỉ đường,
+   PERSONA của mô hình) nên rất dễ lọt. */
+console.log('\n── B3. Nhà A · B · C · F: dẫn tới TẬN NƠI, và tuyệt đối không đếm thứ tự ──');
+const dsToaKhac = await p.evaluate(() =>
+  DU_LIEU.dich.filter(x => x.loai === 'toa-khac' || x.loai === 'cap-cuu')
+    .map(x => ({ ten: x.ten, loai: x.loai, diem: x.diem, toa: x.vi_tri[0].toa,
+                 doc: x.doc, toiNoi: x.vi_tri[0].doc_toi_noi || '' })));
+
+await kiem('Có đủ bốn chỗ mới (A · B · C · F)', async () => dsToaKhac.length === 4);
+for (const d of dsToaKhac) {
+  await kiem(d.ten + ' (nhà ' + d.toa + ') KHÔNG đếm thứ tự toà nhà',
+    async () => !/toà nhà (đầu tiên|thứ hai|thứ ba)/i.test(d.doc + ' ' + d.toiNoi));
+  await kiem(d.ten + ' có gắn điểm bản đồ riêng',
+    async () => !!d.diem && d.diem !== 'truoc-hanh-lang');
+}
+
+// Đi trọn luồng thật với Khoa Răng Hàm Mặt — chỗ vừa chuyển từ DI tầng 4 sang nhà B
+await p.evaluate(() => { veTrangChu(); thoiCho();
+  const d = DU_LIEU.dich.find(x => x.ten === 'Khoa Răng Hàm Mặt'); moChiTiet(d.id); });
+await p.waitForTimeout(300);
+await kiem('Khoa Răng Hàm Mặt: màn chi tiết có nút dẫn',
+  async () => (await p.locator('#nut-dan').count()) === 1, '08-rang-ham-mat');
+await p.click('#nut-dan');
+await kiem('Tới nơi → KHÔNG mở màn chỉ đường (robot đã đứng ngay đó)',
+  async () => await cho(async () => (await man()) === 'mh-ct'), '09-rhm-toi-noi');
+/* Chờ câu "Đã tới nơi" được phát hẳn rồi mới soi nội dung. Đọc ngay sau khi đổi
+   màn thì lúc đạt lúc trượt tuỳ máy nhanh chậm — trượt kiểu đó không nói lên gì. */
+await kiem('Robot đọc câu "Đã tới nơi" sau khi dẫn xong',
+  async () => await cho(async () => /Đã tới nơi/.test(await noi() || '')));
+const cauToiNoi = await noi() || '';
+await kiem('Câu tới nơi nhắc đúng nhà B và số phòng D7',
+  async () => /toà nhà bê/i.test(cauToiNoi) && /đê bảy/i.test(cauToiNoi));
+await kiem('Câu tới nơi KHÔNG bảo "lên tầng một" (robot đang đứng ở tầng 1)',
+  async () => !/lên tầng một/i.test(cauToiNoi));
+
 console.log('\n── C. Cấp cứu: tuyệt đối không có nút dẫn ──');
 await p.evaluate(() => { veTrangChu(); moNhom('cap-cuu'); });
 await p.waitForTimeout(400);
 await kiem('Màn cấp cứu đang hiện', async () => (await man()) === 'mh-cc');
 await kiem('Màn cấp cứu KHÔNG có nút dẫn đường nào',
   async () => (await p.locator('#mh-cc #nut-dan').count()) === 0, '07-cap-cuu-khong-dan');
+/* Khoa cấp cứu đổi hẳn 08/09/2026: C1 · tầng 1 · Nhà C. Khoa Hồi Sức Cấp Cứu Nội
+   cũ (D23-D24, Nhà DIII) đã bỏ. Sai chỗ này là người đang nguy kịch chạy nhầm nhà. */
+await kiem('Màn cấp cứu chỉ về Nhà C, phòng C1, tầng 1', async () => await p.evaluate(() =>
+  document.querySelector('#cc-toa').textContent === 'C' &&
+  document.querySelector('#cc-tang').textContent === '1' &&
+  document.querySelector('#cc-ma').textContent.includes('C1')));
+await kiem('Khoa Hồi Sức Cấp Cứu Nội cũ đã bỏ hẳn khỏi dữ liệu',
+  async () => await p.evaluate(() => !DU_LIEU.dich.some(x => /Hồi [Ss]ức/.test(x.ten))));
+await kiem('Không còn mã D23 / D24 trong danh mục',
+  async () => await p.evaluate(() =>
+    !DU_LIEU.dich.some(x => x.ma.includes('D23') || x.ma.includes('D24'))));
 
 console.log('\n── D. Robot chưa sẵn sàng thì phải nói ra ──');
 await p.evaluate(() => { GIA_LAP.lyDoChan = 'Robot chưa định vị được trên bản đồ.'; });

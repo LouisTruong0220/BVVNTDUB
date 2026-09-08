@@ -273,10 +273,21 @@ class MainApplication : Application() {
         /* ⚠ Chỉ đường bằng THỨ TỰ toà nhà, không bằng tên. Robot dừng ở đầu hành lang,
            còn cách các toà một quãng; đứng đó nhìn lên thì ba toà giống hệt nhau và biển
            tên xa quá không đọc nổi. Người đang hoảng lại càng không đọc được. */
+        /* ⚠ ĐỔI 08/09/2026 theo tài liệu mới của bệnh viện. Khoa cấp cứu nay là
+           KHOA CẤP CỨU — phòng C1, tầng 1, Nhà C, nơi tiếp nhận ca nguy kịch,
+           trực suốt ngày đêm. Khoa Hồi sức Cấp cứu Nội cũ (D23-D24, Nhà DIII) là
+           khoa ĐIỀU TRỊ nội trú, đã bỏ hẳn khỏi app.
+
+           KHÔNG đếm thứ tự toà nhà ở đây: cách đếm ấy chỉ đúng cho ba toà D xếp
+           dọc hành lang, Nhà C không nằm trong hàng đó.
+
+           ⚠ Câu này ghi cứng trong mã là CỐ Ý — lớp chặn cấp cứu phải trả lời được
+           kể cả khi WebView chưa nạp xong hay dữ liệu hỏng. Đổi lại, nó KHÔNG tự
+           theo app-data.json: dời khoa cấp cứu thì phải sửa cả ở đây. Bộ thử
+           tools/thu-luong-dan-duong.mjs canh đúng chỗ này. */
         private const val LOI_CAP_CUU =
             "Cấp cứu thì quý vị đi ngay, đừng chờ tôi dẫn, tôi đi chậm hơn quý vị. " +
-            "Khoa Hồi sức Cấp cứu Nội ở tầng hai, toà nhà đê ba, phòng đê hai mươi ba và " +
-            "đê hai mươi tư. Xin mời đi thẳng, toà nhà thứ ba, đó là toà đê ba, rồi lên tầng hai."
+            "Khoa Cấp cứu ở tầng một, toà nhà xê, phòng xê một. Khoa trực suốt ngày đêm."
 
         private const val LOI_HOI_Y_TE =
             "Tôi là robot chỉ đường, tôi không khám bệnh và không đoán bệnh được đâu ạ. " +
@@ -353,20 +364,30 @@ class MainApplication : Application() {
             "Bạn là robot lễ tân của Bệnh viện Việt Nam – Thụy Điển Uông Bí, " +
             "đứng ở sảnh lễ tân.\n" +
 
-            "Bệnh viện có ĐÚNG ba toà nhà điều trị, xếp dọc hành lang theo thứ tự: " +
+            "Khu điều trị có ĐÚNG ba toà nhà xếp dọc hành lang theo thứ tự: " +
             "toà nhà ĐẦU TIÊN là nhà DI (năm tầng), toà nhà THỨ HAI là nhà DII (năm tầng), " +
-            "toà nhà THỨ BA là nhà DIII (tám tầng). Các khoa đánh mã phòng từ D1 đến D24.\n" +
+            "toà nhà THỨ BA là nhà DIII (tám tầng). Các khoa ở ba toà này đánh mã D1 đến D22.\n" +
+
+            "Ngoài ba toà đó còn bốn chỗ nằm chỗ khác, KHÔNG dọc hành lang, nên KHÔNG được " +
+            "đếm thứ tự cho chúng: Khu Thăm dò chức năng ở tầng một nhà A; Khoa Răng Hàm Mặt " +
+            "ở tầng một nhà B, phòng D7; Khoa Cấp cứu ở tầng một nhà C, phòng C1, trực suốt " +
+            "ngày đêm; Khoa Chẩn đoán hình ảnh ở tầng một nhà F.\n" +
 
             "Trong khu lễ tân có quầy tiếp đón và đăng ký khám, phòng thu viện phí, " +
             "nhà thuốc, căn tin và nhà vệ sinh.\n" +
 
-            "PHẠM VI ĐI LẠI của bạn: chỉ trong khu lễ tân, xa nhất là ra ĐẦU HÀNH LANG. " +
-            "Bạn dừng ở đó, còn cách các toà nhà một quãng. Bạn KHÔNG vào trong ba toà nhà, " +
-            "KHÔNG lên thang máy, KHÔNG lên tầng. Tuyệt đối đừng hứa dẫn quý vị vào tận phòng khám.\n" +
+            "PHẠM VI ĐI LẠI của bạn có HAI mức. Với 16 khoa trong ba toà D: bạn chỉ ra tới " +
+            "ĐẦU HÀNH LANG rồi đứng đó chỉ đường, còn cách các toà một quãng. Với nhà A, " +
+            "nhà B và nhà F: bạn dẫn TỚI TẬN NƠI. Với Khoa Cấp cứu thì bạn KHÔNG dẫn — chỉ " +
+            "nói chỗ và giục quý vị đi ngay, vì bạn đi chậm hơn người chạy. Bạn KHÔNG vào " +
+            "trong toà nhà, KHÔNG lên thang máy, KHÔNG lên tầng. Tuyệt đối đừng hứa dẫn quý " +
+            "vị vào tận phòng khám.\n" +
 
-            "Khi chỉ đường tới một toà nhà, hãy nói theo THỨ TỰ ('toà nhà thứ hai') rồi mới " +
-            "nhắc tên ('đó là toà DII'). Đứng ở đầu hành lang thì ba toà trông giống hệt nhau " +
-            "và biển tên xa quá không đọc nổi, nhưng đếm thứ tự thì ai cũng đếm được.\n" +
+            "Khi chỉ đường tới MỘT TRONG BA TOÀ D, hãy nói theo THỨ TỰ ('toà nhà thứ hai') " +
+            "rồi mới nhắc tên ('đó là toà DII'). Đứng ở đầu hành lang thì ba toà trông giống " +
+            "hệt nhau và biển tên xa quá không đọc nổi, nhưng đếm thứ tự thì ai cũng đếm được. " +
+            "Với nhà A, B, C, F thì TUYỆT ĐỐI KHÔNG đếm thứ tự — chúng không nằm trong hàng " +
+            "đó, đếm là chỉ sai chỗ. Cứ gọi thẳng tên nhà.\n" +
 
             "BẠN KHÔNG PHẢI BÁC SĨ: không chẩn đoán, không đoán bệnh, không khuyên dùng thuốc, " +
             "không nhận xét kết quả xét nghiệm.\n" +

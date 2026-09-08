@@ -32,7 +32,7 @@ const TRANG = pathToFileURL(join(APP, 'demo', 'index.html')).href;
 /* Mỗi bước: [ten file, mo ta, ham chay trong trang] */
 const BUOC = [
   ['01-man-cho',        'Man cho — video bieu cam',            null],
-  ['02-menu',           'Menu 9 nhom + o tim + bang kham lan dau', () => thoiCho()],
+  ['02-menu',           'Menu 10 nhom + o tim + 2 dai ngang', () => thoiCho()],
   ['03-nhom-me-be',     'Nhom Me va be',                       () => moNhom('me-be')],
   ['04-hoi-toa',        'Hoi lai toa nha (Khoa Phu San)',      () => moChiTiet(1)],
   ['05-chi-tiet-ngoai', 'Chi tiet khoa ngoai khu (Phu San, nha DII)', () => moChiTiet(1, 1)],
@@ -50,6 +50,12 @@ const BUOC = [
         window.DU_LIEU.diem['truoc-hanh-lang'].ten; window.baoDanDuong('bat-dau', ''); }],
   ['14-chi-duong',      'Man CHI DUONG sau khi toi dau hanh lang', () => window.baoDanDuong('toi-noi', '')],
   ['15-tro-chuyen',     'Man tro chuyen (nut mic phai AN)',    () => { veTrangChu(); moChat(); }],
+  // Bốn chỗ ở toà A · B · C · F, thêm 08/09/2026 — robot dẫn tới TẬN NƠI
+  ['16-chi-tiet-toa-khac', 'Chi tiet Khoa Rang Ham Mat (nha B, dan thang)', () => {
+      veTrangChu();
+      const d = window.DU_LIEU.dich.find(x => x.ten === 'Khoa Răng Hàm Mặt'); moChiTiet(d.id); }],
+  ['17-nhom-chieu-chup', 'Nhom Xet nghiem · Chieu chup',        () => {
+      veTrangChu(); moNhom('chieu-chup'); }],
 ];
 
 const trinhDuyet = await chromium.launch();
@@ -73,10 +79,14 @@ for (const [ten, mo, ham] of BUOC) {
     if (!hien) return ['KHONG co man hinh nao dang hien'];
     if (document.documentElement.scrollHeight > innerHeight + 2)
       r.push('TRAN CHIEU CAO: ' + document.documentElement.scrollHeight + 'px > 1080px');
-    /* Ba thứ app CỐ Ý ẩn: nút mic (ẩn khi Agent SDK chưa bind được), nút trò
-       chuyện, và băng "khám lần đầu" (nhường chỗ khi đang xem danh sách kết quả).
-       Bỏ qua chúng, không thì bộ soi kêu ầm lên ở mọi màn. */
-    const CO_Y_AN = '.nut-mic, .nut-chat, #bang-moi';
+    /* Bốn thứ app CỐ Ý ẩn: nút mic (ẩn khi Agent SDK chưa bind được), nút trò
+       chuyện, băng "khám lần đầu" và dải "tìm theo mã phòng" (cả hai nhường chỗ
+       khi đang xem danh sách kết quả). Bỏ qua, không thì bộ soi kêu ở mọi màn.
+
+       ⚠ Chỉ thêm vào danh sách này khi chắc chắn phần tử ĐƯỢC PHÉP ẩn ở màn đó.
+       Mỗi cái thêm vào là một chỗ bộ soi thôi canh — nút "Nghe robot đọc lại" từng
+       biến mất 0×0 vì trùng tên class, và chính phép kiểm này bắt được. */
+    const CO_Y_AN = '.nut-mic, .nut-chat, #bang-moi, #bang-ma-phong';
     hien.querySelectorAll('button, .the-nhom, .muc, .nut-to, .toa-nut').forEach(e => {
       if (e.closest(CO_Y_AN)) return;
       const ten = (e.textContent || '').trim().replace(/\s+/g, ' ').slice(0, 34);
