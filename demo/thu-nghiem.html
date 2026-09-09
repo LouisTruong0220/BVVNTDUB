@@ -1759,7 +1759,7 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
      Ở đây chỉ dựng lại phần CHẶN. Phần gọi mô hình thì giả lập bằng câu dẫn cố định,
      vì trên máy tính không có đường lên đám mây của hãng. */
   var TU_CAP_CUU = /cấp cứu|cap cuu|nguy kịch|nguy kich|ngất|ngat xiu|bất tỉnh|bat tinh|co giật|co giat|đột quỵ|dot quy|tai biến|tai bien|không thở được|khong tho duoc|khó thở quá|kho tho qua|ngạt thở|ngat tho|chảy máu nhiều|chay mau nhieu|băng huyết|bang huyet|ngộ độc|ngo doc|hóc|sặc|tai nạn|tai nan|đau ngực dữ dội|dau nguc du doi/i;
-  var TU_HOI_Y_TE = /tôi bị (bệnh )?gì|toi bi gi|em bị gì|cháu bị gì|có nặng không|co nang khong|có nguy hiểm không|co nguy hiem khong|có sao không|co sao khong|có việc gì không|uống thuốc gì|uong thuoc gi|nên uống|nen uong|dùng thuốc gì|dung thuoc gi|có phải mổ|co phai mo|có nên mổ|co nen mo|có cần mổ|chẩn đoán|chan doan|xem (giúp|hộ|giùm).{0,12}kết quả|kết quả (xét nghiệm|siêu âm|chụp).{0,20}(sao|thế nào|gì)/i;
+  var TU_HOI_Y_TE = /tôi bị (bệnh )?gì|toi bi gi|em bị gì|cháu bị gì|có nặng không|co nang khong|có nguy hiểm không|co nguy hiem khong|có sao không|co sao khong|có việc gì không|uống thuốc gì|uong thuoc gi|nên uống|nen uong|dùng thuốc gì|dung thuoc gi|có phải mổ|co phai mo|có nên mổ|co nen mo|có cần mổ|(bạn|robot|máy) ?chẩn đoán|chẩn đoán (giúp|hộ|giùm|cho|bệnh|xem|thử)|chan doan (giup|ho|gium|cho|benh|xem|thu)|xem (giúp|hộ|giùm).{0,12}kết quả|kết quả (xét nghiệm|siêu âm|chụp).{0,20}(sao|thế nào|gì)/i;
   var TU_CHUA_CO = /bao nhiêu tiền|bao nhieu tien|hết bao nhiêu|het bao nhieu|giá khám|gia kham|chi phí|chi phi|mất bao nhiêu|mấy giờ|may gio|giờ làm việc|gio lam viec|giờ mở cửa|mở cửa lúc|đóng cửa lúc|bác sĩ nào|bac si nao|bác sỹ nào|bác sĩ tên gì|ai trực|lịch trực|lich truc|số điện thoại|so dien thoai|hotline|đặt lịch|dat lich|đặt hẹn|dat hen|đăng ký online|dang ky online|còn giường|con giuong|giường trống|giuong trong|còn chỗ nằm|bao giờ (tới|đến) lượt|khi nào (tới|đến) lượt|lịch mổ|lich mo/i;
 
   var LOI_CAP_CUU = 'Cấp cứu thì quý vị đi ngay, đừng chờ tôi dẫn, tôi đi chậm hơn quý vị. ' +
@@ -2184,8 +2184,31 @@ const DONG_NGHIA = {
    một câu bình thường cũng bị coi là mã phòng. */
 const RE_MA = /\b([dc])\s*(\d{1,2})\b/;
 
+/* ═══ MÃ PHÒNG KHÔNG THEO KHUÔN CHỮ-CÁI-CỘNG-SỐ ═══
+   RE_MA ở trên chỉ bắt được D3, C1 — khuôn một chữ cái kèm một hai chữ số. Bệnh viện
+   còn một mã ngoài khuôn đó: CĐHA (Khoa Chẩn đoán hình ảnh, thêm 08/09/2026).
+
+   Hậu quả đo được 09/09/2026: "phòng CĐHA ở chỗ nào" ra KHÔNG THẤY. Nó rơi xuống
+   đường chấm điểm từ khoá, mà ở đó "cdha" tuy hiếm (34 điểm, chỉ một khoa có) vẫn
+   chỉ khớp 1 trong 2 từ có nghĩa — độ phủ 0,50, dưới sàn 0,55. Trong khi "phòng D3 ở
+   chỗ nào" thì chạy ngon vì nó đi ĐƯỜNG MÃ, không đi đường chấm điểm.
+
+   Người bệnh đọc mã trên phiếu khám thì không còn gì để đoán nữa — mã nào cũng phải
+   được đối xử như nhau. Bảng dưới dựng từ chính dữ liệu nên thêm mã mới là tự có.
+   ⚠ Đòi dài từ 3 ký tự để một chữ cái lạc trong câu không bị nhận nhầm là mã. */
+const MA_CHU = new Map();
+DS.forEach(d => (d.ma || []).forEach(m => {
+  const k = khongDau(m);
+  if(k.length >= 3 && !/^[a-z]\d{1,2}$/.test(k)) MA_CHU.set(k, {dich:d, ma:m});
+}));
+
 function timTheoMa(q){
-  const m = RE_MA.exec(khongDau(q));
+  const kd = khongDau(q);
+  for(const w of kd.split(' ')){
+    const trung = MA_CHU.get(w);
+    if(trung) return trung;
+  }
+  const m = RE_MA.exec(kd);
   if(!m) return null;
   const ma = m[1].toUpperCase() + parseInt(m[2], 10);
   for(const d of DS){ if(d.ma.indexOf(ma) >= 0) return {dich:d, ma:ma}; }

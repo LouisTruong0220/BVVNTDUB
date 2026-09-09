@@ -68,6 +68,12 @@ const CAU = [
   ['phòng C1 ở đâu',                        'Khoa Cấp cứu'],
   ['cho hỏi chỗ chụp x quang',              'Khoa Chẩn đoán hình ảnh'],
   ['tôi cần chụp cắt lớp',                  'Khoa Chẩn đoán hình ảnh'],
+  /* Gọi ĐÚNG TÊN khoa, và mã phòng CĐHA — hai đường người bệnh hay dùng nhất
+     mà lại hỏng lâu nhất. Xem mục F của tools/thu-luong-dan-duong.mjs. */
+  ['khoa chẩn đoán hình ảnh ở đâu',         'Khoa Chẩn đoán hình ảnh'],
+  ['chẩn đoán hình ảnh ở tầng mấy',         'Khoa Chẩn đoán hình ảnh'],
+  ['phòng CĐHA ở chỗ nào',                  'Khoa Chẩn đoán hình ảnh'],
+  ['CĐHA',                                  'Khoa Chẩn đoán hình ảnh'],
   /* Mơ hồ thật: cả ba nơi đều siêu âm. App phải hiện danh sách, không đoán bừa. */
   ['siêu âm ở đâu',                         ['Khoa Chẩn đoán hình ảnh']],
   ['đo điện tim ở đâu',                     'Khu Thăm dò chức năng'],

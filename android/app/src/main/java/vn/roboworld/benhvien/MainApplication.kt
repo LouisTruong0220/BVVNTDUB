@@ -462,7 +462,17 @@ class MainApplication : Application() {
             "có sao không|co sao khong|có việc gì không|" +
             "uống thuốc gì|uong thuoc gi|nên uống|nen uong|dùng thuốc gì|dung thuoc gi|" +
             "có phải mổ|co phai mo|có nên mổ|co nen mo|có cần mổ|" +
-            "chẩn đoán|chan doan|xem (giúp|hộ|giùm).{0,12}kết quả|" +
+            /* ⚠ "chẩn đoán" KHÔNG được đứng một mình trong danh sách này (sửa 09/09/2026).
+             *   Bệnh viện có hẳn KHOA CHẨN ĐOÁN HÌNH ẢNH từ 08/09, nên câu tự nhiên nhất
+             *   — "khoa chẩn đoán hình ảnh ở đâu" — bị chính lớp chặn này nuốt, và robot
+             *   đáp "tôi không khám bệnh và không đoán bệnh được". Người bệnh hỏi đúng tên
+             *   khoa mà bị từ chối là kiểu hỏng khó đoán nhất: tra cứu vốn ra ĐÚNG khoa
+             *   (đo được d0=202, mức chắc), nhưng lớp chặn nằm TRƯỚC nên không bao giờ tới.
+             *   Nay đòi "chẩn đoán" phải đi kèm người hoặc vật bị chẩn đoán mới coi là
+             *   nhờ robot khám. Danh từ chỉ tên khoa thì lọt qua. */
+            "(bạn|robot|máy) ?chẩn đoán|chẩn đoán (giúp|hộ|giùm|cho|bệnh|xem|thử)|" +
+            "chan doan (giup|ho|gium|cho|benh|xem|thu)|" +
+            "xem (giúp|hộ|giùm).{0,12}kết quả|" +
             "kết quả (xét nghiệm|siêu âm|chụp).{0,20}(sao|thế nào|gì)",
             RegexOption.IGNORE_CASE
         )

@@ -9,11 +9,11 @@ tìm đúng khoa theo cách họ tự mô tả, và **dẫn đường** tới n�
 
 **Chỉ cần cài lên robot, không cần build:**
 
-1. Tải `apk/le-tan-benh-vien-uong-bi-v1.9.apk`
+1. Tải `apk/le-tan-benh-vien-uong-bi-v1.10.apk`
 2. Nối cáp USB vào **đầu robot**, dùng **adb 1.0.41** của Android SDK
    (⚠ **không** dùng `C:\Windows\adb.exe` bản 1.0.39 của PUDU — hai bản giết tiến trình của nhau)
    ```powershell
-   adb install -r le-tan-benh-vien-uong-bi-v1.9.apk
+   adb install -r le-tan-benh-vien-uong-bi-v1.10.apk
    ```
 3. **Mở app từ RobotOS Home**, tuyệt đối không dùng `am start` — dùng `am start` thì `RobotApi`
    trả `handleApiDisabled`, mất cả dẫn đường lẫn giọng nói mà app không báo lỗi gì.
@@ -38,7 +38,7 @@ Hồ sơ dự án đầy đủ nằm trong workspace nội bộ của Roboworld,
 | | |
 |---|---|
 | Trạng thái | **Bản demo HTML xong, APK build xong. Chưa chạy trên robot thật, chưa khảo sát mặt bằng.** |
-| APK | `apk/le-tan-benh-vien-uong-bi-v1.9.apk` — appId riêng · ba toà D dừng ở đầu hành lang · nhà A/B/F dẫn tới tận nơi |
+| APK | `apk/le-tan-benh-vien-uong-bi-v1.10.apk` — appId riêng · ba toà D dừng ở đầu hành lang · nhà A/B/F dẫn tới tận nơi |
 | **Bản thử trên máy tính** | **`demo/thu-nghiem.html`** — có giả lập robot, bấm được nút dẫn đường. Đọc [HUONG-DAN-THU-NGHIEM.md](HUONG-DAN-THU-NGHIEM.md) |
 | Demo bản sạch | `demo/index.html` — giống hệt cái nằm trong APK |
 | Package | `vn.roboworld.benhvien` |
@@ -95,7 +95,8 @@ python dung-app.py          # HTML + JSON      → demo/index.html + rải sang 
 python dung-kho-tri-thuc.py # cùng nguồn       → kho-tri-thuc/ cho cổng OrionStar
 node tools\soi-man-hinh.mjs # chụp 17 màn ở đúng 1920×1080 + tự soi bố cục
 node tools\thu-luong-dan-duong.mjs   # trọn luồng dẫn đường + micro bấm-mới-nghe
-node tools\thu-tim-kiem.mjs          # 86 phép: đúng khoa · phải nói không biết · kho hỏi–đáp
+node tools\thu-tim-kiem.mjs          # 90 phép: đúng khoa · phải nói không biết · kho hỏi–đáp
+python tools\doi-chieu-lop-chan.py   # ba lớp chặn ở Kotlin và giả lập có khớp nhau không
 .\tools\build-apk.ps1       # → android\app\build\outputs\apk\debug\app-debug.apk
 ```
 
@@ -422,6 +423,35 @@ của mình. Sai thì sai theo hướng im lặng.
 
 Mô hình chỉ soạn **câu dẫn**; tên khoa, số tầng, mã phòng do app đọc nguyên văn từ bảng khoa phòng
 bệnh viện cung cấp. Con số không đi qua mô hình lần nào.
+
+### ⚠ Tên khoa bị chính lớp chặn nuốt
+
+Bệnh viện có **Khoa Chẩn đoán hình ảnh** từ 08/09/2026. Lớp chặn "hỏi bệnh" (`TU_HOI_Y_TE`) lại
+có từ khoá **`chẩn đoán`** đứng một mình — viết từ hồi chưa khoa nào tên như vậy. Hậu quả đo được
+09/09: câu tự nhiên nhất, gọi **đúng tên khoa**, bị đáp *"tôi không khám bệnh và không đoán bệnh
+được"*. Tra cứu vốn ra đúng khoa ở mức **chắc** (d0=202), nhưng lớp chặn nằm **trước** nên không
+bao giờ tới được.
+
+Nay `chẩn đoán` phải đi kèm người hoặc vật bị chẩn đoán mới tính là nhờ robot khám:
+`(bạn|robot|máy) chẩn đoán` · `chẩn đoán (giúp|hộ|giùm|cho|bệnh|xem|thử)`. Danh từ chỉ tên khoa
+thì lọt qua.
+
+> Đây là dạng lỗi dễ tái diễn nhất của app này: **một bộ lọc an toàn viết trước khi dữ liệu đổi.**
+> Thêm khoa mới thì rà lại ba biểu thức chặn trong `MainApplication.kt` xem tên khoa có đụng từ
+> khoá nào không.
+
+**`python tools/doi-chieu-lop-chan.py`** — cổng mới: ba lớp chặn nằm ở hai nơi
+(`MainApplication.kt` và `gia-lap-robot.js`), script này so **từng ký tự**. README dặn "sửa một bên
+phải sửa cả hai" từ lâu, nhưng dặn bằng lời thì không ai kiểm được.
+
+### ⚠ Mã phòng CĐHA không đi được đường mã
+
+`RE_MA` chỉ bắt khuôn **một chữ cái + một hai chữ số** (D3, C1). `CĐHA` nằm ngoài khuôn đó nên nó
+rơi xuống đường chấm điểm từ khoá — mà ở đó *"phòng CĐHA ở chỗ nào"* chỉ khớp 1 trong 2 từ có
+nghĩa, độ phủ 0,50 < sàn 0,55 → **không thấy**, trong khi *"phòng D3 ở chỗ nào"* chạy ngon.
+
+Người bệnh đọc mã trên phiếu khám thì không còn gì để đoán — mã nào cũng phải được đối xử như
+nhau. Nay có bảng `MA_CHU` dựng từ chính dữ liệu, nên thêm mã mới là tự có.
 
 ### Tên điểm bản đồ lệch chính tả — bí danh
 

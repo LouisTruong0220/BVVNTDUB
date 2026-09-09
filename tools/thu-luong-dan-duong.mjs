@@ -236,6 +236,27 @@ await kiemChan('Thời tiết hôm nay thế nào',     /chưa có trong dữ li
 await kiemChan('Tôi muốn đưa con đi khám',      /Khoa Nhi/i, 'Câu thật → chỉ đúng khoa');
 await kiemChan('Phòng thu viện phí ở đâu',      /viện phí/i, 'Hỏi chỗ nộp tiền → KHÔNG bị chặn nhầm');
 
+/* ⚠ TÊN KHOA BỊ CHÍNH LỚP CHẶN NUỐT (anh Trường báo 09/09/2026).
+   Bệnh viện có KHOA CHẨN ĐOÁN HÌNH ẢNH từ 08/09, mà lớp chặn "hỏi bệnh" lại có từ
+   khoá "chẩn đoán" đứng một mình — viết từ hồi chưa khoa nào tên như vậy. Hậu quả:
+   câu tự nhiên nhất, gọi ĐÚNG TÊN KHOA, bị đáp "tôi không khám bệnh và không đoán
+   bệnh được". Tra cứu vốn ra đúng khoa ở mức CHẮC (d0=202) nhưng lớp chặn nằm TRƯỚC
+   nên không bao giờ tới được.
+   Nay "chẩn đoán" phải đi kèm người/vật bị chẩn đoán mới tính là nhờ robot khám. */
+await kiemChan('Khoa chẩn đoán hình ảnh ở đâu', /Khoa Chẩn đoán hình ảnh/i,
+               'Tên khoa có chữ "chẩn đoán" → KHÔNG được bị chặn nhầm');
+await kiemChan('Chẩn đoán hình ảnh ở tầng mấy', /Khoa Chẩn đoán hình ảnh/i,
+               'Nói tắt tên khoa → vẫn phải trả lời');
+await kiemChan('Bạn chẩn đoán giúp tôi', /không khám bệnh và không đoán bệnh/i,
+               'Nhờ robot khám thì VẪN phải từ chối');
+await kiemChan('Chẩn đoán bệnh cho tôi với', /không khám bệnh và không đoán bệnh/i,
+               'Nhờ robot khám — cách nói khác');
+/* CĐHA là mã phòng KHÔNG theo khuôn chữ-cái-cộng-số, nên RE_MA không bắt được và nó
+   rơi xuống đường chấm điểm: "cdha" hiếm thật nhưng chỉ khớp 1/2 từ có nghĩa, độ phủ
+   0,50 < sàn 0,55 → KHÔNG THẤY, trong khi "phòng D3 ở chỗ nào" thì chạy ngon. */
+await kiemChan('Phòng CĐHA ở chỗ nào', /Khoa Chẩn đoán hình ảnh/i,
+               'Mã phòng CĐHA đi được đường MÃ như D3 · C1');
+
 /* ═══════════════════════════════════════════════════════════════════════
    G. MICRO BẤM-MỚI-NGHE
 
