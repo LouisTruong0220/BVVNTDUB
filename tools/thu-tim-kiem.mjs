@@ -98,6 +98,68 @@ const BAY_BO_DAU = [
   ['ngất xỉu',                  'Khoa Cấp cứu',          'Khoa Tai Mũi Họng'],
 ];
 
+/* ══ KHO HỎI–ĐÁP CHUNG trong APK (09/09/2026) ══════════════════════════
+   Mấy chuyện không gắn với khoa nào — quy trình khám, phạm vi robot, giới thiệu.
+   Trước đây chúng CHỈ nằm trên cổng OrionStar, mà mô hình không đọc được kho đó
+   nữa (fileSearch bị máy chủ bỏ 26/08/2025), nên robot rơi vào khoảng trống.
+
+   [câu hỏi, nhóm phải ra] — null nghĩa là kho hỏi–đáp PHẢI im, để đường khoa
+   phòng hoặc mô hình lo. Nhóm thứ hai này quan trọng ngang nhóm đầu: kho chỉ có
+   tám mục, mà tám mục nói được về mọi thứ thì nó sẽ cướp việc của màn chỉ đường. */
+const HOI_DAP_THU = [
+  // ── Phải trả lời được, và trả lời ĐÚNG nhóm ──
+  ['thủ tục khám bệnh thế nào',        'kham-lan-dau'],
+  ['lần đầu tới đây tôi phải làm sao', 'kham-lan-dau'],
+  ['bạn dẫn tôi lên tầng được không',  'pham-vi-robot'],
+  ['bạn đi thang máy được không',      'pham-vi-robot'],
+  ['robot đi được tới đâu',            'pham-vi-robot'],
+  ['bạn là ai',                        'gioi-thieu-robot'],
+  ['bạn tên gì',                       'gioi-thieu-robot'],
+  ['bạn làm được những gì',            'gioi-thieu-robot'],
+  ['bệnh viện có mấy toà nhà',         'so-toa-nha'],
+  ['ở đây có những toà nào',           'so-toa-nha'],
+  ['bệnh viện có những khoa nào',      'danh-muc-khoa'],
+  ['cho tôi xem danh sách khoa',       'danh-muc-khoa'],
+  ['tôi nên uống thuốc gì',            'khong-phai-bac-si'],
+  ['tôi có cần mổ không',              'khong-phai-bac-si'],
+  ['bệnh viện làm việc mấy giờ',       'chua-co-du-lieu'],
+  ['khám ở đây hết bao nhiêu tiền',    'chua-co-du-lieu'],
+  ['số điện thoại bệnh viện là gì',    'chua-co-du-lieu'],
+
+  // ── Câu hỏi KHOA PHÒNG: kho hỏi–đáp phải IM, không được chen vào ──
+  ['khoa nhi ở đâu',                   null],
+  ['đau mắt khám ở đâu',               null],
+  ['lấy thuốc ở đâu',                  null],
+  ['tôi bị đau bụng',                  null],
+  ['tôi đi đẻ',                        null],
+  ['tôi bị ho kéo dài',                null],
+  ['cấp cứu ở đâu',                    null],
+  ['phòng D3 ở đâu',                   null],
+  /* Ba câu dưới là chốt của luật "tra khoa phòng chắc thì kho hỏi–đáp nhường".
+     CẢ HAI đường đều khớp mạnh: tra ra Quầy tiếp đón ở mức chắc, mà nhóm
+     kham-lan-dau cũng ăn điểm rất cao. Đường khoa phòng phải thắng, vì nó còn
+     mở được màn chỉ đường và dẫn người bệnh tới tận quầy — một câu văn thì không.
+     Gỡ luật nhường ra là ba dòng này phải đỏ. */
+  ['tôi đến khám lần đầu thì làm gì',  null],
+  ['đăng ký khám ở đâu',               null],
+  ['tôi chưa có phiếu khám',           null],
+
+  /* ── Câu ngoài phạm vi ──
+     'AN_TOAN' = được phép im, HOẶC rơi vào nhóm chua-co-du-lieu — nhưng TUYỆT ĐỐI
+     không được rơi vào nhóm nào khác. Câu đáp của nhóm đó là "thông tin này tôi
+     chưa có, mời quý vị hỏi quầy lễ tân", nên hỏi giá vàng mà nghe câu ấy là đúng
+     việc. Bắt phải im hẳn mới là đặt sai kỳ vọng: im thì câu hỏi rơi xuống mô
+     hình, mà mô hình mới là chỗ dễ bịa. */
+  ['thời tiết hôm nay thế nào',        'AN_TOAN'],
+  ['giá vàng bao nhiêu',               'AN_TOAN'],
+  ['hôm nay là thứ mấy',               'AN_TOAN'],
+  ['kể tôi nghe một câu chuyện cười',  'AN_TOAN'],
+];
+
+/* Ba câu hỏi–đáp mà robot ĐỌC RA, phải khớp từng chữ với dữ liệu — chốt chống
+   sửa nhầm câu đáp thành chuỗi rỗng rồi robot đứng câm mà không ai biết. */
+const HOI_DAP_PHAI_CO_CHU = ['kham-lan-dau', 'cap-cuu', 'chua-co-du-lieu'];
+
 const b = await chromium.launch();
 const p = await b.newPage();
 const loiJS = [];
@@ -154,8 +216,39 @@ for (const [cau, phaiRa, camRa] of BAY_BO_DAU) {
   if (!ok) hong++;
 }
 
+console.log('\n── Kho hỏi–đáp chung nằm trong APK ──');
+for (const [cau, mongDoi] of HOI_DAP_THU) {
+  /* Gọi qua tomTatChoAI — ĐÚNG cửa mà Kotlin đi vào, nên phép thử này canh cả luật
+     "tra khoa phòng chắc thì kho hỏi–đáp phải nhường". Gọi thẳng traHoiDap là bỏ sót
+     đúng cái luật quan trọng nhất. */
+  const r = await p.evaluate(q => {
+    const t = JSON.parse(window.tomTatChoAI(q));
+    return { hd: t.hoi_dap ? t.hoi_dap.nhom : null,
+             dap: t.hoi_dap ? t.hoi_dap.dap : '' };
+  }, cau);
+  const ok = mongDoi === 'AN_TOAN'
+    ? (r.hd === null || r.hd === 'chua-co-du-lieu')
+    : r.hd === mongDoi && (mongDoi === null || r.dap.trim().length > 20);
+  console.log((ok ? '✓ ' : '✗ ') + '«' + cau + '» → ' + (r.hd || '(nhường đường khác)') +
+    (ok ? '' : '   MONG ĐỢI: ' + (mongDoi === null ? '(phải im)'
+              : mongDoi === 'AN_TOAN' ? '(im, hoặc chua-co-du-lieu)' : mongDoi)));
+  if (!ok) hong++;
+}
+
+console.log('\n── Câu đáp phải có chữ thật, không rỗng ──');
+for (const nhom of HOI_DAP_PHAI_CO_CHU) {
+  const dap = await p.evaluate(n => {
+    const g = (typeof HOI_DAP === 'undefined' ? [] : HOI_DAP).find(x => x.nhom === n);
+    return g ? g.dap : null;
+  }, nhom);
+  const ok = typeof dap === 'string' && dap.trim().length > 40;
+  console.log((ok ? '✓ ' : '✗ ') + nhom + ' → ' +
+    (dap === null ? 'KHÔNG CÓ NHÓM NÀY' : '"' + dap.slice(0, 60) + '…" (' + dap.length + ' ký tự)'));
+  if (!ok) hong++;
+}
+
 if (loiJS.length) { console.log(''); loiJS.forEach(x => console.log('✗ ' + x)); hong += loiJS.length; }
-const tong = CAU.length + BAY_BO_DAU.length;
+const tong = CAU.length + BAY_BO_DAU.length + HOI_DAP_THU.length + HOI_DAP_PHAI_CO_CHU.length;
 console.log('\n' + (hong ? '✗ ' + hong + '/' + tong + ' phép kiểm KHÔNG đạt'
                          : '✓ Cả ' + tong + ' phép kiểm đều đạt'));
 await b.close();

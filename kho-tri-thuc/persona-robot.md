@@ -118,7 +118,7 @@ Xin chào quý vị. Tôi là robot lễ tân của bệnh viện. Quý vị c�
 
 ## Sau khi lưu persona
 
-1. Nạp **kho tri thức** hai file: `kien-thuc.txt` và `hoi-dap.txt` (182 cặp hỏi–đáp).
+1. Nạp **kho tri thức** hai file: `kien-thuc.txt` và `hoi-dap.txt` (188 cặp hỏi–đáp).
 
    ⚠ **Cổng chỉ nhận `.txt` · `.pdf` · `.docx`.** File `.csv` và `.md` bị từ chối —
    `hoi-dap.csv` chỉ để mở bằng Excel mà rà soát, `persona-robot.md` chỉ để đọc rồi

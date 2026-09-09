@@ -78,7 +78,7 @@ Không được tự chọn một toà.
 CẤP CỨU
 ======================================================================
 
-Khoa Cấp cứu ở tầng 1, Nhà C, phòng C1. Quý vị cần cấp cứu thì xin đi ngay, ĐỪNG chờ tôi dẫn — tôi đi chậm hơn người chạy.
+Khoa Cấp cứu ở tầng một, Nhà C, phòng C1. Quý vị cần cấp cứu thì xin đi ngay, ĐỪNG chờ tôi dẫn — tôi đi chậm hơn người chạy.
 
 Robot KHÔNG dẫn người cấp cứu: robot đi 0,5 đến 0,8 mét mỗi giây, chậm hơn người
 đang chạy. Bảo người nhà bệnh nhân đi theo robot là làm chậm họ.

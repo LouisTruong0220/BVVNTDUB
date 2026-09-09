@@ -26,3 +26,7 @@ nhat-ky/
 Thumbs.db
 desktop.ini
 .DS_Store
+
+# Thư mục Python tự sinh khi chạy script — không phải mã nguồn.
+__pycache__/
+*.pyc

@@ -31,8 +31,12 @@ import java.util.concurrent.Executors
  *     → ② hỏi bệnh?        → từ chối, không hỏi mô hình
  *     → ③ chưa có dữ liệu? → nói thẳng chưa có, không hỏi mô hình
  *     → ④ tra kho khoa phòng tại chỗ, lấy cả MỨC TIN CẬY
- *     → ⑤ dựng prompt kèm ĐÚNG danh sách ứng viên → AgentCore.llm()
- *     → ⑥ KIỂM câu trả lời (dòng KHOA_ID) → mới cho robot mở miệng
+ *     → ⑤ kho hỏi–đáp chung trong APK khớp chắc? → đọc nguyên văn, không hỏi mô hình
+ *     → ⑥ dựng prompt kèm ĐÚNG danh sách ứng viên → AgentCore.llm()
+ *     → ⑦ KIỂM câu trả lời (dòng KHOA_ID) → mới cho robot mở miệng
+ *
+ * Bốn trong bảy bước trên KHÔNG hỏi mô hình lần nào. Đó là chủ ý: mỗi câu tự trả lời
+ * được là một câu không thể bịa, không tốn token, và không chết theo đường truyền.
  *
  * Nguyên tắc xuyên suốt: **việc an toàn chặn bằng MÃ, không chặn bằng lời dặn trong
  * prompt.** Prompt vẫn viết đầy đủ để mô hình cư xử đúng phần lớn thời gian, nhưng
@@ -90,9 +94,14 @@ object TraLoi {
         // ── Lớp 5: đọc đúng mã phòng nhưng mã đó không có thật. Nói thẳng, không hỏi mô hình.
         if (muc == "ma-khong-co") {
             val ma = kho.optString("ma")
+            /* ⚠ Dải mã lấy từ DỮ LIỆU, không ghi cứng. Câu này từng ghi thẳng "từ đê một đến
+               đê hai mươi tư"; khi bệnh viện bỏ D23–D24 và thêm C1, CĐHA (08/09/2026) thì
+               robot vẫn đọc dải cũ — sai mà không tầng nào báo, vì nó chỉ là một chuỗi. */
+            val dai = kho.optString("mo_ta_ma_doc")
+            val coDai = if (dai.isBlank()) "" else " Ở đây chỉ có mã phòng $dai."
             MainApplication.tuDoc(
-                "Tôi không tìm thấy phòng $ma trong bệnh viện. Ở đây chỉ có mã phòng từ đê một " +
-                "đến đê hai mươi tư. Quý vị xem lại phiếu khám, hoặc hỏi quầy lễ tân giúp tôi ạ."
+                "Tôi không tìm thấy phòng $ma trong bệnh viện.$coDai " +
+                "Quý vị xem lại phiếu khám, hoặc hỏi quầy lễ tân giúp tôi ạ."
             )
             ghiNhatKy(cau, muc, ma, "", null)
             return
@@ -100,6 +109,35 @@ object TraLoi {
 
         // Chỉ mở trang chỉ đường khi thật sự chắc — mở nhầm còn rối hơn không mở.
         if (muc == "chac" && ungVien.length() > 0) Cau.guiGoiYSangManHinh(cau)
+
+        /* ── Lớp 5b: KHO HỎI–ĐÁP CHUNG, nằm sẵn trong APK ────────────────────────
+         *
+         * Mấy chuyện không gắn với khoa nào — quy trình khám lần đầu, phạm vi robot đi
+         * được, giới thiệu bệnh viện — trước đây chỉ có trên cổng OrionStar. Mà
+         * `LLMConfig.fileSearch`, tham số cho phép `llm()` đọc kho tri thức trên cổng,
+         * đã bị máy chủ hãng BỎ từ 26/08/2025 (xem MainApplication.hoiMoHinh). Nghĩa là
+         * mô hình KHÔNG với tới kho đó nữa, và mấy câu này rơi vào khoảng trống: tra khoa
+         * phòng không ra gì, mô hình thì hoặc chịu, hoặc tự bịa.
+         *
+         * Nay chúng đi theo app-data.json vào assets/ của APK. Lớp web tra rồi trả về ở
+         * trường `hoi_dap` — và CHỈ trả khi tra khoa phòng không chắc, nên lớp này không
+         * bao giờ cướp việc của màn chỉ đường.
+         *
+         * ⚠ ĐỌC NGUYÊN VĂN, KHÔNG HỎI MÔ HÌNH. Cùng một luật với trường `doc` của bảng
+         *   khoa phòng: câu nào bệnh viện duyệt thì người bệnh nghe đúng câu đó. Đổi lại
+         *   còn được hai thứ — trả lời tức thì, và trả lời được cả khi mạng đang chậm.
+         */
+        val hd = kho.optJSONObject("hoi_dap")
+        if (hd != null) {
+            val dap = hd.optString("dap")
+            if (dap.isNotBlank()) {
+                Log.d(TAG, "Trả lời từ kho hỏi–đáp trong máy: ${hd.optString("nhom")}")
+                MainApplication.tuDoc(dap)
+                ghiNhatKy(cau, "hoi-dap", hd.optString("nhom"), "", null)
+                return
+            }
+            Log.w(TAG, "Mục hỏi–đáp '${hd.optString("nhom")}' rỗng câu đáp — bỏ qua, hỏi mô hình")
+        }
 
         // ── Lớp 6: hỏi mô hình, kèm ĐÚNG danh sách ứng viên vừa tra được.
         MainApplication.hoiMoHinh(dungTinNhan(cau, muc, ungVien)) { chu, loi ->

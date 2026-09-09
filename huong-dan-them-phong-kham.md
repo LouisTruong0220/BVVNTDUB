@@ -269,17 +269,60 @@ trả `handleApiDisabled`, mất cả dẫn đường lẫn giọng nói.
 
 ## Nạp lại kho tri thức lên cổng OrionStar
 
-Phần **trò chuyện AI** không đọc APK, nó đọc kho tri thức trên đám mây. Nên khoa mới chỉ
-"tồn tại" với AI sau khi nạp lại:
+**Tin tốt: từ 09/09/2026 việc này KHÔNG còn bắt buộc.** Khoa mới nằm ngay trong APK, nên cài
+APK mới lên robot là phần trò chuyện AI biết khoa mới luôn — không phải đụng vào cổng.
+
+Ghi chú cũ ở đây từng viết *"phần trò chuyện AI không đọc APK, nó đọc kho tri thức trên đám
+mây"*. **Câu đó nay sai.** Hãng đã bỏ đường cho mô hình đọc kho tri thức (tham số `fileSearch`,
+ngừng hoạt động từ 26/08/2025), nên robot trả lời khoa phòng là nhờ dữ liệu trong máy nó.
+
+Vẫn nên nạp cổng, nhưng chỉ để **dự phòng**, và nạp lúc nào cũng được:
 
 1. Chạy `python dung-kho-tri-thuc.py`.
 2. Vào cổng `global-robotmp.orionstar.com`, đúng appId `app_70eef22c4a6d4777af413ac942ea0153`.
-3. Nạp lại `kho-tri-thuc\hoi-dap.csv` (mục Knowledge Q&A) và `kho-tri-thuc\kien-thuc.md`.
+3. Tải lên **`kho-tri-thuc\kien-thuc.txt`** và **`kho-tri-thuc\hoi-dap.txt`**.
+   ⚠ Cổng chỉ nhận `.txt` · `.pdf` · `.docx`. File `hoi-dap.csv` nằm cùng thư mục là để **mở
+   bằng Excel mà rà soát**, tải lên là bị từ chối.
 4. Ô persona ở `kho-tri-thuc\persona-robot.md` chỉ phải dán lại khi đổi tên bệnh viện hoặc
    đổi cách xưng hô — thêm khoa thì không cần.
 
-Chưa nạp lại thì **màn hình vẫn đúng, dẫn đường vẫn đúng**, chỉ riêng phần hỏi bằng miệng
-là chưa biết khoa mới. Không nguy hiểm, nhưng đừng để quên.
+**Điều thật sự bắt buộc là build lại APK.** Chưa build lại thì không màn hình nào, không câu
+trả lời nào biết tới khoa mới — nạp cổng bao nhiêu lần cũng vậy.
+
+---
+
+## Việc 4 — Sửa câu robot đáp về chuyện chung
+
+Ngoài khoa phòng, robot còn tám câu trả lời sẵn cho những chuyện không gắn với khoa nào:
+quy trình khám lần đầu · robot đi được tới đâu · robot là ai · bệnh viện có mấy toà · bệnh
+viện có những khoa nào · robot không phải bác sĩ · chuyện bệnh viện chưa cung cấp · cấp cứu.
+
+Chúng nằm trong `dung-du-lieu.py`, ở khối tên **`HOI_DAP_CHUNG`**. Mỗi mục có ba phần:
+
+```python
+{
+    "nhom": "pham-vi-robot",
+    "hoi": ["Robot dẫn tôi lên tầng được không?",     # mấy câu người ta hay hỏi
+            "Bạn đi thang máy được không?"],
+    "tu": "robot dan len tang thang may",             # từ khoá thêm, VIẾT KHÔNG DẤU
+    "dap": "Tôi đi lại trong khu lễ tân thôi ạ. ...", # câu robot ĐỌC NGUYÊN VĂN
+},
+```
+
+| Muốn | Sửa gì |
+|---|---|
+| Đổi lời robot nói | Sửa `dap`. Viết thế nào robot đọc đúng thế — **số phải viết bằng chữ** |
+| Người ta hỏi kiểu khác mà robot không hiểu | Thêm câu đó vào danh sách `hoi` |
+| Thêm từ khoá | Thêm vào `tu`, viết **không dấu**, cách nhau bằng dấu cách |
+
+⚠ **Đừng thêm mục về vị trí một khoa vào đây.** Vị trí khoa chỉ được có một chỗ khai duy nhất
+là `BANG_KHOA`. Khai hai chỗ thì mai kia bệnh viện đổi tầng, sửa một chỗ quên chỗ kia, robot
+sẽ **nói một đằng mà màn hình hiện một nẻo**.
+
+⚠ Để trống `dap` là script **dừng lại**, không sinh file. Cố ý: mục rỗng thì robot vẫn nhận ra
+câu hỏi rồi đứng đọc chuỗi rỗng — im lặng giữa lúc người bệnh đang chờ, mà không có gì báo lỗi.
+
+Sửa xong chạy đúng ba lệnh như mọi việc khác, rồi **build lại APK**.
 
 ---
 

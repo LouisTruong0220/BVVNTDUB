@@ -208,10 +208,25 @@
     // ④ tra kho khoa phòng — cùng hàm traCuu() mà tầng Android gọi xuống
     var r = window.traCuu ? window.traCuu(cau, 3) : null;
     if (!r || r.muc === 'ma-khong-co') {
-      noiRaMan(r ? ('Tôi không tìm thấy phòng ' + r.ma + ' trong bệnh viện. Ở đây chỉ có mã phòng ' +
-        'từ đê một đến đê hai mươi tư.') : KHONG_CO_TRONG_KHO);
+      /* Dải mã lấy từ DỮ LIỆU. Chỗ này từng ghi cứng "từ đê một đến đê hai mươi tư",
+         và giữ nguyên cả sau khi bệnh viện bỏ D23–D24 — xem TraLoi.kt, cùng lỗi. */
+      var dai = (window.DU_LIEU && DU_LIEU.mo_ta_ma_doc) || '';
+      noiRaMan(r ? ('Tôi không tìm thấy phòng ' + r.ma + ' trong bệnh viện.' +
+        (dai ? ' Ở đây chỉ có mã phòng ' + dai + '.' : '')) : KHONG_CO_TRONG_KHO);
       return;
     }
+
+    /* ⑤ KHO HỎI–ĐÁP CHUNG nằm trong APK — đọc nguyên văn, không hỏi mô hình.
+       Cùng luật với TraLoi.kt: chỉ dùng khi tra khoa phòng KHÔNG chắc, để không
+       cướp việc của màn chỉ đường. Đặt TRƯỚC nhánh 'khong-thay' vì phần lớn câu
+       loại này (bạn là ai, bệnh viện có mấy toà nhà) tra khoa phòng không ra gì. */
+    var hd = (r.muc !== 'chac' && window.traHoiDap) ? window.traHoiDap(cau) : null;
+    if (hd) {
+      ghi('lenh', 'kho hỏi–đáp trong máy: ' + hd.nhom + ' → đọc nguyên văn, KHÔNG gọi mô hình');
+      noiRaMan(hd.dap);
+      return;
+    }
+
     if (r.muc === 'khong-thay' || !r.ds.length) {
       ghi('lenh', 'tra cứu: khong-thay → robot nói thẳng là không biết');
       noiRaMan(KHONG_CO_TRONG_KHO); return;

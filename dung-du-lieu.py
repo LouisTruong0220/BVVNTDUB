@@ -487,6 +487,32 @@ def mo_ta_ma():
     return ", ".join(phan[:-1]) + " và " + phan[-1]
 
 
+def mo_ta_ma_doc():
+    """Bản ĐỌC của dải mã phòng: 'đê một đến đê hai mươi hai, và xê một'.
+
+    ⚠ Khác mo_ta_ma() ở chỗ này là câu ROBOT NÓI RA, nên phải đọc thành chữ —
+      "D1" để máy đọc thì nó phát ra "dê một" hoặc "đi một", người bệnh đang cầm
+      phiếu ghi chữ D sẽ không đối chiếu được.
+
+    ⚠ Bỏ những mã khai MA_DOC_RIENG = None (CĐHA): mã đó có thật, hiện trên màn
+      hình và tìm kiếm được, nhưng cố ý không đọc ra tiếng vì nó là viết tắt của
+      chính tên khoa.
+    """
+    ds = sorted({m for k in BANG_KHOA for _, _, ma in k["vi_tri"] for m in ma}
+                | {m for k in BANG_TOA_KHAC for m in k["ma"]})
+    ds = [m for m in ds if MA_DOC_RIENG.get(m, "") is not None]
+    so_d = sorted(int(m[1:]) for m in ds if re.match(r"^D\d+$", m))
+    khac = [m for m in ds if not re.match(r"^D\d+$", m)]
+    phan = []
+    if so_d:
+        lien_tuc = so_d == list(range(so_d[0], so_d[-1] + 1))
+        phan.append("%s đến %s" % (ma_doc("D%d" % so_d[0]), ma_doc("D%d" % so_d[-1]))
+                    if lien_tuc else ", ".join(ma_doc("D%d" % n) for n in so_d))
+    phan += [ma_doc(m) for m in khac]
+    if len(phan) == 1:
+        return phan[0]
+    return ", ".join(phan[:-1]) + " và " + phan[-1]
+
 # ═══════════════════════════════════════════════════════════════════════
 #  Dựng
 # ═══════════════════════════════════════════════════════════════════════
@@ -575,6 +601,137 @@ for k in BANG_TOA_KHAC:
     })
 
 
+# ═══════════════════════════════════════════════════════════════════════
+#  KHO HỎI–ĐÁP CHUNG — phần kiến thức KHÔNG gắn với một khoa nào
+#
+#  ⚠ VÌ SAO KHỐI NÀY TỒN TẠI (09/09/2026):
+#    Trước đây toàn bộ hỏi–đáp chỉ nằm trên cổng OrionStar. Mà `LLMConfig.fileSearch`
+#    — tham số cho phép `AgentCore.llm()` đọc kho tri thức trên cổng — đã bị máy chủ
+#    hãng BỎ từ 26/08/2025 (xem MainApplication.hoiMoHinh). Nghĩa là kho trên cổng
+#    KHÔNG còn tham gia vào đường trả lời chính của app này nữa: robot trả lời khoa
+#    phòng được là nhờ bảng `dich` nằm sẵn trong APK, không nhờ cổng.
+#
+#    Còn đúng mấy mảng dưới đây là chưa có đường nào vào máy: quy trình khám lần đầu,
+#    phạm vi robot đi được, giới thiệu bệnh viện. Đưa vào app-data.json thì chúng đi
+#    theo index.html vào assets/ của APK, robot trả lời được mà không cần cổng.
+#
+#  ⚠ CỐ Ý KHÔNG ĐƯA hỏi–đáp về VỊ TRÍ KHOA vào đây. Hai lý do:
+#    · Trùng: bảng `dich` đã trả lời được rồi, và trả lời TỐT HƠN — nó còn mở màn
+#      chỉ đường có mã phòng chữ to, thứ một câu văn không làm được.
+#    · Nguy: câu đáp gắn cứng "tầng 2, Nhà DI" mà bệnh viện đổi tầng thì có hai bản
+#      sự thật trong cùng một file, robot nói một đằng màn hình hiện một nẻo.
+#    Muốn đổi vị trí khoa thì sửa BANG_KHOA, chỗ duy nhất.
+#
+#  ⚠ Câu `dap` là câu robot ĐỌC NGUYÊN VĂN. Nó không đi qua mô hình ngôn ngữ lần
+#    nào — cùng một luật với trường `doc` của bảng khoa phòng. Viết ở đây thế nào
+#    thì người bệnh nghe đúng thế.
+#
+#  Trường `tu` là từ khoá tìm thêm, ngoài chính mấy câu hỏi mẫu. Viết KHÔNG DẤU.
+# ═══════════════════════════════════════════════════════════════════════
+_cc = next(d for d in dich if d["loai"] == "cap-cuu")
+_vcc = _cc["vi_tri"][0]
+_toa_khac = [d for d in dich if d["loai"] == "toa-khac"]
+
+HOI_DAP_CHUNG = [
+    {
+        "nhom": "kham-lan-dau",
+        "hoi": ["Tôi đến khám lần đầu thì làm gì?", "Tôi chưa có phiếu khám",
+                "Đăng ký khám ở đâu?", "Khám bệnh bắt đầu từ đâu?",
+                "Tôi chưa biết mình khám khoa nào", "Thủ tục khám bệnh thế nào?",
+                "Lần đầu tới đây tôi phải làm sao?"],
+        "tu": "kham lan dau thu tuc dang ky lay so phieu kham quy trinh bat dau "
+              "chua co phieu can cuoc bao hiem y te the bhyt",
+        "dap": QUY_TRINH_KHAM["doc"],
+    },
+    {
+        "nhom": "pham-vi-robot",
+        "hoi": ["Robot dẫn tôi lên tầng được không?", "Bạn đưa tôi vào phòng khám nhé",
+                "Robot đi được tới đâu?", "Bạn dẫn tôi vào nhà DII được không?",
+                "Bạn đi thang máy được không?", "Bạn dẫn tôi tới tận phòng nhé"],
+        "tu": "robot dan len tang thang may vao trong toa nha tan phong di toi dau pham vi",
+        "dap": "Tôi đi lại trong khu lễ tân thôi ạ. Với ba toà DI, DII và DIII thì tôi ra "
+               "tới đầu hành lang rồi đứng đó chỉ đường; với Nhà A, Nhà B và Nhà F thì tôi "
+               "dẫn quý vị tới tận nơi. Tôi không vào trong toà nhà và không lên tầng được.",
+    },
+    {
+        "nhom": "gioi-thieu-robot",
+        "hoi": ["Bạn là ai?", "Bạn tên gì?", "Bạn làm được những gì?",
+                "Robot giúp được gì cho tôi?"],
+        "tu": "ban la ai ten gi robot lam duoc gi giup gioi thieu",
+        "dap": "Tôi là robot lễ tân của bệnh viện. Tôi giúp quý vị tìm khoa, tìm phòng và "
+               "dẫn đường trong khu lễ tân. Quý vị cứ nói tên khoa, mã phòng trên phiếu "
+               "khám, hoặc kể triệu chứng, tôi tìm giúp ạ.",
+    },
+    {
+        "nhom": "so-toa-nha",
+        "hoi": ["Bệnh viện có mấy toà nhà?", "Ở đây có những toà nào?",
+                "Khu khám bệnh gồm mấy nhà?"],
+        "tu": "may toa nha gom nhung nao khu kham benh bao nhieu toa",
+        "dap": "Khu khám và điều trị có ba toà xếp dọc hành lang: %s. Ngoài ra còn %s."
+               % (", ".join("%s %s tầng" % (TOA_TEN[m], SO_CHU[TOA_TANG[m]])
+                            for m in ("DI", "DII", "DIII")),
+                  ", ".join("%s ở %s" % (d["ten"], d["vi_tri"][0]["toa_ten"])
+                            for d in _toa_khac + [_cc])),
+    },
+    {
+        "nhom": "danh-muc-khoa",
+        "hoi": ["Bệnh viện có những khoa nào?", "Ở đây khám được những gì?",
+                "Cho tôi xem danh sách khoa"],
+        "tu": "nhung khoa nao danh sach danh muc kham duoc gi co bao nhieu khoa",
+        # ⚠ Cố ý KHÔNG đọc cả dải mã phòng ra tiếng. Hơn hai mươi mã đọc liền một hơi
+        #   thì không ai nhớ nổi, mà nghe xong vẫn phải nhìn màn hình. Dải mã để MẮT đọc.
+        "dap": "Bệnh viện có nhiều khoa ạ. Quý vị nói tên khoa, đọc mã phòng ghi trên "
+               "phiếu khám, hoặc kể triệu chứng thì tôi tìm giúp. Danh sách đầy đủ đang "
+               "hiện trên màn hình để quý vị chạm chọn.",
+    },
+    {
+        "nhom": "khong-phai-bac-si",
+        "hoi": ["Tôi bị bệnh gì?", "Bệnh của tôi có nặng không?", "Tôi nên uống thuốc gì?",
+                "Xem giúp tôi kết quả này với", "Tôi có cần mổ không?",
+                "Bạn chẩn đoán giúp tôi"],
+        "tu": "toi bi benh gi nang khong uong thuoc ket qua can mo chan doan kham giup",
+        "dap": "Tôi là robot chỉ đường, tôi không khám bệnh và không đoán bệnh được ạ. "
+               "Tôi chỉ giúp quý vị tìm đúng khoa, còn bác sĩ ở phòng khám mới là người "
+               "xem và quyết định.",
+    },
+    {
+        "nhom": "chua-co-du-lieu",
+        "hoi": ["Bệnh viện làm việc mấy giờ?", "Hôm nay bác sĩ nào trực?",
+                "Khám ở đây hết bao nhiêu tiền?", "Số điện thoại bệnh viện là gì?",
+                "Kết quả xét nghiệm của tôi thế nào?", "Còn giường trống không?",
+                "Bác sĩ nào giỏi nhất khoa này?", "Bao giờ tới lượt tôi?",
+                "Tôi đặt lịch khám online được không?", "Bệnh viện thành lập năm nào?"],
+        "tu": "may gio lam viec lich truc bac si nao bao nhieu tien gia kham so dien thoai "
+              "ket qua xet nghiem giuong trong gioi nhat toi luot dat lich online thanh lap",
+        "dap": "Thông tin này tôi chưa có trong dữ liệu nên không dám đoán ạ. "
+               "Mời quý vị hỏi quầy lễ tân giúp tôi.",
+    },
+    {
+        "nhom": "cap-cuu",
+        "hoi": ["Cấp cứu ở đâu?", "Tôi cần cấp cứu", "Khoa cấp cứu đi lối nào?",
+                "Cấp cứu có trực ban đêm không?", "Tai nạn thì vào đâu?"],
+        "tu": "cap cuu khan nguy kich tai nan truc dem 24 24",
+        "dap": "%s ở %s. Quý vị cần cấp cứu thì xin đi ngay, ĐỪNG chờ tôi dẫn — "
+               "tôi đi chậm hơn người chạy."
+               % (_cc["ten"], "tầng %s, %s%s"
+                  % (SO_CHU[_vcc["tang"]], _vcc["toa_ten"],
+                     ", phòng " + " hoặc ".join(_vcc["ma"]) if _vcc["ma"] else "")),
+    },
+]
+
+hoi_dap = []
+for _i, _g in enumerate(HOI_DAP_CHUNG, 1):
+    hoi_dap.append({
+        "id": _i,
+        "nhom": _g["nhom"],
+        "hoi": _g["hoi"],
+        "dap": _g["dap"],
+        # Từ dẫn = mọi câu hỏi mẫu + từ khoá thêm, bỏ dấu. Bộ tìm bên khung-app.html
+        # khớp TRỌN TỪ trên chuỗi này, y hệt cách nó tìm khoa phòng.
+        "tim": khong_dau(" ".join(_g["hoi"])) + " " + _g["tu"],
+    })
+
+
 D = {
     "don_vi": "Bệnh viện Việt Nam – Thụy Điển Uông Bí",
     "khu_vuc": "Khu lễ tân",
@@ -591,7 +748,13 @@ D = {
     # giao diện ghi cứng "D1 đến D24" — bỏ D23/D24 xong là cả bốn chỗ nói sai mà
     # không có gì báo. Sinh ở đây thì đổi danh mục là mọi chỗ đổi theo.
     "mo_ta_ma": mo_ta_ma(),
+    # Bản đọc thành tiếng của dải mã trên — dùng khi người bệnh đọc một mã không
+    # có thật. Trước đây câu đó ghi cứng trong TraLoi.kt là "đê một đến đê hai mươi
+    # tư", và khi bệnh viện bỏ D23–D24 thì robot vẫn nói dải cũ.
+    "mo_ta_ma_doc": mo_ta_ma_doc(),
     "quy_trinh_kham": QUY_TRINH_KHAM,
+    # Kho hỏi–đáp chung — xem khối HOI_DAP_CHUNG bên trên.
+    "hoi_dap": hoi_dap,
     "dich": dich,
 }
 
@@ -601,8 +764,21 @@ with io.open(RA, "w", encoding="utf-8") as f:
 
 so_ma = sum(len(d["ma"]) for d in dich)
 print("→ %s" % RA)
-print("   %d đích  ·  %d mã phòng  ·  %d nhóm  ·  %d điểm bản đồ"
-      % (len(dich), so_ma, len(NHOM), len(DIEM)))
+print("   %d đích  ·  %d mã phòng  ·  %d nhóm  ·  %d điểm bản đồ  ·  %d mục hỏi–đáp"
+      % (len(dich), so_ma, len(NHOM), len(DIEM), len(hoi_dap)))
+
+# ── Cổng kiểm: kho hỏi–đáp chung ──
+# Mục rỗng thì bộ tìm bên khung-app.html vẫn khớp được rồi robot ĐỌC RA CHUỖI RỖNG:
+# đứng câm giữa lúc người bệnh đang chờ, mà không tầng nào báo lỗi.
+for _h in hoi_dap:
+    if not _h["dap"].strip() or not _h["tim"].strip() or not _h["hoi"]:
+        print("   ! Mục hỏi–đáp '%s' thiếu câu đáp, từ dẫn hoặc câu hỏi mẫu" % _h["nhom"])
+        raise SystemExit(1)
+_trung = [n for n in {h["nhom"] for h in hoi_dap}
+          if sum(1 for h in hoi_dap if h["nhom"] == n) > 1]
+if _trung:
+    print("   ! Nhóm hỏi–đáp trùng tên: %s" % ", ".join(sorted(_trung)))
+    raise SystemExit(1)
 # ── Cổng kiểm: mã phòng phải đủ, không thừa không thiếu ──
 # Danh mục hiện hành sau khi bệnh viện cập nhật 08/09/2026:
 #   D1-D22 ở ba toà D  ·  D7 đã chuyển sang Nhà B  ·  C1 ở Nhà C

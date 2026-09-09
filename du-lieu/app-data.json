@@ -142,6 +142,7 @@
   }
  ],
  "mo_ta_ma": "D1 đến D22, C1 và CĐHA",
+ "mo_ta_ma_doc": "đê một đến đê hai mươi hai và xê một",
  "quy_trinh_kham": {
   "tieu_de": "Quý vị đến khám lần đầu, chưa có phiếu",
   "diem": "tiep-don",
@@ -165,6 +166,116 @@
   ],
   "doc": "Quý vị đến khám lần đầu thì mời tới quầy tiếp đón trước. Ở đó quý vị lấy số, xuất trình căn cước và thẻ bảo hiểm y tế. Nhân viên sẽ ghi phiếu khám có mã phòng. Quý vị mang phiếu đó tới đúng phòng khám. Khám xong, đóng tiền tại phòng thu viện phí, rồi tới nhà thuốc lấy thuốc. Bây giờ tôi dẫn quý vị tới quầy tiếp đón."
  },
+ "hoi_dap": [
+  {
+   "id": 1,
+   "nhom": "kham-lan-dau",
+   "hoi": [
+    "Tôi đến khám lần đầu thì làm gì?",
+    "Tôi chưa có phiếu khám",
+    "Đăng ký khám ở đâu?",
+    "Khám bệnh bắt đầu từ đâu?",
+    "Tôi chưa biết mình khám khoa nào",
+    "Thủ tục khám bệnh thế nào?",
+    "Lần đầu tới đây tôi phải làm sao?"
+   ],
+   "dap": "Quý vị đến khám lần đầu thì mời tới quầy tiếp đón trước. Ở đó quý vị lấy số, xuất trình căn cước và thẻ bảo hiểm y tế. Nhân viên sẽ ghi phiếu khám có mã phòng. Quý vị mang phiếu đó tới đúng phòng khám. Khám xong, đóng tiền tại phòng thu viện phí, rồi tới nhà thuốc lấy thuốc. Bây giờ tôi dẫn quý vị tới quầy tiếp đón.",
+   "tim": "toi den kham lan dau thi lam gi toi chua co phieu kham dang ky kham o dau kham benh bat dau tu dau toi chua biet minh kham khoa nao thu tuc kham benh the nao lan dau toi day toi phai lam sao kham lan dau thu tuc dang ky lay so phieu kham quy trinh bat dau chua co phieu can cuoc bao hiem y te the bhyt"
+  },
+  {
+   "id": 2,
+   "nhom": "pham-vi-robot",
+   "hoi": [
+    "Robot dẫn tôi lên tầng được không?",
+    "Bạn đưa tôi vào phòng khám nhé",
+    "Robot đi được tới đâu?",
+    "Bạn dẫn tôi vào nhà DII được không?",
+    "Bạn đi thang máy được không?",
+    "Bạn dẫn tôi tới tận phòng nhé"
+   ],
+   "dap": "Tôi đi lại trong khu lễ tân thôi ạ. Với ba toà DI, DII và DIII thì tôi ra tới đầu hành lang rồi đứng đó chỉ đường; với Nhà A, Nhà B và Nhà F thì tôi dẫn quý vị tới tận nơi. Tôi không vào trong toà nhà và không lên tầng được.",
+   "tim": "robot dan toi len tang duoc khong ban dua toi vao phong kham nhe robot di duoc toi dau ban dan toi vao nha dii duoc khong ban di thang may duoc khong ban dan toi toi tan phong nhe robot dan len tang thang may vao trong toa nha tan phong di toi dau pham vi"
+  },
+  {
+   "id": 3,
+   "nhom": "gioi-thieu-robot",
+   "hoi": [
+    "Bạn là ai?",
+    "Bạn tên gì?",
+    "Bạn làm được những gì?",
+    "Robot giúp được gì cho tôi?"
+   ],
+   "dap": "Tôi là robot lễ tân của bệnh viện. Tôi giúp quý vị tìm khoa, tìm phòng và dẫn đường trong khu lễ tân. Quý vị cứ nói tên khoa, mã phòng trên phiếu khám, hoặc kể triệu chứng, tôi tìm giúp ạ.",
+   "tim": "ban la ai ban ten gi ban lam duoc nhung gi robot giup duoc gi cho toi ban la ai ten gi robot lam duoc gi giup gioi thieu"
+  },
+  {
+   "id": 4,
+   "nhom": "so-toa-nha",
+   "hoi": [
+    "Bệnh viện có mấy toà nhà?",
+    "Ở đây có những toà nào?",
+    "Khu khám bệnh gồm mấy nhà?"
+   ],
+   "dap": "Khu khám và điều trị có ba toà xếp dọc hành lang: Nhà DI năm tầng, Nhà DII năm tầng, Nhà DIII tám tầng. Ngoài ra còn Khu Thăm dò chức năng ở Nhà A, Khoa Răng Hàm Mặt ở Nhà B, Khoa Chẩn đoán hình ảnh ở Nhà F, Khoa Cấp cứu ở Nhà C.",
+   "tim": "benh vien co may toa nha o day co nhung toa nao khu kham benh gom may nha may toa nha gom nhung nao khu kham benh bao nhieu toa"
+  },
+  {
+   "id": 5,
+   "nhom": "danh-muc-khoa",
+   "hoi": [
+    "Bệnh viện có những khoa nào?",
+    "Ở đây khám được những gì?",
+    "Cho tôi xem danh sách khoa"
+   ],
+   "dap": "Bệnh viện có nhiều khoa ạ. Quý vị nói tên khoa, đọc mã phòng ghi trên phiếu khám, hoặc kể triệu chứng thì tôi tìm giúp. Danh sách đầy đủ đang hiện trên màn hình để quý vị chạm chọn.",
+   "tim": "benh vien co nhung khoa nao o day kham duoc nhung gi cho toi xem danh sach khoa nhung khoa nao danh sach danh muc kham duoc gi co bao nhieu khoa"
+  },
+  {
+   "id": 6,
+   "nhom": "khong-phai-bac-si",
+   "hoi": [
+    "Tôi bị bệnh gì?",
+    "Bệnh của tôi có nặng không?",
+    "Tôi nên uống thuốc gì?",
+    "Xem giúp tôi kết quả này với",
+    "Tôi có cần mổ không?",
+    "Bạn chẩn đoán giúp tôi"
+   ],
+   "dap": "Tôi là robot chỉ đường, tôi không khám bệnh và không đoán bệnh được ạ. Tôi chỉ giúp quý vị tìm đúng khoa, còn bác sĩ ở phòng khám mới là người xem và quyết định.",
+   "tim": "toi bi benh gi benh cua toi co nang khong toi nen uong thuoc gi xem giup toi ket qua nay voi toi co can mo khong ban chan doan giup toi toi bi benh gi nang khong uong thuoc ket qua can mo chan doan kham giup"
+  },
+  {
+   "id": 7,
+   "nhom": "chua-co-du-lieu",
+   "hoi": [
+    "Bệnh viện làm việc mấy giờ?",
+    "Hôm nay bác sĩ nào trực?",
+    "Khám ở đây hết bao nhiêu tiền?",
+    "Số điện thoại bệnh viện là gì?",
+    "Kết quả xét nghiệm của tôi thế nào?",
+    "Còn giường trống không?",
+    "Bác sĩ nào giỏi nhất khoa này?",
+    "Bao giờ tới lượt tôi?",
+    "Tôi đặt lịch khám online được không?",
+    "Bệnh viện thành lập năm nào?"
+   ],
+   "dap": "Thông tin này tôi chưa có trong dữ liệu nên không dám đoán ạ. Mời quý vị hỏi quầy lễ tân giúp tôi.",
+   "tim": "benh vien lam viec may gio hom nay bac si nao truc kham o day het bao nhieu tien so dien thoai benh vien la gi ket qua xet nghiem cua toi the nao con giuong trong khong bac si nao gioi nhat khoa nay bao gio toi luot toi toi dat lich kham online duoc khong benh vien thanh lap nam nao may gio lam viec lich truc bac si nao bao nhieu tien gia kham so dien thoai ket qua xet nghiem giuong trong gioi nhat toi luot dat lich online thanh lap"
+  },
+  {
+   "id": 8,
+   "nhom": "cap-cuu",
+   "hoi": [
+    "Cấp cứu ở đâu?",
+    "Tôi cần cấp cứu",
+    "Khoa cấp cứu đi lối nào?",
+    "Cấp cứu có trực ban đêm không?",
+    "Tai nạn thì vào đâu?"
+   ],
+   "dap": "Khoa Cấp cứu ở tầng một, Nhà C, phòng C1. Quý vị cần cấp cứu thì xin đi ngay, ĐỪNG chờ tôi dẫn — tôi đi chậm hơn người chạy.",
+   "tim": "cap cuu o dau toi can cap cuu khoa cap cuu di loi nao cap cuu co truc ban dem khong tai nan thi vao dau cap cuu khan nguy kich tai nan truc dem 24 24"
+  }
+ ],
  "dich": [
   {
    "id": 1,

@@ -9,11 +9,11 @@ tìm đúng khoa theo cách họ tự mô tả, và **dẫn đường** tới n�
 
 **Chỉ cần cài lên robot, không cần build:**
 
-1. Tải `apk/le-tan-benh-vien-uong-bi-v1.7.apk`
+1. Tải `apk/le-tan-benh-vien-uong-bi-v1.8.apk`
 2. Nối cáp USB vào **đầu robot**, dùng **adb 1.0.41** của Android SDK
    (⚠ **không** dùng `C:\Windows\adb.exe` bản 1.0.39 của PUDU — hai bản giết tiến trình của nhau)
    ```powershell
-   adb install -r le-tan-benh-vien-uong-bi-v1.7.apk
+   adb install -r le-tan-benh-vien-uong-bi-v1.8.apk
    ```
 3. **Mở app từ RobotOS Home**, tuyệt đối không dùng `am start` — dùng `am start` thì `RobotApi`
    trả `handleApiDisabled`, mất cả dẫn đường lẫn giọng nói mà app không báo lỗi gì.
@@ -38,7 +38,7 @@ Hồ sơ dự án đầy đủ nằm trong workspace nội bộ của Roboworld,
 | | |
 |---|---|
 | Trạng thái | **Bản demo HTML xong, APK build xong. Chưa chạy trên robot thật, chưa khảo sát mặt bằng.** |
-| APK | `apk/le-tan-benh-vien-uong-bi-v1.7.apk` — appId riêng · ba toà D dừng ở đầu hành lang · nhà A/B/F dẫn tới tận nơi |
+| APK | `apk/le-tan-benh-vien-uong-bi-v1.8.apk` — appId riêng · ba toà D dừng ở đầu hành lang · nhà A/B/F dẫn tới tận nơi |
 | **Bản thử trên máy tính** | **`demo/thu-nghiem.html`** — có giả lập robot, bấm được nút dẫn đường. Đọc [HUONG-DAN-THU-NGHIEM.md](HUONG-DAN-THU-NGHIEM.md) |
 | Demo bản sạch | `demo/index.html` — giống hệt cái nằm trong APK |
 | Package | `vn.roboworld.benhvien` |
@@ -95,7 +95,7 @@ python dung-app.py          # HTML + JSON      → demo/index.html + rải sang 
 python dung-kho-tri-thuc.py # cùng nguồn       → kho-tri-thuc/ cho cổng OrionStar
 node tools\soi-man-hinh.mjs # chụp 17 màn ở đúng 1920×1080 + tự soi bố cục
 node tools\thu-luong-dan-duong.mjs   # trọn luồng dẫn đường + micro bấm-mới-nghe
-node tools\thu-tim-kiem.mjs          # 51 câu hỏi → ra đúng khoa, hoặc phải nói không biết
+node tools\thu-tim-kiem.mjs          # 86 phép: đúng khoa · phải nói không biết · kho hỏi–đáp
 .\tools\build-apk.ps1       # → android\app\build\outputs\apk\debug\app-debug.apk
 ```
 
@@ -116,6 +116,33 @@ luật CSS khác đè `display:none`** — cả ba đều không báo lỗi gì,
 
 ---
 
+## Kiến thức nằm ở đâu — và vì sao phần lớn nó ở TRONG APK
+
+Từ 09/09/2026 robot trả lời được **mà không cần kho tri thức trên cổng**. Bốn mảnh kiến thức:
+
+| Mảnh | Nằm ở | Trong APK? |
+|---|---|---|
+| Bảng 23 đích đến — mã phòng, tầng, toà nhà | `app-data.json` → nhúng vào `index.html` → `assets/` | ✅ |
+| Kho hỏi–đáp chung — quy trình khám, phạm vi robot, giới thiệu, câu từ chối | `app-data.json` → `hoi_dap` | ✅ |
+| Tính cách và luật trả lời | `PERSONA` + `LUAT_TRA_LOI` trong `MainApplication.kt` | ✅ |
+| `kien-thuc.txt`, `hoi-dap.txt` trên cổng | cổng OrionStar | ❌ — bản dự phòng |
+
+⚠ **`LLMConfig.fileSearch` đã bị máy chủ hãng bỏ từ 26/08/2025.** Đó là tham số cho phép
+`AgentCore.llm()` đọc kho tri thức trên cổng; đặt `true` hay `false` nay đều vô nghĩa
+(xem `MainApplication.hoiMoHinh`). Nghĩa là kho trên cổng **không còn tham gia vào đường trả
+lời chính của app này**. Nó chỉ còn ăn vào đường AgentOS tự trả lời — mà app đã chặn cứng
+đường đó bằng `isDisablePlan` và cắt TTS ở đầu ra.
+
+Nên robot trả lời sai một khoa thì **đừng đi nạp lại cổng** — sửa `BANG_KHOA` rồi build lại APK.
+Nạp cổng là việc riêng, không thay được việc kia.
+
+**Kho hỏi–đáp chung cố ý KHÔNG chứa vị trí khoa.** Bảng `dich` đã trả lời chuyện đó rồi, và trả
+lời tốt hơn — nó mở được màn chỉ đường có mã phòng chữ to. Gắn thêm một bản "Khoa Nhi ở tầng 2"
+vào kho hỏi–đáp là tự tạo hai bản sự thật trong cùng một file. Luật ưu tiên nằm ở `tomTatChoAI`:
+tra khoa phòng **chắc** thì kho hỏi–đáp phải nhường.
+
+---
+
 ## Nạp persona và kiến thức lên cổng OrionStar
 
 `kho-tri-thuc/` chứa bốn file sinh tự động, dùng cho **global-robotmp.orionstar.com**:
@@ -123,7 +150,7 @@ luật CSS khác đè `display:none`** — cả ba đều không báo lỗi gì,
 | File | Nạp vào đâu |
 |---|---|
 | `kien-thuc.txt` | **Tải lên kho tri thức** — tài liệu kiến thức nền |
-| `hoi-dap.txt` | **Tải lên kho tri thức** — 182 cặp hỏi–đáp |
+| `hoi-dap.txt` | **Tải lên kho tri thức** — 188 cặp hỏi–đáp |
 | `persona-robot.md` | **Không tải lên.** Mở ra đọc rồi copy-dán vào từng ô ở **Robot Persona → Create Robot Persona**, kèm Transition Script và Common Role Greeting |
 | `hoi-dap.csv` | **Không tải lên.** Cùng nội dung `hoi-dap.txt`, dạng bảng để mở bằng Excel mà rà soát (UTF-8 có BOM nên không loạn chữ) |
 
@@ -157,7 +184,8 @@ hình tự nghĩ.
 | Tên điểm bản đồ, chỗ robot về đứng | `dung-du-lieu.py` → `DIEM`, `DIEM_VE_CHO` | như trên |
 | Nhóm trên màn hình chính | `dung-du-lieu.py` → `NHOM` | như trên |
 | Quy trình khám lần đầu | `dung-du-lieu.py` → `QUY_TRINH_KHAM` | như trên |
-| Persona, câu chào, kho hỏi–đáp trên cổng | `dung-kho-tri-thuc.py` | `dung-kho-tri-thuc.py` rồi nạp lại cổng |
+| Câu robot đáp về quy trình khám, phạm vi đi lại, giới thiệu | `dung-du-lieu.py` → `HOI_DAP_CHUNG` | `dung-du-lieu.py` + `dung-app.py` + **build lại APK** |
+| Persona, câu chào trên cổng | `dung-kho-tri-thuc.py` | `dung-kho-tri-thuc.py` rồi nạp lại cổng |
 | Giao diện, bố cục, luồng màn hình | `khung-app.html` | `dung-app.py` |
 | Câu robot nói lúc dẫn đường | `Cau.kt` → `danDuongToiDiem` | build lại APK |
 

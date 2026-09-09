@@ -2,7 +2,7 @@ HỎI – ĐÁP ROBOT LỄ TÂN — Bệnh viện Việt Nam – Thụy Điển 
 ══════════════════════════════════════════════════════════════════════
 
 Sinh tự động từ du-lieu/app-data.json. Đừng sửa tay file này.
-Cập nhật: 08/09/2026 · 182 cặp hỏi–đáp.
+Cập nhật: 08/09/2026 · 188 cặp hỏi–đáp.
 
 
 Hỏi: Khoa Phụ Sản ở đâu?
@@ -437,116 +437,134 @@ Hỏi: Nhà vệ sinh ở đâu?
 Hỏi: Tôi muốn tới nhà vệ sinh
 Đáp: Nhà vệ sinh nằm ngay trong khu lễ tân. Tôi dẫn quý vị tới tận nơi được.
 
-Hỏi: Cấp cứu ở đâu?
-Đáp: Khoa Cấp cứu ở tầng 1, Nhà C, phòng C1. Quý vị cần cấp cứu thì xin đi ngay, ĐỪNG chờ tôi dẫn — tôi đi chậm hơn người chạy.
-
-Hỏi: Tôi cần cấp cứu
-Đáp: Khoa Cấp cứu ở tầng 1, Nhà C, phòng C1. Quý vị cần cấp cứu thì xin đi ngay, ĐỪNG chờ tôi dẫn — tôi đi chậm hơn người chạy.
-
-Hỏi: Có người ngất xỉu
-Đáp: Khoa Cấp cứu ở tầng 1, Nhà C, phòng C1. Quý vị cần cấp cứu thì xin đi ngay, ĐỪNG chờ tôi dẫn — tôi đi chậm hơn người chạy.
-
-Hỏi: Khoa cấp cứu đi lối nào?
-Đáp: Khoa Cấp cứu ở tầng 1, Nhà C, phòng C1. Quý vị cần cấp cứu thì xin đi ngay, ĐỪNG chờ tôi dẫn — tôi đi chậm hơn người chạy.
-
-Hỏi: Người nhà tôi khó thở nặng
-Đáp: Khoa Cấp cứu ở tầng 1, Nhà C, phòng C1. Quý vị cần cấp cứu thì xin đi ngay, ĐỪNG chờ tôi dẫn — tôi đi chậm hơn người chạy.
-
-Hỏi: Chảy máu nhiều thì đi đâu?
-Đáp: Khoa Cấp cứu ở tầng 1, Nhà C, phòng C1. Quý vị cần cấp cứu thì xin đi ngay, ĐỪNG chờ tôi dẫn — tôi đi chậm hơn người chạy.
-
-Hỏi: Tai nạn thì vào đâu?
-Đáp: Khoa Cấp cứu ở tầng 1, Nhà C, phòng C1. Quý vị cần cấp cứu thì xin đi ngay, ĐỪNG chờ tôi dẫn — tôi đi chậm hơn người chạy.
-
-Hỏi: Ngộ độc thì đi đâu?
-Đáp: Khoa Cấp cứu ở tầng 1, Nhà C, phòng C1. Quý vị cần cấp cứu thì xin đi ngay, ĐỪNG chờ tôi dẫn — tôi đi chậm hơn người chạy.
-
-Hỏi: Có người đột quỵ
-Đáp: Khoa Cấp cứu ở tầng 1, Nhà C, phòng C1. Quý vị cần cấp cứu thì xin đi ngay, ĐỪNG chờ tôi dẫn — tôi đi chậm hơn người chạy.
-
-Hỏi: Tai nạn giao thông đưa vào đâu?
-Đáp: Khoa Cấp cứu ở tầng 1, Nhà C, phòng C1. Quý vị cần cấp cứu thì xin đi ngay, ĐỪNG chờ tôi dẫn — tôi đi chậm hơn người chạy.
-
-Hỏi: Cấp cứu có trực ban đêm không?
-Đáp: Khoa Cấp cứu ở tầng 1, Nhà C, phòng C1. Quý vị cần cấp cứu thì xin đi ngay, ĐỪNG chờ tôi dẫn — tôi đi chậm hơn người chạy.
-
-Hỏi: Robot dẫn tôi lên tầng được không?
-Đáp: Tôi đi lại trong khu lễ tân. Với ba toà DI, DII, DIII thì tôi ra tới đầu hành lang; với Nhà A, Nhà B và Nhà F thì tôi dẫn tới tận nơi. Tôi không vào trong toà nhà và không lên tầng được. Tôi dẫn quý vị tới rồi chỉ đường để quý vị đi tiếp.
-
-Hỏi: Bạn đưa tôi vào phòng khám nhé
-Đáp: Tôi đi lại trong khu lễ tân. Với ba toà DI, DII, DIII thì tôi ra tới đầu hành lang; với Nhà A, Nhà B và Nhà F thì tôi dẫn tới tận nơi. Tôi không vào trong toà nhà và không lên tầng được. Tôi dẫn quý vị tới rồi chỉ đường để quý vị đi tiếp.
-
-Hỏi: Robot đi được tới đâu?
-Đáp: Tôi đi lại trong khu lễ tân. Với ba toà DI, DII, DIII thì tôi ra tới đầu hành lang; với Nhà A, Nhà B và Nhà F thì tôi dẫn tới tận nơi. Tôi không vào trong toà nhà và không lên tầng được. Tôi dẫn quý vị tới rồi chỉ đường để quý vị đi tiếp.
-
-Hỏi: Bạn dẫn tôi vào nhà DII được không?
-Đáp: Tôi đi lại trong khu lễ tân. Với ba toà DI, DII, DIII thì tôi ra tới đầu hành lang; với Nhà A, Nhà B và Nhà F thì tôi dẫn tới tận nơi. Tôi không vào trong toà nhà và không lên tầng được. Tôi dẫn quý vị tới rồi chỉ đường để quý vị đi tiếp.
-
 Hỏi: Tôi đến khám lần đầu thì làm gì?
-Đáp: Quý vị đến khám lần đầu thì mời tới quầy tiếp đón trước. 1) Đăng ký khám: Tới quầy tiếp đón, lấy số, xuất trình căn cước và thẻ bảo hiểm y tế nếu có. 2) Vào khám: Nhân viên ghi phiếu khám có mã phòng, quý vị mang phiếu tới đúng phòng đó. 3) Xét nghiệm, chiếu chụp: Bác sĩ chỉ định thì quý vị làm theo phiếu, xong quay lại phòng khám. 4) Đóng tiền, lấy thuốc: Đóng viện phí tại phòng thu, rồi tới nhà thuốc lấy thuốc theo đơn. Quý vị nhớ mang căn cước và thẻ bảo hiểm y tế nếu có. Tôi dẫn quý vị tới quầy tiếp đón được.
+Đáp: Quý vị đến khám lần đầu thì mời tới quầy tiếp đón trước. Ở đó quý vị lấy số, xuất trình căn cước và thẻ bảo hiểm y tế. Nhân viên sẽ ghi phiếu khám có mã phòng. Quý vị mang phiếu đó tới đúng phòng khám. Khám xong, đóng tiền tại phòng thu viện phí, rồi tới nhà thuốc lấy thuốc. Bây giờ tôi dẫn quý vị tới quầy tiếp đón.
 
 Hỏi: Tôi chưa có phiếu khám
-Đáp: Quý vị đến khám lần đầu thì mời tới quầy tiếp đón trước. 1) Đăng ký khám: Tới quầy tiếp đón, lấy số, xuất trình căn cước và thẻ bảo hiểm y tế nếu có. 2) Vào khám: Nhân viên ghi phiếu khám có mã phòng, quý vị mang phiếu tới đúng phòng đó. 3) Xét nghiệm, chiếu chụp: Bác sĩ chỉ định thì quý vị làm theo phiếu, xong quay lại phòng khám. 4) Đóng tiền, lấy thuốc: Đóng viện phí tại phòng thu, rồi tới nhà thuốc lấy thuốc theo đơn. Quý vị nhớ mang căn cước và thẻ bảo hiểm y tế nếu có. Tôi dẫn quý vị tới quầy tiếp đón được.
+Đáp: Quý vị đến khám lần đầu thì mời tới quầy tiếp đón trước. Ở đó quý vị lấy số, xuất trình căn cước và thẻ bảo hiểm y tế. Nhân viên sẽ ghi phiếu khám có mã phòng. Quý vị mang phiếu đó tới đúng phòng khám. Khám xong, đóng tiền tại phòng thu viện phí, rồi tới nhà thuốc lấy thuốc. Bây giờ tôi dẫn quý vị tới quầy tiếp đón.
 
 Hỏi: Đăng ký khám ở đâu?
-Đáp: Quý vị đến khám lần đầu thì mời tới quầy tiếp đón trước. 1) Đăng ký khám: Tới quầy tiếp đón, lấy số, xuất trình căn cước và thẻ bảo hiểm y tế nếu có. 2) Vào khám: Nhân viên ghi phiếu khám có mã phòng, quý vị mang phiếu tới đúng phòng đó. 3) Xét nghiệm, chiếu chụp: Bác sĩ chỉ định thì quý vị làm theo phiếu, xong quay lại phòng khám. 4) Đóng tiền, lấy thuốc: Đóng viện phí tại phòng thu, rồi tới nhà thuốc lấy thuốc theo đơn. Quý vị nhớ mang căn cước và thẻ bảo hiểm y tế nếu có. Tôi dẫn quý vị tới quầy tiếp đón được.
+Đáp: Quý vị đến khám lần đầu thì mời tới quầy tiếp đón trước. Ở đó quý vị lấy số, xuất trình căn cước và thẻ bảo hiểm y tế. Nhân viên sẽ ghi phiếu khám có mã phòng. Quý vị mang phiếu đó tới đúng phòng khám. Khám xong, đóng tiền tại phòng thu viện phí, rồi tới nhà thuốc lấy thuốc. Bây giờ tôi dẫn quý vị tới quầy tiếp đón.
 
 Hỏi: Khám bệnh bắt đầu từ đâu?
-Đáp: Quý vị đến khám lần đầu thì mời tới quầy tiếp đón trước. 1) Đăng ký khám: Tới quầy tiếp đón, lấy số, xuất trình căn cước và thẻ bảo hiểm y tế nếu có. 2) Vào khám: Nhân viên ghi phiếu khám có mã phòng, quý vị mang phiếu tới đúng phòng đó. 3) Xét nghiệm, chiếu chụp: Bác sĩ chỉ định thì quý vị làm theo phiếu, xong quay lại phòng khám. 4) Đóng tiền, lấy thuốc: Đóng viện phí tại phòng thu, rồi tới nhà thuốc lấy thuốc theo đơn. Quý vị nhớ mang căn cước và thẻ bảo hiểm y tế nếu có. Tôi dẫn quý vị tới quầy tiếp đón được.
+Đáp: Quý vị đến khám lần đầu thì mời tới quầy tiếp đón trước. Ở đó quý vị lấy số, xuất trình căn cước và thẻ bảo hiểm y tế. Nhân viên sẽ ghi phiếu khám có mã phòng. Quý vị mang phiếu đó tới đúng phòng khám. Khám xong, đóng tiền tại phòng thu viện phí, rồi tới nhà thuốc lấy thuốc. Bây giờ tôi dẫn quý vị tới quầy tiếp đón.
 
 Hỏi: Tôi chưa biết mình khám khoa nào
-Đáp: Quý vị đến khám lần đầu thì mời tới quầy tiếp đón trước. 1) Đăng ký khám: Tới quầy tiếp đón, lấy số, xuất trình căn cước và thẻ bảo hiểm y tế nếu có. 2) Vào khám: Nhân viên ghi phiếu khám có mã phòng, quý vị mang phiếu tới đúng phòng đó. 3) Xét nghiệm, chiếu chụp: Bác sĩ chỉ định thì quý vị làm theo phiếu, xong quay lại phòng khám. 4) Đóng tiền, lấy thuốc: Đóng viện phí tại phòng thu, rồi tới nhà thuốc lấy thuốc theo đơn. Quý vị nhớ mang căn cước và thẻ bảo hiểm y tế nếu có. Tôi dẫn quý vị tới quầy tiếp đón được.
+Đáp: Quý vị đến khám lần đầu thì mời tới quầy tiếp đón trước. Ở đó quý vị lấy số, xuất trình căn cước và thẻ bảo hiểm y tế. Nhân viên sẽ ghi phiếu khám có mã phòng. Quý vị mang phiếu đó tới đúng phòng khám. Khám xong, đóng tiền tại phòng thu viện phí, rồi tới nhà thuốc lấy thuốc. Bây giờ tôi dẫn quý vị tới quầy tiếp đón.
+
+Hỏi: Thủ tục khám bệnh thế nào?
+Đáp: Quý vị đến khám lần đầu thì mời tới quầy tiếp đón trước. Ở đó quý vị lấy số, xuất trình căn cước và thẻ bảo hiểm y tế. Nhân viên sẽ ghi phiếu khám có mã phòng. Quý vị mang phiếu đó tới đúng phòng khám. Khám xong, đóng tiền tại phòng thu viện phí, rồi tới nhà thuốc lấy thuốc. Bây giờ tôi dẫn quý vị tới quầy tiếp đón.
+
+Hỏi: Lần đầu tới đây tôi phải làm sao?
+Đáp: Quý vị đến khám lần đầu thì mời tới quầy tiếp đón trước. Ở đó quý vị lấy số, xuất trình căn cước và thẻ bảo hiểm y tế. Nhân viên sẽ ghi phiếu khám có mã phòng. Quý vị mang phiếu đó tới đúng phòng khám. Khám xong, đóng tiền tại phòng thu viện phí, rồi tới nhà thuốc lấy thuốc. Bây giờ tôi dẫn quý vị tới quầy tiếp đón.
+
+Hỏi: Robot dẫn tôi lên tầng được không?
+Đáp: Tôi đi lại trong khu lễ tân thôi ạ. Với ba toà DI, DII và DIII thì tôi ra tới đầu hành lang rồi đứng đó chỉ đường; với Nhà A, Nhà B và Nhà F thì tôi dẫn quý vị tới tận nơi. Tôi không vào trong toà nhà và không lên tầng được.
+
+Hỏi: Bạn đưa tôi vào phòng khám nhé
+Đáp: Tôi đi lại trong khu lễ tân thôi ạ. Với ba toà DI, DII và DIII thì tôi ra tới đầu hành lang rồi đứng đó chỉ đường; với Nhà A, Nhà B và Nhà F thì tôi dẫn quý vị tới tận nơi. Tôi không vào trong toà nhà và không lên tầng được.
+
+Hỏi: Robot đi được tới đâu?
+Đáp: Tôi đi lại trong khu lễ tân thôi ạ. Với ba toà DI, DII và DIII thì tôi ra tới đầu hành lang rồi đứng đó chỉ đường; với Nhà A, Nhà B và Nhà F thì tôi dẫn quý vị tới tận nơi. Tôi không vào trong toà nhà và không lên tầng được.
+
+Hỏi: Bạn dẫn tôi vào nhà DII được không?
+Đáp: Tôi đi lại trong khu lễ tân thôi ạ. Với ba toà DI, DII và DIII thì tôi ra tới đầu hành lang rồi đứng đó chỉ đường; với Nhà A, Nhà B và Nhà F thì tôi dẫn quý vị tới tận nơi. Tôi không vào trong toà nhà và không lên tầng được.
+
+Hỏi: Bạn đi thang máy được không?
+Đáp: Tôi đi lại trong khu lễ tân thôi ạ. Với ba toà DI, DII và DIII thì tôi ra tới đầu hành lang rồi đứng đó chỉ đường; với Nhà A, Nhà B và Nhà F thì tôi dẫn quý vị tới tận nơi. Tôi không vào trong toà nhà và không lên tầng được.
+
+Hỏi: Bạn dẫn tôi tới tận phòng nhé
+Đáp: Tôi đi lại trong khu lễ tân thôi ạ. Với ba toà DI, DII và DIII thì tôi ra tới đầu hành lang rồi đứng đó chỉ đường; với Nhà A, Nhà B và Nhà F thì tôi dẫn quý vị tới tận nơi. Tôi không vào trong toà nhà và không lên tầng được.
 
 Hỏi: Bạn là ai?
-Đáp: Tôi là robot lễ tân của Bệnh viện Việt Nam – Thụy Điển Uông Bí. Tôi giúp quý vị tìm khoa, tìm phòng và dẫn đường trong khu lễ tân.
+Đáp: Tôi là robot lễ tân của bệnh viện. Tôi giúp quý vị tìm khoa, tìm phòng và dẫn đường trong khu lễ tân. Quý vị cứ nói tên khoa, mã phòng trên phiếu khám, hoặc kể triệu chứng, tôi tìm giúp ạ.
+
+Hỏi: Bạn tên gì?
+Đáp: Tôi là robot lễ tân của bệnh viện. Tôi giúp quý vị tìm khoa, tìm phòng và dẫn đường trong khu lễ tân. Quý vị cứ nói tên khoa, mã phòng trên phiếu khám, hoặc kể triệu chứng, tôi tìm giúp ạ.
+
+Hỏi: Bạn làm được những gì?
+Đáp: Tôi là robot lễ tân của bệnh viện. Tôi giúp quý vị tìm khoa, tìm phòng và dẫn đường trong khu lễ tân. Quý vị cứ nói tên khoa, mã phòng trên phiếu khám, hoặc kể triệu chứng, tôi tìm giúp ạ.
+
+Hỏi: Robot giúp được gì cho tôi?
+Đáp: Tôi là robot lễ tân của bệnh viện. Tôi giúp quý vị tìm khoa, tìm phòng và dẫn đường trong khu lễ tân. Quý vị cứ nói tên khoa, mã phòng trên phiếu khám, hoặc kể triệu chứng, tôi tìm giúp ạ.
 
 Hỏi: Bệnh viện có mấy toà nhà?
-Đáp: Khu khám và điều trị có ba toà: Nhà DI 5 tầng, Nhà DII 5 tầng, Nhà DIII 8 tầng. Ngoài ra còn Khu Thăm dò chức năng ở Nhà A, Khoa Răng Hàm Mặt ở Nhà B, Khoa Chẩn đoán hình ảnh ở Nhà F, Khoa Cấp cứu ở Nhà C.
+Đáp: Khu khám và điều trị có ba toà xếp dọc hành lang: Nhà DI năm tầng, Nhà DII năm tầng, Nhà DIII tám tầng. Ngoài ra còn Khu Thăm dò chức năng ở Nhà A, Khoa Răng Hàm Mặt ở Nhà B, Khoa Chẩn đoán hình ảnh ở Nhà F, Khoa Cấp cứu ở Nhà C.
+
+Hỏi: Ở đây có những toà nào?
+Đáp: Khu khám và điều trị có ba toà xếp dọc hành lang: Nhà DI năm tầng, Nhà DII năm tầng, Nhà DIII tám tầng. Ngoài ra còn Khu Thăm dò chức năng ở Nhà A, Khoa Răng Hàm Mặt ở Nhà B, Khoa Chẩn đoán hình ảnh ở Nhà F, Khoa Cấp cứu ở Nhà C.
+
+Hỏi: Khu khám bệnh gồm mấy nhà?
+Đáp: Khu khám và điều trị có ba toà xếp dọc hành lang: Nhà DI năm tầng, Nhà DII năm tầng, Nhà DIII tám tầng. Ngoài ra còn Khu Thăm dò chức năng ở Nhà A, Khoa Răng Hàm Mặt ở Nhà B, Khoa Chẩn đoán hình ảnh ở Nhà F, Khoa Cấp cứu ở Nhà C.
 
 Hỏi: Bệnh viện có những khoa nào?
-Đáp: Bệnh viện có 18 khoa với 24 mã phòng D1 đến D22, C1 và CĐHA: Khoa Phụ Sản, Khoa Sơ Sinh, Khoa Nhi, Khoa Mắt, Khoa Tai Mũi Họng, Khoa Nội Tiêu Hóa, Khoa Nội Phổi – Tiết Niệu – Hô Hấp, Khoa Ngoại Thận – Tiết Niệu, Khoa Ngoại Tiêu Hóa – Tổng Hợp, Khoa Ngoại Thần Kinh, Khoa Tâm Thần Kinh – Cơ Xương Khớp, Khoa Y Học Cổ Truyền, Khoa Giải Phẫu Bệnh, Các Phòng Ban Hành Chính, Khu Thăm dò chức năng, Khoa Răng Hàm Mặt, Khoa Chẩn đoán hình ảnh, Khoa Cấp cứu.
+Đáp: Bệnh viện có nhiều khoa ạ. Quý vị nói tên khoa, đọc mã phòng ghi trên phiếu khám, hoặc kể triệu chứng thì tôi tìm giúp. Danh sách đầy đủ đang hiện trên màn hình để quý vị chạm chọn.
 
-Hỏi: Bệnh viện làm việc mấy giờ?
-Đáp: Thông tin này tôi chưa có trong dữ liệu. Mời quý vị hỏi quầy lễ tân giúp tôi ạ.
+Hỏi: Ở đây khám được những gì?
+Đáp: Bệnh viện có nhiều khoa ạ. Quý vị nói tên khoa, đọc mã phòng ghi trên phiếu khám, hoặc kể triệu chứng thì tôi tìm giúp. Danh sách đầy đủ đang hiện trên màn hình để quý vị chạm chọn.
 
-Hỏi: Hôm nay bác sĩ nào trực?
-Đáp: Thông tin này tôi chưa có trong dữ liệu. Mời quý vị hỏi quầy lễ tân giúp tôi ạ.
-
-Hỏi: Khám ở đây hết bao nhiêu tiền?
-Đáp: Thông tin này tôi chưa có trong dữ liệu. Mời quý vị hỏi quầy lễ tân giúp tôi ạ.
-
-Hỏi: Số điện thoại bệnh viện là gì?
-Đáp: Thông tin này tôi chưa có trong dữ liệu. Mời quý vị hỏi quầy lễ tân giúp tôi ạ.
-
-Hỏi: Kết quả xét nghiệm của tôi thế nào?
-Đáp: Thông tin này tôi chưa có trong dữ liệu. Mời quý vị hỏi quầy lễ tân giúp tôi ạ.
-
-Hỏi: Còn giường trống không?
-Đáp: Thông tin này tôi chưa có trong dữ liệu. Mời quý vị hỏi quầy lễ tân giúp tôi ạ.
-
-Hỏi: Bác sĩ nào giỏi nhất khoa này?
-Đáp: Thông tin này tôi chưa có trong dữ liệu. Mời quý vị hỏi quầy lễ tân giúp tôi ạ.
-
-Hỏi: Bao giờ tới lượt tôi?
-Đáp: Thông tin này tôi chưa có trong dữ liệu. Mời quý vị hỏi quầy lễ tân giúp tôi ạ.
-
-Hỏi: Tôi đặt lịch khám online được không?
-Đáp: Thông tin này tôi chưa có trong dữ liệu. Mời quý vị hỏi quầy lễ tân giúp tôi ạ.
-
-Hỏi: Bệnh viện thành lập năm nào?
-Đáp: Thông tin này tôi chưa có trong dữ liệu. Mời quý vị hỏi quầy lễ tân giúp tôi ạ.
+Hỏi: Cho tôi xem danh sách khoa
+Đáp: Bệnh viện có nhiều khoa ạ. Quý vị nói tên khoa, đọc mã phòng ghi trên phiếu khám, hoặc kể triệu chứng thì tôi tìm giúp. Danh sách đầy đủ đang hiện trên màn hình để quý vị chạm chọn.
 
 Hỏi: Tôi bị bệnh gì?
-Đáp: Tôi là robot chỉ đường, tôi không khám bệnh và không đoán bệnh được. Tôi chỉ giúp quý vị tìm đúng khoa, còn bác sĩ ở phòng khám mới là người quyết định.
+Đáp: Tôi là robot chỉ đường, tôi không khám bệnh và không đoán bệnh được ạ. Tôi chỉ giúp quý vị tìm đúng khoa, còn bác sĩ ở phòng khám mới là người xem và quyết định.
 
 Hỏi: Bệnh của tôi có nặng không?
-Đáp: Tôi là robot chỉ đường, tôi không khám bệnh và không đoán bệnh được. Tôi chỉ giúp quý vị tìm đúng khoa, còn bác sĩ ở phòng khám mới là người quyết định.
+Đáp: Tôi là robot chỉ đường, tôi không khám bệnh và không đoán bệnh được ạ. Tôi chỉ giúp quý vị tìm đúng khoa, còn bác sĩ ở phòng khám mới là người xem và quyết định.
 
 Hỏi: Tôi nên uống thuốc gì?
-Đáp: Tôi là robot chỉ đường, tôi không khám bệnh và không đoán bệnh được. Tôi chỉ giúp quý vị tìm đúng khoa, còn bác sĩ ở phòng khám mới là người quyết định.
+Đáp: Tôi là robot chỉ đường, tôi không khám bệnh và không đoán bệnh được ạ. Tôi chỉ giúp quý vị tìm đúng khoa, còn bác sĩ ở phòng khám mới là người xem và quyết định.
 
 Hỏi: Xem giúp tôi kết quả này với
-Đáp: Tôi là robot chỉ đường, tôi không khám bệnh và không đoán bệnh được. Tôi chỉ giúp quý vị tìm đúng khoa, còn bác sĩ ở phòng khám mới là người quyết định.
+Đáp: Tôi là robot chỉ đường, tôi không khám bệnh và không đoán bệnh được ạ. Tôi chỉ giúp quý vị tìm đúng khoa, còn bác sĩ ở phòng khám mới là người xem và quyết định.
 
 Hỏi: Tôi có cần mổ không?
-Đáp: Tôi là robot chỉ đường, tôi không khám bệnh và không đoán bệnh được. Tôi chỉ giúp quý vị tìm đúng khoa, còn bác sĩ ở phòng khám mới là người quyết định.
+Đáp: Tôi là robot chỉ đường, tôi không khám bệnh và không đoán bệnh được ạ. Tôi chỉ giúp quý vị tìm đúng khoa, còn bác sĩ ở phòng khám mới là người xem và quyết định.
+
+Hỏi: Bạn chẩn đoán giúp tôi
+Đáp: Tôi là robot chỉ đường, tôi không khám bệnh và không đoán bệnh được ạ. Tôi chỉ giúp quý vị tìm đúng khoa, còn bác sĩ ở phòng khám mới là người xem và quyết định.
+
+Hỏi: Bệnh viện làm việc mấy giờ?
+Đáp: Thông tin này tôi chưa có trong dữ liệu nên không dám đoán ạ. Mời quý vị hỏi quầy lễ tân giúp tôi.
+
+Hỏi: Hôm nay bác sĩ nào trực?
+Đáp: Thông tin này tôi chưa có trong dữ liệu nên không dám đoán ạ. Mời quý vị hỏi quầy lễ tân giúp tôi.
+
+Hỏi: Khám ở đây hết bao nhiêu tiền?
+Đáp: Thông tin này tôi chưa có trong dữ liệu nên không dám đoán ạ. Mời quý vị hỏi quầy lễ tân giúp tôi.
+
+Hỏi: Số điện thoại bệnh viện là gì?
+Đáp: Thông tin này tôi chưa có trong dữ liệu nên không dám đoán ạ. Mời quý vị hỏi quầy lễ tân giúp tôi.
+
+Hỏi: Kết quả xét nghiệm của tôi thế nào?
+Đáp: Thông tin này tôi chưa có trong dữ liệu nên không dám đoán ạ. Mời quý vị hỏi quầy lễ tân giúp tôi.
+
+Hỏi: Còn giường trống không?
+Đáp: Thông tin này tôi chưa có trong dữ liệu nên không dám đoán ạ. Mời quý vị hỏi quầy lễ tân giúp tôi.
+
+Hỏi: Bác sĩ nào giỏi nhất khoa này?
+Đáp: Thông tin này tôi chưa có trong dữ liệu nên không dám đoán ạ. Mời quý vị hỏi quầy lễ tân giúp tôi.
+
+Hỏi: Bao giờ tới lượt tôi?
+Đáp: Thông tin này tôi chưa có trong dữ liệu nên không dám đoán ạ. Mời quý vị hỏi quầy lễ tân giúp tôi.
+
+Hỏi: Tôi đặt lịch khám online được không?
+Đáp: Thông tin này tôi chưa có trong dữ liệu nên không dám đoán ạ. Mời quý vị hỏi quầy lễ tân giúp tôi.
+
+Hỏi: Bệnh viện thành lập năm nào?
+Đáp: Thông tin này tôi chưa có trong dữ liệu nên không dám đoán ạ. Mời quý vị hỏi quầy lễ tân giúp tôi.
+
+Hỏi: Cấp cứu ở đâu?
+Đáp: Khoa Cấp cứu ở tầng một, Nhà C, phòng C1. Quý vị cần cấp cứu thì xin đi ngay, ĐỪNG chờ tôi dẫn — tôi đi chậm hơn người chạy.
+
+Hỏi: Tôi cần cấp cứu
+Đáp: Khoa Cấp cứu ở tầng một, Nhà C, phòng C1. Quý vị cần cấp cứu thì xin đi ngay, ĐỪNG chờ tôi dẫn — tôi đi chậm hơn người chạy.
+
+Hỏi: Khoa cấp cứu đi lối nào?
+Đáp: Khoa Cấp cứu ở tầng một, Nhà C, phòng C1. Quý vị cần cấp cứu thì xin đi ngay, ĐỪNG chờ tôi dẫn — tôi đi chậm hơn người chạy.
+
+Hỏi: Cấp cứu có trực ban đêm không?
+Đáp: Khoa Cấp cứu ở tầng một, Nhà C, phòng C1. Quý vị cần cấp cứu thì xin đi ngay, ĐỪNG chờ tôi dẫn — tôi đi chậm hơn người chạy.
+
+Hỏi: Tai nạn thì vào đâu?
+Đáp: Khoa Cấp cứu ở tầng một, Nhà C, phòng C1. Quý vị cần cấp cứu thì xin đi ngay, ĐỪNG chờ tôi dẫn — tôi đi chậm hơn người chạy.

@@ -154,7 +154,7 @@ footer{margin-top:46px;padding-top:18px;border-top:1px solid var(--vien);
 <h2><span class="so">1</span> Vì sao phải đi qua script</h2>
 
 <p>Cùng một sự thật — <i>“Khoa Nhi ở tầng 2 nhà DI”</i> — đang nằm ở <b>ba nơi</b>: chữ trên màn hình,
-câu robot đọc thành tiếng, và kho tri thức trên đám mây cho phần trò chuyện AI. Gõ tay ba bản thì
+câu robot đọc thành tiếng, và bộ hồ sơ dự phòng nạp lên cổng OrionStar. Gõ tay ba bản thì
 sớm muộn lệch nhau, mà lúc lệch là robot <b>nói một đằng, hiện một nẻo</b> — người bệnh biết tin cái nào?</p>
 
 <p>Sinh cả ba từ cùng một nguồn thì không bao giờ lệch được:</p>
@@ -450,23 +450,60 @@ dẫn đường lẫn giọng nói.</p>
 
 <h3>Nạp lại kho tri thức lên cổng OrionStar</h3>
 
-<p>Phần <b>trò chuyện AI</b> không đọc APK, nó đọc kho tri thức trên đám mây. Khoa mới chỉ “tồn tại”
-với AI sau khi nạp lại:</p>
+<div class="hop luc">
+  <b>Từ 09/09/2026 việc này KHÔNG còn bắt buộc</b>
+  Khoa mới nằm ngay trong APK, nên cài APK mới lên robot là phần trò chuyện AI biết khoa mới
+  luôn. Bản hướng dẫn trước ghi <i>“phần trò chuyện AI không đọc APK, nó đọc kho tri thức trên
+  đám mây”</i> — <b>câu đó nay sai</b>. Hãng đã bỏ đường cho mô hình đọc kho tri thức (tham số
+  <code>fileSearch</code>, ngừng hoạt động từ 26/08/2025), nên robot trả lời khoa phòng là nhờ
+  dữ liệu nằm trong máy nó.
+</div>
+
+<p>Vẫn nên nạp cổng, nhưng chỉ để <b>dự phòng</b>, và nạp lúc nào cũng được:</p>
 
 <ol>
   <li>Chạy <code>python dung-kho-tri-thuc.py</code>.</li>
   <li>Vào cổng <code>global-robotmp.orionstar.com</code>, đúng appId
       <code>app_70eef22c4a6d4777af413ac942ea0153</code>.</li>
-  <li>Nạp lại <code>kho-tri-thuc\hoi-dap.csv</code> (mục Knowledge Q&amp;A) và
-      <code>kho-tri-thuc\kien-thuc.md</code>.</li>
+  <li>Tải lên <code>kho-tri-thuc\kien-thuc.txt</code> và
+      <code>kho-tri-thuc\hoi-dap.txt</code>.</li>
   <li>Ô persona ở <code>kho-tri-thuc\persona-robot.md</code> chỉ phải dán lại khi đổi tên bệnh viện
       hoặc đổi cách xưng hô — thêm khoa thì không cần.</li>
 </ol>
 
-<div class="hop luc">
-  <b>Chưa kịp nạp cũng không sao</b>
-  Màn hình vẫn đúng, dẫn đường vẫn đúng — chỉ riêng phần hỏi bằng miệng là chưa biết khoa mới.
-  Không nguy hiểm, nhưng đừng để quên.
+<div class="hop do">
+  <b>⚠ Cổng chỉ nhận .txt · .pdf · .docx</b>
+  File <code>kho-tri-thuc\hoi-dap.csv</code> nằm cùng thư mục là để <b>mở bằng Excel mà rà
+  soát</b> — tải lên là bị từ chối. Thứ bắt buộc phải làm vẫn là <b>build lại APK</b>: chưa
+  build lại thì không màn hình nào, không câu trả lời nào biết tới khoa mới, nạp cổng bao
+  nhiêu lần cũng vậy.
+</div>
+
+<h3>Sửa câu robot đáp về chuyện chung</h3>
+
+<p>Ngoài khoa phòng, robot còn tám câu trả lời sẵn cho những chuyện không gắn với khoa nào:
+quy trình khám lần đầu · robot đi được tới đâu · robot là ai · bệnh viện có mấy toà · bệnh viện
+có những khoa nào · robot không phải bác sĩ · chuyện bệnh viện chưa cung cấp · cấp cứu.
+Chúng nằm trong <code>dung-du-lieu.py</code>, ở khối <code>HOI_DAP_CHUNG</code>:</p>
+
+<pre>{
+    "nhom": "pham-vi-robot",
+    "hoi": ["Robot dẫn tôi lên tầng được không?",     <span class="cm"># mấy câu người ta hay hỏi</span>
+            "Bạn đi thang máy được không?"],
+    "tu": "robot dan len tang thang may",             <span class="cm"># từ khoá thêm, KHÔNG DẤU</span>
+    "dap": "Tôi đi lại trong khu lễ tân thôi ạ. ...", <span class="cm"># câu robot ĐỌC NGUYÊN VĂN</span>
+},</pre>
+
+<p>Đổi lời robot nói thì sửa <code>dap</code> — viết thế nào robot đọc đúng thế, <b>số phải viết
+bằng chữ</b>. Người ta hỏi kiểu khác mà robot không hiểu thì thêm câu đó vào <code>hoi</code>,
+hoặc thêm từ khoá không dấu vào <code>tu</code>.</p>
+
+<div class="hop do">
+  <b>⚠ Đừng thêm mục về vị trí một khoa vào đây</b>
+  Vị trí khoa chỉ được khai đúng một chỗ là <code>BANG_KHOA</code>. Khai hai chỗ thì mai kia
+  bệnh viện đổi tầng, sửa một chỗ quên chỗ kia, robot sẽ <b>nói một đằng mà màn hình hiện một
+  nẻo</b>. Để trống <code>dap</code> thì script dừng lại, không sinh file — cố ý, vì mục rỗng
+  làm robot nhận ra câu hỏi rồi đứng đọc chuỗi rỗng, im lặng mà không báo lỗi gì.
 </div>
 
 <h2><span class="so">9</span> Việc KHÔNG làm được bằng cách trên</h2>

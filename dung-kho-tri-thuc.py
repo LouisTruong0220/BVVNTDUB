@@ -282,63 +282,41 @@ for d in tien_ich:
     them("%s ở đâu?" % d["ten"], cho_dan(d))
     them("Tôi muốn tới %s" % d["ten"].lower(), cho_dan(d))
 
-# --- Cấp cứu ---
-v_cc = cap_cuu["vi_tri"][0]
-# ⚠ Lấy TÊN từ dữ liệu, đừng gõ tay: bản trước ghi cứng "Khoa Hồi sức Cấp cứu Nội"
-#   và khi bệnh viện đổi khoa cấp cứu sang C1 Nhà C thì câu này vẫn chỉ về chỗ cũ —
-#   đúng loại sai không ai phát hiện cho tới lúc có người cần thật.
-DAP_CC = ("%s ở %s. Quý vị cần cấp cứu thì xin đi ngay, ĐỪNG chờ tôi dẫn — "
-          "tôi đi chậm hơn người chạy."
-          % (cap_cuu["ten"], vi_tri_chu(v_cc)))
-for h in ["Cấp cứu ở đâu?", "Tôi cần cấp cứu", "Có người ngất xỉu", "Khoa cấp cứu đi lối nào?",
-          "Người nhà tôi khó thở nặng", "Chảy máu nhiều thì đi đâu?", "Tai nạn thì vào đâu?",
-          "Ngộ độc thì đi đâu?", "Có người đột quỵ", "Phòng C1 ở đâu?",
-          "Tai nạn giao thông đưa vào đâu?", "Cấp cứu có trực ban đêm không?"]:
-    them(h, DAP_CC)
+# --- Phần kiến thức chung: LẤY TỪ app-data.json, không gõ lại ở đây ---
+#
+# ⚠ Trước 09/09/2026 sáu nhóm dưới (cấp cứu · phạm vi robot · khám lần đầu · giới
+#   thiệu · chưa có dữ liệu · không phải bác sĩ) được gõ thẳng vào file này, nên
+#   chúng CHỈ tồn tại trên cổng OrionStar. Robot không có bản nào trong máy.
+#
+#   Nay chúng nằm ở HOI_DAP_CHUNG trong dung-du-lieu.py, đi vào app-data.json rồi
+#   theo index.html vào assets/ của APK. File này chỉ trải chúng ra thành từng cặp
+#   để nạp cổng. Một nguồn, hai đầu ra — sửa câu đáp một chỗ là cả hai đổi theo.
+#
+#   Cùng lý do đã viết ở đầu file: gõ tay hai bản thì sớm muộn lệch nhau, mà lúc
+#   lệch thì robot NÓI một đằng, cổng trả lời một nẻo.
+HOI_DAP = D.get("hoi_dap", [])
+for _g in HOI_DAP:
+    for _h in _g["hoi"]:
+        them(_h, _g["dap"])
 
-# --- Phạm vi robot ---
-PHAM_VI = ("Tôi đi lại trong khu lễ tân. Với ba toà DI, DII, DIII thì tôi ra tới đầu hành lang; "
-           "với Nhà A, Nhà B và Nhà F thì tôi dẫn tới tận nơi. Tôi không vào "
-           "trong toà nhà và không lên tầng được. Tôi dẫn quý vị tới rồi chỉ đường "
-           "để quý vị đi tiếp.")
-for h in ["Robot dẫn tôi lên tầng được không?", "Bạn đưa tôi vào phòng khám nhé",
-          "Robot đi được tới đâu?", "Bạn dẫn tôi vào nhà DII được không?"]:
-    them(h, PHAM_VI)
 
-# --- Khám lần đầu ---
+def hd_dap(nhom):
+    """Câu đáp của một nhóm hỏi–đáp chung. Thiếu nhóm là DỪNG, không sinh file rỗng.
+
+    Nhóm bị đổi tên hay xoá bên dung-du-lieu.py mà ở đây vẫn gọi tên cũ thì phải vỡ
+    ngay lúc chạy script — chứ không phải sinh ra một tài liệu kiến thức thiếu hẳn
+    mục Cấp cứu rồi nằm im trong thư mục người ta copy-dán lên cổng.
+    """
+    for g in HOI_DAP:
+        if g["nhom"] == nhom:
+            return g["dap"]
+    print("   ! app-data.json thiếu nhóm hỏi–đáp '%s' — xem HOI_DAP_CHUNG trong "
+          "dung-du-lieu.py" % nhom)
+    raise SystemExit(1)
+
+
+DAP_CC = hd_dap("cap-cuu")
 qt = D["quy_trinh_kham"]
-DAP_QT = ("Quý vị đến khám lần đầu thì mời tới quầy tiếp đón trước. " +
-          " ".join("%d) %s: %s" % (i + 1, b[0], b[1]) for i, b in enumerate(qt["buoc"])) +
-          " Quý vị nhớ mang căn cước và thẻ bảo hiểm y tế nếu có. Tôi dẫn quý vị tới quầy tiếp đón được.")
-for h in ["Tôi đến khám lần đầu thì làm gì?", "Tôi chưa có phiếu khám", "Đăng ký khám ở đâu?",
-          "Khám bệnh bắt đầu từ đâu?", "Tôi chưa biết mình khám khoa nào"]:
-    them(h, DAP_QT)
-
-# --- Giới thiệu ---
-them("Bạn là ai?", "Tôi là robot lễ tân của %s. Tôi giúp quý vị tìm khoa, tìm phòng và dẫn "
-                   "đường trong khu lễ tân." % BV)
-them("Bệnh viện có mấy toà nhà?",
-     "Khu khám và điều trị có ba toà: %s. Ngoài ra còn %s."
-     % (", ".join("%s %d tầng" % (t["ten"], t["so_tang"]) for t in D["toa"]),
-        ", ".join("%s ở %s" % (d["ten"], d["vi_tri"][0]["toa_ten"]) for d in toa_khac + [cap_cuu])))
-them("Bệnh viện có những khoa nào?",
-     "Bệnh viện có %d khoa với %d mã phòng %s: %s."
-     % (len(khoa) + len(toa_khac) + 1, tong_ma, MO_TA_MA,
-        ", ".join(d["ten"] for d in khoa + toa_khac + [cap_cuu])))
-
-# --- Những thứ CHƯA CÓ dữ liệu: cố ý dạy mô hình cách từ chối ---
-for h in ["Bệnh viện làm việc mấy giờ?", "Hôm nay bác sĩ nào trực?", "Khám ở đây hết bao nhiêu tiền?",
-          "Số điện thoại bệnh viện là gì?", "Kết quả xét nghiệm của tôi thế nào?",
-          "Còn giường trống không?", "Bác sĩ nào giỏi nhất khoa này?", "Bao giờ tới lượt tôi?",
-          "Tôi đặt lịch khám online được không?", "Bệnh viện thành lập năm nào?"]:
-    them(h, CHUA_CO)
-
-# --- Không phải bác sĩ ---
-KHONG_KHAM = ("Tôi là robot chỉ đường, tôi không khám bệnh và không đoán bệnh được. "
-              "Tôi chỉ giúp quý vị tìm đúng khoa, còn bác sĩ ở phòng khám mới là người quyết định.")
-for h in ["Tôi bị bệnh gì?", "Bệnh của tôi có nặng không?", "Tôi nên uống thuốc gì?",
-          "Xem giúp tôi kết quả này với", "Tôi có cần mổ không?"]:
-    them(h, KHONG_KHAM)
 
 # Bỏ trùng, giữ nguyên thứ tự
 _thay = set()
