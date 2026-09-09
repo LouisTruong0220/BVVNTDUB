@@ -448,3 +448,28 @@ if _loi:
         print("    " + _x)
     raise SystemExit(1)
 print("Kho tri thức khớp dữ liệu app: %d đích, không sót, không thừa." % len(DICH))
+
+# ═══════════════════════════════════════════════════════════════════════
+#  DỌN FILE LẠC — thứ nguy hiểm nhất trong thư mục này là một BẢN CŨ
+#
+#  Đây là thư mục người ta MỞ RA ĐỂ COPY-DÁN LÊN CỔNG. Một file cũ nằm cạnh
+#  file mới, tên na ná, là chuyện sớm muộn có người dán nhầm — mà dán nhầm
+#  bản cũ nghĩa là robot chỉ người đang cấp cứu sang một khoa đã bỏ.
+#
+#  Đã xảy ra thật: persona-robot.txt và kien-thuc.txt bản 13/08/2026 nằm im
+#  ở đây gần một tháng, vẫn ghi "Khoa Hồi Sức Cấp Cứu Nội, D23-D24, Nhà DIII".
+#
+#  Nên script DỜI mọi file lạ sang _cu-khong-dung/ thay vì để đó. Dời chứ
+#  không xoá — quy tắc 2 của workspace.
+# ═══════════════════════════════════════════════════════════════════════
+import shutil
+DUOC_PHEP = {"persona-robot.md", "hoi-dap.csv", "kien-thuc.md"}
+_kho_cu = os.path.join(RA, "_cu-khong-dung")
+_lac = [t for t in sorted(os.listdir(RA))
+        if os.path.isfile(os.path.join(RA, t)) and t not in DUOC_PHEP]
+if _lac:
+    os.makedirs(_kho_cu, exist_ok=True)
+    for _t in _lac:
+        shutil.move(os.path.join(RA, _t), os.path.join(_kho_cu, _t))
+    print("   ! Đã dời %d file lạc sang _cu-khong-dung/: %s" % (len(_lac), ", ".join(_lac)))
+    print("     (thư mục này để COPY-DÁN lên cổng — một bản cũ nằm cạnh là có ngày dán nhầm)")
