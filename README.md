@@ -118,13 +118,20 @@ luật CSS khác đè `display:none`** — cả ba đều không báo lỗi gì,
 
 ## Nạp persona và kiến thức lên cổng OrionStar
 
-`kho-tri-thuc/` chứa ba file sinh tự động, dùng cho **global-robotmp.orionstar.com**:
+`kho-tri-thuc/` chứa bốn file sinh tự động, dùng cho **global-robotmp.orionstar.com**:
 
 | File | Nạp vào đâu |
 |---|---|
-| `persona-robot.md` | Chữ để copy-dán vào từng ô ở **Robot Persona → Create Robot Persona**, kèm cả Transition Script và Common Role Greeting |
-| `hoi-dap.csv` | Mục **Knowledge Q&A** — 182 cặp hỏi–đáp, UTF-8 có BOM nên Excel mở không loạn chữ |
-| `kien-thuc.md` | Tài liệu kiến thức nền |
+| `kien-thuc.txt` | **Tải lên kho tri thức** — tài liệu kiến thức nền |
+| `hoi-dap.txt` | **Tải lên kho tri thức** — 182 cặp hỏi–đáp |
+| `persona-robot.md` | **Không tải lên.** Mở ra đọc rồi copy-dán vào từng ô ở **Robot Persona → Create Robot Persona**, kèm Transition Script và Common Role Greeting |
+| `hoi-dap.csv` | **Không tải lên.** Cùng nội dung `hoi-dap.txt`, dạng bảng để mở bằng Excel mà rà soát (UTF-8 có BOM nên không loạn chữ) |
+
+⚠ **Cổng chỉ nhận `.txt` · `.pdf` · `.docx`** (anh Trường kiểm 09/09/2026). Bản trước sinh
+`.md` và `.csv` — cổng từ chối thẳng, không nạp được file nào. Nay hai file cần tải lên đều
+là `.txt` **thuần**: không dấu `**`, không dấu `#`, không bảng kẻ bằng `|`. Thứ đọc chúng là
+mô hình ngôn ngữ chứ không phải trình duyệt — bảng kẻ bằng gạch đứng chỉ làm nó phải đoán
+cột nào là tầng, cột nào là toà nhà.
 
 **Vì sao sinh bằng script chứ không gõ tay:** cùng một sự thật ("Khoa Nhi ở tầng 2 nhà DI")
 giờ nằm ở hai nơi — màn hình robot đọc từ `app-data.json`, mô hình đám mây đọc từ kho tri thức

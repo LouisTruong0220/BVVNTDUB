@@ -118,8 +118,11 @@ Xin chào quý vị. Tôi là robot lễ tân của bệnh viện. Quý vị c�
 
 ## Sau khi lưu persona
 
-1. Nạp **Knowledge Q&A** từ `hoi-dap.csv` (182 cặp hỏi–đáp).
-2. Nạp **tài liệu kiến thức** từ `kien-thuc.md`.
+1. Nạp **kho tri thức** hai file: `kien-thuc.txt` và `hoi-dap.txt` (182 cặp hỏi–đáp).
+
+   ⚠ **Cổng chỉ nhận `.txt` · `.pdf` · `.docx`.** File `.csv` và `.md` bị từ chối —
+   `hoi-dap.csv` chỉ để mở bằng Excel mà rà soát, `persona-robot.md` chỉ để đọc rồi
+   copy-dán từng ô, cả hai đều không phải file nạp.
 3. Thử ngay trên robot: mở app, gõ trong DevTools `CAU.thuLLM('Khoa Nhi ở đâu?', true)`.
    Trả `status=1` là mô hình đã trả lời được; lúc đó nút micro trong app cũng tự hiện ra.
 

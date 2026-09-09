@@ -1,10 +1,17 @@
 # -*- coding: utf-8 -*-
 """Sinh bộ hồ sơ nạp lên cổng OrionStar Robot Portal cho robot lễ tân bệnh viện.
 
-Ra ba thứ, đều trong kho-tri-thuc/:
-  1. persona-robot.md      — chữ để COPY-DÁN vào từng ô ở trang Create Robot Persona
-  2. hoi-dap.csv           — cặp Hỏi–Đáp nạp vào mục Knowledge Q&A (UTF-8 có BOM)
-  3. kien-thuc.md          — tài liệu kiến thức nạp vào kho tri thức (bản người đọc được)
+Ra bốn file, đều trong kho-tri-thuc/:
+  1. persona-robot.md  — chữ để COPY-DÁN vào từng ô ở trang Create Robot Persona.
+                         File này KHÔNG nạp lên cổng, chỉ mở ra đọc rồi chép từng khối.
+  2. kien-thuc.txt     — tài liệu kiến thức, NẠP LÊN KHO TRI THỨC
+  3. hoi-dap.txt       — 182 cặp hỏi–đáp, NẠP LÊN KHO TRI THỨC
+  4. hoi-dap.csv       — cùng nội dung file trên, dạng bảng để mở bằng Excel mà rà
+                         soát. KHÔNG nạp lên cổng được.
+
+⚠ CỔNG CHỈ NHẬN .txt · .pdf · .docx cho kho tri thức (anh Trường kiểm 09/09/2026).
+  Bản trước sinh .md và .csv — cổng từ chối thẳng. File .csv vẫn giữ để mở bằng
+  Excel mà rà soát, KHÔNG nạp được lên cổng.
 
 ⚠ VÌ SAO SINH BẰNG SCRIPT CHỨ KHÔNG GÕ TAY:
   Cùng một sự thật ("Khoa Nhi ở tầng 2 nhà DI") giờ nằm ở HAI nơi — màn hình robot đọc
@@ -209,8 +216,11 @@ Bệnh viện có người đang đau, đang lo, có người vừa mất ngư�
 
 ## Sau khi lưu persona
 
-1. Nạp **Knowledge Q&A** từ `hoi-dap.csv` ({n_qa} cặp hỏi–đáp).
-2. Nạp **tài liệu kiến thức** từ `kien-thuc.md`.
+1. Nạp **kho tri thức** hai file: `kien-thuc.txt` và `hoi-dap.txt` ({n_qa} cặp hỏi–đáp).
+
+   ⚠ **Cổng chỉ nhận `.txt` · `.pdf` · `.docx`.** File `.csv` và `.md` bị từ chối —
+   `hoi-dap.csv` chỉ để mở bằng Excel mà rà soát, `persona-robot.md` chỉ để đọc rồi
+   copy-dán từng ô, cả hai đều không phải file nạp.
 3. Thử ngay trên robot: mở app, gõ trong DevTools `CAU.thuLLM('Khoa Nhi ở đâu?', true)`.
    Trả `status=1` là mô hình đã trả lời được; lúc đó nút micro trong app cũng tự hiện ra.
 
@@ -350,47 +360,86 @@ with io.open(f_qa, "w", encoding="utf-8-sig", newline="") as f:
     w.writerow(["Câu hỏi", "Câu trả lời"])
     w.writerows(qa_sach)
 
+# ═══════════════════════════════════════════════════════════════════════
+#  HỎI–ĐÁP BẢN .txt — đây mới là bản NẠP ĐƯỢC lên cổng
+#
+#  ⚠ Cổng chỉ nhận .txt · .pdf · .docx. File .csv ở trên vẫn giữ, nhưng chỉ để
+#    mở bằng Excel mà rà soát — nạp lên cổng là bị từ chối.
+#
+#  Viết mỗi cặp thành hai dòng "Hỏi:" / "Đáp:" rồi cách một dòng trống. Đây là
+#  khuôn mô hình đọc quen nhất, và người mở file ra soát cũng đọc được ngay —
+#  khác hẳn một dòng CSV dài có dấu ngoặc kép bọc quanh.
+# ═══════════════════════════════════════════════════════════════════════
+f_qa_txt = os.path.join(RA, "hoi-dap.txt")
+_qt = ["HỎI – ĐÁP ROBOT LỄ TÂN — %s" % BV, "═" * 70, "",
+       "Sinh tự động từ du-lieu/app-data.json. Đừng sửa tay file này.",
+       "Cập nhật: %s · %d cặp hỏi–đáp." % (D["cap_nhat"], len(qa_sach)), "", ""]
+for _h, _d in qa_sach:
+    _qt += ["Hỏi: " + _h, "Đáp: " + _d, ""]
+io.open(f_qa_txt, "w", encoding="utf-8").write("\n".join(_qt))
+
 f_pers = os.path.join(RA, "persona-robot.md")
 io.open(f_pers, "w", encoding="utf-8").write(persona_md.replace("{n_qa}", str(len(qa_sach))))
 
-# --- Tài liệu kiến thức ---
-kt = ["# Kiến thức robot lễ tân — %s" % BV, "",
-      "> Sinh tự động từ `du-lieu/app-data.json` bởi `dung-kho-tri-thuc.py`. Đừng sửa tay.",
-      "> Cập nhật: %s · Nguồn: %s" % (D["cap_nhat"], D["nguon"]), "",
-      "## Phạm vi hoạt động của robot", "",
-      "16 khoa trong ba toà **DI · DII · DIII**: robot ra tới **đầu hành lang** rồi chỉ đường bằng lời.",
-      "**Nhà A · Nhà B · Nhà F**: robot dẫn **tới tận nơi** — bản đồ có điểm riêng.",
-      "**Khoa Cấp cứu (Nhà C)**: robot **không dẫn**, chỉ hô to và chỉ chỗ — robot chậm hơn người chạy.",
-      "Robot **không** vào trong toà nhà, **không** lên thang máy, **không** lên tầng.", "",
-      "## Các toà nhà", ""]
-kt += ["- **%s** — %d tầng" % (t["ten"], t["so_tang"]) for t in D["toa"]]
-kt += ["", "## Bảng khoa phòng", "",
-       "| Mã phòng | Khoa | Tầng | Toà nhà | Ghi chú |", "|---|---|---:|---|---|"]
+# ═══════════════════════════════════════════════════════════════════════
+#  TÀI LIỆU KIẾN THỨC — .txt THUẦN
+#
+#  ⚠ Cổng OrionStar CHỈ NHẬN .txt · .pdf · .docx cho kho tri thức (anh Trường
+#    kiểm 09/09/2026). Bản trước sinh .md — cổng từ chối thẳng, không nạp được.
+#
+#  ⚠ Và text phải THUẦN, không mang ký hiệu Markdown. Thứ đọc file này là MÔ
+#    HÌNH NGÔN NGỮ, không phải trình duyệt: dấu ** quanh chữ, dấu # đầu dòng,
+#    bảng vẽ bằng | và --- chỉ là rác chen vào giữa nội dung. Bảng kẻ bằng |
+#    còn tệ hơn nữa — mỗi hàng thành một dòng đầy gạch đứng, mô hình phải đoán
+#    cột nào là tầng, cột nào là toà nhà. Viết thành câu thì nó đọc thẳng.
+# ═══════════════════════════════════════════════════════════════════════
+G = "=" * 70          # đường kẻ ngang, để người mở file ra soát nhìn cho dễ
+
+kt = ["KIEN THUC ROBOT LE TAN".replace("KIEN THUC ROBOT LE TAN",
+      "KIẾN THỨC ROBOT LỄ TÂN — %s" % BV), G, "",
+      "Sinh tự động từ du-lieu/app-data.json bởi dung-kho-tri-thuc.py. Đừng sửa tay file này.",
+      "Cập nhật: %s" % D["cap_nhat"],
+      "Nguồn: %s" % D["nguon"], "", "",
+      "PHẠM VI ĐI LẠI CỦA ROBOT", G, "",
+      "Với 16 khoa trong ba toà DI, DII và DIII: robot chỉ ra tới đầu hành lang, rồi đứng",
+      "đó chỉ đường bằng lời.",
+      "Với Khu Thăm dò chức năng (Nhà A), Khoa Răng Hàm Mặt (Nhà B) và Khoa Chẩn đoán hình",
+      "ảnh (Nhà F): robot dẫn tới tận nơi, vì bản đồ có điểm riêng cho mấy chỗ này.",
+      "Với Khoa Cấp cứu (Nhà C): robot KHÔNG dẫn — chỉ nói chỗ và giục đi ngay, vì robot",
+      "đi chậm hơn người chạy.",
+      "Robot không vào trong toà nhà, không lên thang máy, không lên tầng.", "", "",
+      "CÁC TOÀ NHÀ", G, ""]
+kt += ["%s có %d tầng." % (t["ten"], t["so_tang"]) for t in D["toa"]]
+kt += ["Ngoài ra còn Nhà A, Nhà B, Nhà C và Nhà F — mỗi nhà có một khoa nằm ở tầng một.",
+       "", "", "BẢNG KHOA PHÒNG", G, "",
+       "Mỗi dòng là một chỗ, đọc theo khuôn: tên khoa, tầng, toà nhà, mã phòng.", ""]
 for d in khoa + toa_khac + [cap_cuu]:
     for v in d["vi_tri"]:
-        kt.append("| %s | %s | %d | %s | %s |" % (
-            ", ".join(v["ma"]) if v["ma"] else "—", d["ten"], v["tang"], v["toa_ten"], d["ghi_chu"]))
-kt += ["", "## Các chỗ trong khu lễ tân — robot dẫn thẳng tới nơi", "",
-       "| Nơi | Làm gì ở đó |", "|---|---|"]
-kt += ["| %s | %s |" % (d["ten"], d["ghi_chu"]) for d in tien_ich]
-kt += ["", "## Khoa có mặt ở nhiều toà nhà", "",
-       "Gặp mấy khoa này thì **phải hỏi lại** người bệnh đang theo dõi ở toà nào, không được tự chọn.", ""]
-kt += ["- **%s**: %s" % (d["ten"], " · ".join(vi_tri_chu(v) for v in d["vi_tri"]))
+        _ma = ("phòng " + " hoặc ".join(v["ma"])) if v["ma"] else "không có mã phòng riêng"
+        kt.append("- %s: tầng %d, %s, %s. (%s)"
+                  % (d["ten"], v["tang"], v["toa_ten"], _ma, d["ghi_chu"]))
+kt += ["", "", "CÁC CHỖ TRONG KHU LỄ TÂN — ROBOT DẪN THẲNG TỚI NƠI", G, ""]
+kt += ["- %s: %s" % (d["ten"], d["ghi_chu"]) for d in tien_ich]
+kt += ["", "", "KHOA CÓ MẶT Ở NHIỀU TOÀ NHÀ", G, "",
+       "Gặp mấy khoa này thì PHẢI HỎI LẠI người bệnh đang theo dõi ở toà nào.",
+       "Không được tự chọn một toà.", ""]
+kt += ["- %s: %s" % (d["ten"], " · ".join(vi_tri_chu(v) for v in d["vi_tri"]))
        for d in khoa if len(d["vi_tri"]) > 1]
-kt += ["", "## Cấp cứu", "", DAP_CC, "",
-       "Robot **không dẫn** người cấp cứu: robot đi 0,5–0,8 m/s, chậm hơn người chạy.", "",
-       "## Khám lần đầu", ""]
-kt += ["%d. **%s** — %s" % (i + 1, b[0], b[1]) for i, b in enumerate(qt["buoc"])]
-kt += ["", "## Những thứ robot CHƯA có dữ liệu", "",
-       "Bệnh viện chưa cung cấp, nên robot phải nói thẳng là chưa có và mời hỏi quầy lễ tân —",
-       "**không được đoán**:", "",
-       "giờ làm việc · lịch trực · số điện thoại · giá khám và viện phí · tên bác sĩ ·",
-       "lịch mổ · kết quả xét nghiệm · số giường trống · đặt lịch khám · lịch sử bệnh viện", "",
-       "## Robot không phải bác sĩ", "",
+kt += ["", "", "CẤP CỨU", G, "", DAP_CC, "",
+       "Robot KHÔNG dẫn người cấp cứu: robot đi 0,5 đến 0,8 mét mỗi giây, chậm hơn người",
+       "đang chạy. Bảo người nhà bệnh nhân đi theo robot là làm chậm họ.", "", "",
+       "KHÁM LẦN ĐẦU, CHƯA CÓ PHIẾU", G, ""]
+kt += ["%d. %s: %s" % (i + 1, b[0], b[1]) for i, b in enumerate(qt["buoc"])]
+kt += ["", "", "NHỮNG THỨ ROBOT CHƯA CÓ DỮ LIỆU", G, "",
+       "Bệnh viện chưa cung cấp, nên robot phải nói thẳng là chưa có và mời hỏi quầy lễ",
+       "tân. TUYỆT ĐỐI KHÔNG ĐOÁN:", "",
+       "giờ làm việc, lịch trực, số điện thoại, giá khám, viện phí, tên bác sĩ, lịch mổ,",
+       "kết quả xét nghiệm, số giường trống, đặt lịch khám, lịch sử bệnh viện.", "", "",
+       "ROBOT KHÔNG PHẢI BÁC SĨ", G, "",
        "Không chẩn đoán, không đoán bệnh, không khuyên dùng thuốc, không nhận xét kết quả",
-       "xét nghiệm. Người bệnh kể triệu chứng thì robot chỉ giúp tìm khoa phù hợp và nói rõ",
-       "bác sĩ mới là người quyết định.", ""]
-f_kt = os.path.join(RA, "kien-thuc.md")
+       "xét nghiệm. Người bệnh kể triệu chứng thì robot chỉ giúp tìm khoa phù hợp, và nói",
+       "rõ bác sĩ mới là người quyết định.", ""]
+f_kt = os.path.join(RA, "kien-thuc.txt")
 io.open(f_kt, "w", encoding="utf-8").write("\n".join(kt))
 
 print("→ %s" % f_pers)
@@ -398,6 +447,8 @@ print("   Vai trò %d/2000 · Giới thiệu %d/900 · Bổ sung %d/8000"
       % (len(VAI_TRO), len(GIOI_THIEU), len(BO_SUNG)))
 print("→ %s" % f_qa)
 print("   %d cặp hỏi–đáp" % len(qa_sach))
+print("→ %s" % f_qa_txt)
+print("   %d cặp, dạng .txt — ĐÂY là bản nạp lên cổng được" % len(qa_sach))
 print("→ %s" % f_kt)
 
 qua = [(t, n, h) for t, n, h in
@@ -420,7 +471,7 @@ print("\nTất cả các ô đều nằm trong giới hạn.")
 #
 #  Đã bắt được thật 08/09/2026: bỏ khoa cấp cứu cũ khỏi dữ liệu xong, persona vẫn
 #  ghi cứng "Khoa Hồi sức Cấp cứu Nội, tầng 2 Nhà DIII, phòng D23 và D24", và bảng
-#  khoa phòng trong kien-thuc.md bỏ sót cả ba khoa mới ở nhà A · B · F.
+#  khoa phòng trong kien-thuc.txt bỏ sót cả ba khoa mới ở nhà A · B · F.
 # ═══════════════════════════════════════════════════════════════════════
 _kt = io.open(f_kt, encoding="utf-8").read()
 _qa = " ".join(h + " " + d for h, d in qa_sach)   # mọi cặp hỏi–đáp đã sinh
@@ -429,13 +480,13 @@ _pe = VAI_TRO + GIOI_THIEU + BO_SUNG
 _loi = []
 for _d in DICH:
     if _d["ten"] not in _kt:
-        _loi.append("kien-thuc.md thiếu: " + _d["ten"])
+        _loi.append("kien-thuc.txt thiếu: " + _d["ten"])
     if _d["ten"] not in _qa:
-        _loi.append("hoi-dap.csv thiếu: " + _d["ten"])
+        _loi.append("hoi-dap thiếu: " + _d["ten"])
 
 # Tên và mã của những chỗ ĐÃ BỎ không được còn sót lại chỗ nào
 _con_dung = {m for _d in DICH for m in _d["ma"]} | {_d["ten"] for _d in DICH}
-for _cho, _van in (("hoi-dap.csv", _qa), ("kien-thuc.md", _kt), ("persona", _pe)):
+for _cho, _van in (("hoi-dap", _qa), ("kien-thuc.txt", _kt), ("persona", _pe)):
     for _ma in ("D23", "D24"):
         if _ma not in _con_dung and _ma in _van:
             _loi.append("%s còn nhắc mã đã bỏ: %s" % (_cho, _ma))
@@ -463,7 +514,7 @@ print("Kho tri thức khớp dữ liệu app: %d đích, không sót, không th�
 #  không xoá — quy tắc 2 của workspace.
 # ═══════════════════════════════════════════════════════════════════════
 import shutil
-DUOC_PHEP = {"persona-robot.md", "hoi-dap.csv", "kien-thuc.md"}
+DUOC_PHEP = {"persona-robot.md", "hoi-dap.txt", "hoi-dap.csv", "kien-thuc.txt"}
 _kho_cu = os.path.join(RA, "_cu-khong-dung")
 _lac = [t for t in sorted(os.listdir(RA))
         if os.path.isfile(os.path.join(RA, t)) and t not in DUOC_PHEP]

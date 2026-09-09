@@ -1,0 +1,552 @@
+HỎI – ĐÁP ROBOT LỄ TÂN — Bệnh viện Việt Nam – Thụy Điển Uông Bí
+══════════════════════════════════════════════════════════════════════
+
+Sinh tự động từ du-lieu/app-data.json. Đừng sửa tay file này.
+Cập nhật: 08/09/2026 · 182 cặp hỏi–đáp.
+
+
+Hỏi: Khoa Phụ Sản ở đâu?
+Đáp: Khoa Phụ Sản có ở 3 toà nhà: tầng 1, Nhà DI, phòng D1 hoặc D2 · tầng 1, Nhà DII, phòng D11 hoặc D12 · tầng 1, Nhà DIII, phòng D21 hoặc D22. Quý vị xem trên phiếu khám xem mình theo dõi ở toà nào, hoặc hỏi quầy lễ tân.
+
+Hỏi: Cho tôi hỏi khoa phụ sản
+Đáp: Khoa Phụ Sản có ở 3 toà nhà: tầng 1, Nhà DI, phòng D1 hoặc D2 · tầng 1, Nhà DII, phòng D11 hoặc D12 · tầng 1, Nhà DIII, phòng D21 hoặc D22. Quý vị xem trên phiếu khám xem mình theo dõi ở toà nào, hoặc hỏi quầy lễ tân.
+
+Hỏi: Tôi muốn đến khoa phụ sản
+Đáp: Khoa Phụ Sản có ở 3 toà nhà: tầng 1, Nhà DI, phòng D1 hoặc D2 · tầng 1, Nhà DII, phòng D11 hoặc D12 · tầng 1, Nhà DIII, phòng D21 hoặc D22. Quý vị xem trên phiếu khám xem mình theo dõi ở toà nào, hoặc hỏi quầy lễ tân.
+
+Hỏi: Khoa Phụ Sản ở tầng mấy?
+Đáp: Khoa Phụ Sản có ở 3 toà nhà: tầng 1, Nhà DI, phòng D1 hoặc D2 · tầng 1, Nhà DII, phòng D11 hoặc D12 · tầng 1, Nhà DIII, phòng D21 hoặc D22. Quý vị xem trên phiếu khám xem mình theo dõi ở toà nào, hoặc hỏi quầy lễ tân.
+
+Hỏi: Khoa Sơ Sinh ở đâu?
+Đáp: Khoa Sơ Sinh ở tầng 2, Nhà DII, phòng D14. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.
+
+Hỏi: Cho tôi hỏi khoa sơ sinh
+Đáp: Khoa Sơ Sinh ở tầng 2, Nhà DII, phòng D14. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.
+
+Hỏi: Tôi muốn đến khoa sơ sinh
+Đáp: Khoa Sơ Sinh ở tầng 2, Nhà DII, phòng D14. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.
+
+Hỏi: Khoa Sơ Sinh ở tầng mấy?
+Đáp: Khoa Sơ Sinh ở tầng 2, Nhà DII, phòng D14. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.
+
+Hỏi: Khoa Nhi ở đâu?
+Đáp: Khoa Nhi có ở 2 toà nhà: tầng 2, Nhà DI, phòng D3 hoặc D4 · tầng 2, Nhà DII, phòng D13. Quý vị xem trên phiếu khám xem mình theo dõi ở toà nào, hoặc hỏi quầy lễ tân.
+
+Hỏi: Cho tôi hỏi khoa nhi
+Đáp: Khoa Nhi có ở 2 toà nhà: tầng 2, Nhà DI, phòng D3 hoặc D4 · tầng 2, Nhà DII, phòng D13. Quý vị xem trên phiếu khám xem mình theo dõi ở toà nào, hoặc hỏi quầy lễ tân.
+
+Hỏi: Tôi muốn đến khoa nhi
+Đáp: Khoa Nhi có ở 2 toà nhà: tầng 2, Nhà DI, phòng D3 hoặc D4 · tầng 2, Nhà DII, phòng D13. Quý vị xem trên phiếu khám xem mình theo dõi ở toà nào, hoặc hỏi quầy lễ tân.
+
+Hỏi: Khoa Nhi ở tầng mấy?
+Đáp: Khoa Nhi có ở 2 toà nhà: tầng 2, Nhà DI, phòng D3 hoặc D4 · tầng 2, Nhà DII, phòng D13. Quý vị xem trên phiếu khám xem mình theo dõi ở toà nào, hoặc hỏi quầy lễ tân.
+
+Hỏi: Khoa Mắt ở đâu?
+Đáp: Khoa Mắt ở tầng 5, Nhà DI, phòng D9. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.
+
+Hỏi: Cho tôi hỏi khoa mắt
+Đáp: Khoa Mắt ở tầng 5, Nhà DI, phòng D9. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.
+
+Hỏi: Tôi muốn đến khoa mắt
+Đáp: Khoa Mắt ở tầng 5, Nhà DI, phòng D9. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.
+
+Hỏi: Khoa Mắt ở tầng mấy?
+Đáp: Khoa Mắt ở tầng 5, Nhà DI, phòng D9. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.
+
+Hỏi: Khoa Tai Mũi Họng ở đâu?
+Đáp: Khoa Tai Mũi Họng ở tầng 5, Nhà DI, phòng D10. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.
+
+Hỏi: Cho tôi hỏi khoa tai mũi họng
+Đáp: Khoa Tai Mũi Họng ở tầng 5, Nhà DI, phòng D10. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.
+
+Hỏi: Tôi muốn đến khoa tai mũi họng
+Đáp: Khoa Tai Mũi Họng ở tầng 5, Nhà DI, phòng D10. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.
+
+Hỏi: Khoa Tai Mũi Họng ở tầng mấy?
+Đáp: Khoa Tai Mũi Họng ở tầng 5, Nhà DI, phòng D10. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.
+
+Hỏi: Khoa Nội Tiêu Hóa ở đâu?
+Đáp: Khoa Nội Tiêu Hóa ở tầng 4, Nhà DI, phòng D8. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.
+
+Hỏi: Cho tôi hỏi khoa nội tiêu hóa
+Đáp: Khoa Nội Tiêu Hóa ở tầng 4, Nhà DI, phòng D8. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.
+
+Hỏi: Tôi muốn đến khoa nội tiêu hóa
+Đáp: Khoa Nội Tiêu Hóa ở tầng 4, Nhà DI, phòng D8. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.
+
+Hỏi: Khoa Nội Tiêu Hóa ở tầng mấy?
+Đáp: Khoa Nội Tiêu Hóa ở tầng 4, Nhà DI, phòng D8. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.
+
+Hỏi: Khoa Nội Phổi – Tiết Niệu – Hô Hấp ở đâu?
+Đáp: Khoa Nội Phổi – Tiết Niệu – Hô Hấp ở tầng 4, Nhà DII, phòng D17 hoặc D18. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.
+
+Hỏi: Cho tôi hỏi khoa nội phổi – tiết niệu – hô hấp
+Đáp: Khoa Nội Phổi – Tiết Niệu – Hô Hấp ở tầng 4, Nhà DII, phòng D17 hoặc D18. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.
+
+Hỏi: Tôi muốn đến khoa nội phổi – tiết niệu – hô hấp
+Đáp: Khoa Nội Phổi – Tiết Niệu – Hô Hấp ở tầng 4, Nhà DII, phòng D17 hoặc D18. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.
+
+Hỏi: Khoa Nội Phổi – Tiết Niệu – Hô Hấp ở tầng mấy?
+Đáp: Khoa Nội Phổi – Tiết Niệu – Hô Hấp ở tầng 4, Nhà DII, phòng D17 hoặc D18. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.
+
+Hỏi: Khoa Ngoại Thận – Tiết Niệu ở đâu?
+Đáp: Khoa Ngoại Thận – Tiết Niệu ở tầng 3, Nhà DI, phòng D5. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.
+
+Hỏi: Cho tôi hỏi khoa ngoại thận – tiết niệu
+Đáp: Khoa Ngoại Thận – Tiết Niệu ở tầng 3, Nhà DI, phòng D5. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.
+
+Hỏi: Tôi muốn đến khoa ngoại thận – tiết niệu
+Đáp: Khoa Ngoại Thận – Tiết Niệu ở tầng 3, Nhà DI, phòng D5. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.
+
+Hỏi: Khoa Ngoại Thận – Tiết Niệu ở tầng mấy?
+Đáp: Khoa Ngoại Thận – Tiết Niệu ở tầng 3, Nhà DI, phòng D5. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.
+
+Hỏi: Khoa Ngoại Tiêu Hóa – Tổng Hợp ở đâu?
+Đáp: Khoa Ngoại Tiêu Hóa – Tổng Hợp ở tầng 3, Nhà DI, phòng D6. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.
+
+Hỏi: Cho tôi hỏi khoa ngoại tiêu hóa – tổng hợp
+Đáp: Khoa Ngoại Tiêu Hóa – Tổng Hợp ở tầng 3, Nhà DI, phòng D6. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.
+
+Hỏi: Tôi muốn đến khoa ngoại tiêu hóa – tổng hợp
+Đáp: Khoa Ngoại Tiêu Hóa – Tổng Hợp ở tầng 3, Nhà DI, phòng D6. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.
+
+Hỏi: Khoa Ngoại Tiêu Hóa – Tổng Hợp ở tầng mấy?
+Đáp: Khoa Ngoại Tiêu Hóa – Tổng Hợp ở tầng 3, Nhà DI, phòng D6. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.
+
+Hỏi: Khoa Ngoại Thần Kinh ở đâu?
+Đáp: Khoa Ngoại Thần Kinh ở tầng 3, Nhà DII, phòng D16. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.
+
+Hỏi: Cho tôi hỏi khoa ngoại thần kinh
+Đáp: Khoa Ngoại Thần Kinh ở tầng 3, Nhà DII, phòng D16. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.
+
+Hỏi: Tôi muốn đến khoa ngoại thần kinh
+Đáp: Khoa Ngoại Thần Kinh ở tầng 3, Nhà DII, phòng D16. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.
+
+Hỏi: Khoa Ngoại Thần Kinh ở tầng mấy?
+Đáp: Khoa Ngoại Thần Kinh ở tầng 3, Nhà DII, phòng D16. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.
+
+Hỏi: Khoa Tâm Thần Kinh – Cơ Xương Khớp ở đâu?
+Đáp: Khoa Tâm Thần Kinh – Cơ Xương Khớp ở tầng 5, Nhà DII, phòng D19 hoặc D20. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.
+
+Hỏi: Cho tôi hỏi khoa tâm thần kinh – cơ xương khớp
+Đáp: Khoa Tâm Thần Kinh – Cơ Xương Khớp ở tầng 5, Nhà DII, phòng D19 hoặc D20. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.
+
+Hỏi: Tôi muốn đến khoa tâm thần kinh – cơ xương khớp
+Đáp: Khoa Tâm Thần Kinh – Cơ Xương Khớp ở tầng 5, Nhà DII, phòng D19 hoặc D20. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.
+
+Hỏi: Khoa Tâm Thần Kinh – Cơ Xương Khớp ở tầng mấy?
+Đáp: Khoa Tâm Thần Kinh – Cơ Xương Khớp ở tầng 5, Nhà DII, phòng D19 hoặc D20. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.
+
+Hỏi: Khoa Y Học Cổ Truyền ở đâu?
+Đáp: Khoa Y Học Cổ Truyền ở tầng 3, Nhà DII, phòng D15. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.
+
+Hỏi: Cho tôi hỏi khoa y học cổ truyền
+Đáp: Khoa Y Học Cổ Truyền ở tầng 3, Nhà DII, phòng D15. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.
+
+Hỏi: Tôi muốn đến khoa y học cổ truyền
+Đáp: Khoa Y Học Cổ Truyền ở tầng 3, Nhà DII, phòng D15. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.
+
+Hỏi: Khoa Y Học Cổ Truyền ở tầng mấy?
+Đáp: Khoa Y Học Cổ Truyền ở tầng 3, Nhà DII, phòng D15. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.
+
+Hỏi: Khoa Giải Phẫu Bệnh ở đâu?
+Đáp: Khoa Giải Phẫu Bệnh ở tầng 2, Nhà DIII. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.
+
+Hỏi: Cho tôi hỏi khoa giải phẫu bệnh
+Đáp: Khoa Giải Phẫu Bệnh ở tầng 2, Nhà DIII. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.
+
+Hỏi: Tôi muốn đến khoa giải phẫu bệnh
+Đáp: Khoa Giải Phẫu Bệnh ở tầng 2, Nhà DIII. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.
+
+Hỏi: Khoa Giải Phẫu Bệnh ở tầng mấy?
+Đáp: Khoa Giải Phẫu Bệnh ở tầng 2, Nhà DIII. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.
+
+Hỏi: Các Phòng Ban Hành Chính ở đâu?
+Đáp: Các Phòng Ban Hành Chính ở tầng 3, Nhà DIII. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.
+
+Hỏi: Cho tôi hỏi các phòng ban hành chính
+Đáp: Các Phòng Ban Hành Chính ở tầng 3, Nhà DIII. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.
+
+Hỏi: Tôi muốn đến các phòng ban hành chính
+Đáp: Các Phòng Ban Hành Chính ở tầng 3, Nhà DIII. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.
+
+Hỏi: Các Phòng Ban Hành Chính ở tầng mấy?
+Đáp: Các Phòng Ban Hành Chính ở tầng 3, Nhà DIII. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.
+
+Hỏi: Khu Thăm dò chức năng ở đâu?
+Đáp: Khu Thăm dò chức năng ở tầng 1, Nhà A. Tôi dẫn quý vị tới tận nơi được.
+
+Hỏi: Cho tôi hỏi khu thăm dò chức năng
+Đáp: Khu Thăm dò chức năng ở tầng 1, Nhà A. Tôi dẫn quý vị tới tận nơi được.
+
+Hỏi: Tôi muốn đến khu thăm dò chức năng
+Đáp: Khu Thăm dò chức năng ở tầng 1, Nhà A. Tôi dẫn quý vị tới tận nơi được.
+
+Hỏi: Khu Thăm dò chức năng ở tầng mấy?
+Đáp: Khu Thăm dò chức năng ở tầng 1, Nhà A. Tôi dẫn quý vị tới tận nơi được.
+
+Hỏi: Khoa Răng Hàm Mặt ở đâu?
+Đáp: Khoa Răng Hàm Mặt ở tầng 1, Nhà B, phòng D7. Tôi dẫn quý vị tới tận nơi được.
+
+Hỏi: Cho tôi hỏi khoa răng hàm mặt
+Đáp: Khoa Răng Hàm Mặt ở tầng 1, Nhà B, phòng D7. Tôi dẫn quý vị tới tận nơi được.
+
+Hỏi: Tôi muốn đến khoa răng hàm mặt
+Đáp: Khoa Răng Hàm Mặt ở tầng 1, Nhà B, phòng D7. Tôi dẫn quý vị tới tận nơi được.
+
+Hỏi: Khoa Răng Hàm Mặt ở tầng mấy?
+Đáp: Khoa Răng Hàm Mặt ở tầng 1, Nhà B, phòng D7. Tôi dẫn quý vị tới tận nơi được.
+
+Hỏi: Khoa Chẩn đoán hình ảnh ở đâu?
+Đáp: Khoa Chẩn đoán hình ảnh ở tầng 1, Nhà F, phòng CĐHA. Tôi dẫn quý vị tới tận nơi được.
+
+Hỏi: Cho tôi hỏi khoa chẩn đoán hình ảnh
+Đáp: Khoa Chẩn đoán hình ảnh ở tầng 1, Nhà F, phòng CĐHA. Tôi dẫn quý vị tới tận nơi được.
+
+Hỏi: Tôi muốn đến khoa chẩn đoán hình ảnh
+Đáp: Khoa Chẩn đoán hình ảnh ở tầng 1, Nhà F, phòng CĐHA. Tôi dẫn quý vị tới tận nơi được.
+
+Hỏi: Khoa Chẩn đoán hình ảnh ở tầng mấy?
+Đáp: Khoa Chẩn đoán hình ảnh ở tầng 1, Nhà F, phòng CĐHA. Tôi dẫn quý vị tới tận nơi được.
+
+Hỏi: Phòng D1 ở đâu?
+Đáp: Phòng D1 là Khoa Phụ Sản, ở tầng 1, Nhà DI, phòng D1 hoặc D2. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.
+
+Hỏi: D1 là khoa gì?
+Đáp: Phòng D1 là Khoa Phụ Sản, ở tầng 1, Nhà DI, phòng D1 hoặc D2. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.
+
+Hỏi: Cho tôi tìm D1
+Đáp: Phòng D1 là Khoa Phụ Sản, ở tầng 1, Nhà DI, phòng D1 hoặc D2. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.
+
+Hỏi: Phòng D2 ở đâu?
+Đáp: Phòng D2 là Khoa Phụ Sản, ở tầng 1, Nhà DI, phòng D1 hoặc D2. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.
+
+Hỏi: D2 là khoa gì?
+Đáp: Phòng D2 là Khoa Phụ Sản, ở tầng 1, Nhà DI, phòng D1 hoặc D2. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.
+
+Hỏi: Cho tôi tìm D2
+Đáp: Phòng D2 là Khoa Phụ Sản, ở tầng 1, Nhà DI, phòng D1 hoặc D2. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.
+
+Hỏi: Phòng D11 ở đâu?
+Đáp: Phòng D11 là Khoa Phụ Sản, ở tầng 1, Nhà DII, phòng D11 hoặc D12. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.
+
+Hỏi: D11 là khoa gì?
+Đáp: Phòng D11 là Khoa Phụ Sản, ở tầng 1, Nhà DII, phòng D11 hoặc D12. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.
+
+Hỏi: Cho tôi tìm D11
+Đáp: Phòng D11 là Khoa Phụ Sản, ở tầng 1, Nhà DII, phòng D11 hoặc D12. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.
+
+Hỏi: Phòng D12 ở đâu?
+Đáp: Phòng D12 là Khoa Phụ Sản, ở tầng 1, Nhà DII, phòng D11 hoặc D12. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.
+
+Hỏi: D12 là khoa gì?
+Đáp: Phòng D12 là Khoa Phụ Sản, ở tầng 1, Nhà DII, phòng D11 hoặc D12. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.
+
+Hỏi: Cho tôi tìm D12
+Đáp: Phòng D12 là Khoa Phụ Sản, ở tầng 1, Nhà DII, phòng D11 hoặc D12. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.
+
+Hỏi: Phòng D21 ở đâu?
+Đáp: Phòng D21 là Khoa Phụ Sản, ở tầng 1, Nhà DIII, phòng D21 hoặc D22. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.
+
+Hỏi: D21 là khoa gì?
+Đáp: Phòng D21 là Khoa Phụ Sản, ở tầng 1, Nhà DIII, phòng D21 hoặc D22. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.
+
+Hỏi: Cho tôi tìm D21
+Đáp: Phòng D21 là Khoa Phụ Sản, ở tầng 1, Nhà DIII, phòng D21 hoặc D22. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.
+
+Hỏi: Phòng D22 ở đâu?
+Đáp: Phòng D22 là Khoa Phụ Sản, ở tầng 1, Nhà DIII, phòng D21 hoặc D22. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.
+
+Hỏi: D22 là khoa gì?
+Đáp: Phòng D22 là Khoa Phụ Sản, ở tầng 1, Nhà DIII, phòng D21 hoặc D22. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.
+
+Hỏi: Cho tôi tìm D22
+Đáp: Phòng D22 là Khoa Phụ Sản, ở tầng 1, Nhà DIII, phòng D21 hoặc D22. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.
+
+Hỏi: Phòng D14 ở đâu?
+Đáp: Phòng D14 là Khoa Sơ Sinh, ở tầng 2, Nhà DII. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.
+
+Hỏi: D14 là khoa gì?
+Đáp: Phòng D14 là Khoa Sơ Sinh, ở tầng 2, Nhà DII. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.
+
+Hỏi: Cho tôi tìm D14
+Đáp: Phòng D14 là Khoa Sơ Sinh, ở tầng 2, Nhà DII. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.
+
+Hỏi: Phòng D3 ở đâu?
+Đáp: Phòng D3 là Khoa Nhi, ở tầng 2, Nhà DI, phòng D3 hoặc D4. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.
+
+Hỏi: D3 là khoa gì?
+Đáp: Phòng D3 là Khoa Nhi, ở tầng 2, Nhà DI, phòng D3 hoặc D4. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.
+
+Hỏi: Cho tôi tìm D3
+Đáp: Phòng D3 là Khoa Nhi, ở tầng 2, Nhà DI, phòng D3 hoặc D4. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.
+
+Hỏi: Phòng D4 ở đâu?
+Đáp: Phòng D4 là Khoa Nhi, ở tầng 2, Nhà DI, phòng D3 hoặc D4. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.
+
+Hỏi: D4 là khoa gì?
+Đáp: Phòng D4 là Khoa Nhi, ở tầng 2, Nhà DI, phòng D3 hoặc D4. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.
+
+Hỏi: Cho tôi tìm D4
+Đáp: Phòng D4 là Khoa Nhi, ở tầng 2, Nhà DI, phòng D3 hoặc D4. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.
+
+Hỏi: Phòng D13 ở đâu?
+Đáp: Phòng D13 là Khoa Nhi, ở tầng 2, Nhà DII. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.
+
+Hỏi: D13 là khoa gì?
+Đáp: Phòng D13 là Khoa Nhi, ở tầng 2, Nhà DII. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.
+
+Hỏi: Cho tôi tìm D13
+Đáp: Phòng D13 là Khoa Nhi, ở tầng 2, Nhà DII. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.
+
+Hỏi: Phòng D9 ở đâu?
+Đáp: Phòng D9 là Khoa Mắt, ở tầng 5, Nhà DI. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.
+
+Hỏi: D9 là khoa gì?
+Đáp: Phòng D9 là Khoa Mắt, ở tầng 5, Nhà DI. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.
+
+Hỏi: Cho tôi tìm D9
+Đáp: Phòng D9 là Khoa Mắt, ở tầng 5, Nhà DI. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.
+
+Hỏi: Phòng D10 ở đâu?
+Đáp: Phòng D10 là Khoa Tai Mũi Họng, ở tầng 5, Nhà DI. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.
+
+Hỏi: D10 là khoa gì?
+Đáp: Phòng D10 là Khoa Tai Mũi Họng, ở tầng 5, Nhà DI. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.
+
+Hỏi: Cho tôi tìm D10
+Đáp: Phòng D10 là Khoa Tai Mũi Họng, ở tầng 5, Nhà DI. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.
+
+Hỏi: Phòng D8 ở đâu?
+Đáp: Phòng D8 là Khoa Nội Tiêu Hóa, ở tầng 4, Nhà DI. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.
+
+Hỏi: D8 là khoa gì?
+Đáp: Phòng D8 là Khoa Nội Tiêu Hóa, ở tầng 4, Nhà DI. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.
+
+Hỏi: Cho tôi tìm D8
+Đáp: Phòng D8 là Khoa Nội Tiêu Hóa, ở tầng 4, Nhà DI. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.
+
+Hỏi: Phòng D17 ở đâu?
+Đáp: Phòng D17 là Khoa Nội Phổi – Tiết Niệu – Hô Hấp, ở tầng 4, Nhà DII, phòng D17 hoặc D18. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.
+
+Hỏi: D17 là khoa gì?
+Đáp: Phòng D17 là Khoa Nội Phổi – Tiết Niệu – Hô Hấp, ở tầng 4, Nhà DII, phòng D17 hoặc D18. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.
+
+Hỏi: Cho tôi tìm D17
+Đáp: Phòng D17 là Khoa Nội Phổi – Tiết Niệu – Hô Hấp, ở tầng 4, Nhà DII, phòng D17 hoặc D18. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.
+
+Hỏi: Phòng D18 ở đâu?
+Đáp: Phòng D18 là Khoa Nội Phổi – Tiết Niệu – Hô Hấp, ở tầng 4, Nhà DII, phòng D17 hoặc D18. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.
+
+Hỏi: D18 là khoa gì?
+Đáp: Phòng D18 là Khoa Nội Phổi – Tiết Niệu – Hô Hấp, ở tầng 4, Nhà DII, phòng D17 hoặc D18. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.
+
+Hỏi: Cho tôi tìm D18
+Đáp: Phòng D18 là Khoa Nội Phổi – Tiết Niệu – Hô Hấp, ở tầng 4, Nhà DII, phòng D17 hoặc D18. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.
+
+Hỏi: Phòng D5 ở đâu?
+Đáp: Phòng D5 là Khoa Ngoại Thận – Tiết Niệu, ở tầng 3, Nhà DI. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.
+
+Hỏi: D5 là khoa gì?
+Đáp: Phòng D5 là Khoa Ngoại Thận – Tiết Niệu, ở tầng 3, Nhà DI. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.
+
+Hỏi: Cho tôi tìm D5
+Đáp: Phòng D5 là Khoa Ngoại Thận – Tiết Niệu, ở tầng 3, Nhà DI. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.
+
+Hỏi: Phòng D6 ở đâu?
+Đáp: Phòng D6 là Khoa Ngoại Tiêu Hóa – Tổng Hợp, ở tầng 3, Nhà DI. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.
+
+Hỏi: D6 là khoa gì?
+Đáp: Phòng D6 là Khoa Ngoại Tiêu Hóa – Tổng Hợp, ở tầng 3, Nhà DI. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.
+
+Hỏi: Cho tôi tìm D6
+Đáp: Phòng D6 là Khoa Ngoại Tiêu Hóa – Tổng Hợp, ở tầng 3, Nhà DI. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.
+
+Hỏi: Phòng D16 ở đâu?
+Đáp: Phòng D16 là Khoa Ngoại Thần Kinh, ở tầng 3, Nhà DII. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.
+
+Hỏi: D16 là khoa gì?
+Đáp: Phòng D16 là Khoa Ngoại Thần Kinh, ở tầng 3, Nhà DII. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.
+
+Hỏi: Cho tôi tìm D16
+Đáp: Phòng D16 là Khoa Ngoại Thần Kinh, ở tầng 3, Nhà DII. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.
+
+Hỏi: Phòng D19 ở đâu?
+Đáp: Phòng D19 là Khoa Tâm Thần Kinh – Cơ Xương Khớp, ở tầng 5, Nhà DII, phòng D19 hoặc D20. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.
+
+Hỏi: D19 là khoa gì?
+Đáp: Phòng D19 là Khoa Tâm Thần Kinh – Cơ Xương Khớp, ở tầng 5, Nhà DII, phòng D19 hoặc D20. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.
+
+Hỏi: Cho tôi tìm D19
+Đáp: Phòng D19 là Khoa Tâm Thần Kinh – Cơ Xương Khớp, ở tầng 5, Nhà DII, phòng D19 hoặc D20. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.
+
+Hỏi: Phòng D20 ở đâu?
+Đáp: Phòng D20 là Khoa Tâm Thần Kinh – Cơ Xương Khớp, ở tầng 5, Nhà DII, phòng D19 hoặc D20. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.
+
+Hỏi: D20 là khoa gì?
+Đáp: Phòng D20 là Khoa Tâm Thần Kinh – Cơ Xương Khớp, ở tầng 5, Nhà DII, phòng D19 hoặc D20. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.
+
+Hỏi: Cho tôi tìm D20
+Đáp: Phòng D20 là Khoa Tâm Thần Kinh – Cơ Xương Khớp, ở tầng 5, Nhà DII, phòng D19 hoặc D20. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.
+
+Hỏi: Phòng D15 ở đâu?
+Đáp: Phòng D15 là Khoa Y Học Cổ Truyền, ở tầng 3, Nhà DII. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.
+
+Hỏi: D15 là khoa gì?
+Đáp: Phòng D15 là Khoa Y Học Cổ Truyền, ở tầng 3, Nhà DII. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.
+
+Hỏi: Cho tôi tìm D15
+Đáp: Phòng D15 là Khoa Y Học Cổ Truyền, ở tầng 3, Nhà DII. Tôi dẫn quý vị ra đầu hành lang, rồi chỉ đường tiếp.
+
+Hỏi: Phòng C1 ở đâu?
+Đáp: Phòng C1 là Khoa Cấp cứu, ở tầng 1, Nhà C. Nếu quý vị cần cấp cứu thì xin đi ngay, đừng chờ tôi dẫn.
+
+Hỏi: C1 là khoa gì?
+Đáp: Phòng C1 là Khoa Cấp cứu, ở tầng 1, Nhà C. Nếu quý vị cần cấp cứu thì xin đi ngay, đừng chờ tôi dẫn.
+
+Hỏi: Cho tôi tìm C1
+Đáp: Phòng C1 là Khoa Cấp cứu, ở tầng 1, Nhà C. Nếu quý vị cần cấp cứu thì xin đi ngay, đừng chờ tôi dẫn.
+
+Hỏi: Quầy tiếp đón · Đăng ký khám ở đâu?
+Đáp: Quầy tiếp đón · Đăng ký khám nằm ngay trong khu lễ tân. Tôi dẫn quý vị tới tận nơi được.
+
+Hỏi: Tôi muốn tới quầy tiếp đón · đăng ký khám
+Đáp: Quầy tiếp đón · Đăng ký khám nằm ngay trong khu lễ tân. Tôi dẫn quý vị tới tận nơi được.
+
+Hỏi: Phòng thu viện phí ở đâu?
+Đáp: Phòng thu viện phí nằm ngay trong khu lễ tân. Tôi dẫn quý vị tới tận nơi được.
+
+Hỏi: Tôi muốn tới phòng thu viện phí
+Đáp: Phòng thu viện phí nằm ngay trong khu lễ tân. Tôi dẫn quý vị tới tận nơi được.
+
+Hỏi: Nhà thuốc bệnh viện ở đâu?
+Đáp: Nhà thuốc bệnh viện nằm ngay trong khu lễ tân. Tôi dẫn quý vị tới tận nơi được.
+
+Hỏi: Tôi muốn tới nhà thuốc bệnh viện
+Đáp: Nhà thuốc bệnh viện nằm ngay trong khu lễ tân. Tôi dẫn quý vị tới tận nơi được.
+
+Hỏi: Căn tin ở đâu?
+Đáp: Căn tin nằm ngay trong khu lễ tân. Tôi dẫn quý vị tới tận nơi được.
+
+Hỏi: Tôi muốn tới căn tin
+Đáp: Căn tin nằm ngay trong khu lễ tân. Tôi dẫn quý vị tới tận nơi được.
+
+Hỏi: Nhà vệ sinh ở đâu?
+Đáp: Nhà vệ sinh nằm ngay trong khu lễ tân. Tôi dẫn quý vị tới tận nơi được.
+
+Hỏi: Tôi muốn tới nhà vệ sinh
+Đáp: Nhà vệ sinh nằm ngay trong khu lễ tân. Tôi dẫn quý vị tới tận nơi được.
+
+Hỏi: Cấp cứu ở đâu?
+Đáp: Khoa Cấp cứu ở tầng 1, Nhà C, phòng C1. Quý vị cần cấp cứu thì xin đi ngay, ĐỪNG chờ tôi dẫn — tôi đi chậm hơn người chạy.
+
+Hỏi: Tôi cần cấp cứu
+Đáp: Khoa Cấp cứu ở tầng 1, Nhà C, phòng C1. Quý vị cần cấp cứu thì xin đi ngay, ĐỪNG chờ tôi dẫn — tôi đi chậm hơn người chạy.
+
+Hỏi: Có người ngất xỉu
+Đáp: Khoa Cấp cứu ở tầng 1, Nhà C, phòng C1. Quý vị cần cấp cứu thì xin đi ngay, ĐỪNG chờ tôi dẫn — tôi đi chậm hơn người chạy.
+
+Hỏi: Khoa cấp cứu đi lối nào?
+Đáp: Khoa Cấp cứu ở tầng 1, Nhà C, phòng C1. Quý vị cần cấp cứu thì xin đi ngay, ĐỪNG chờ tôi dẫn — tôi đi chậm hơn người chạy.
+
+Hỏi: Người nhà tôi khó thở nặng
+Đáp: Khoa Cấp cứu ở tầng 1, Nhà C, phòng C1. Quý vị cần cấp cứu thì xin đi ngay, ĐỪNG chờ tôi dẫn — tôi đi chậm hơn người chạy.
+
+Hỏi: Chảy máu nhiều thì đi đâu?
+Đáp: Khoa Cấp cứu ở tầng 1, Nhà C, phòng C1. Quý vị cần cấp cứu thì xin đi ngay, ĐỪNG chờ tôi dẫn — tôi đi chậm hơn người chạy.
+
+Hỏi: Tai nạn thì vào đâu?
+Đáp: Khoa Cấp cứu ở tầng 1, Nhà C, phòng C1. Quý vị cần cấp cứu thì xin đi ngay, ĐỪNG chờ tôi dẫn — tôi đi chậm hơn người chạy.
+
+Hỏi: Ngộ độc thì đi đâu?
+Đáp: Khoa Cấp cứu ở tầng 1, Nhà C, phòng C1. Quý vị cần cấp cứu thì xin đi ngay, ĐỪNG chờ tôi dẫn — tôi đi chậm hơn người chạy.
+
+Hỏi: Có người đột quỵ
+Đáp: Khoa Cấp cứu ở tầng 1, Nhà C, phòng C1. Quý vị cần cấp cứu thì xin đi ngay, ĐỪNG chờ tôi dẫn — tôi đi chậm hơn người chạy.
+
+Hỏi: Tai nạn giao thông đưa vào đâu?
+Đáp: Khoa Cấp cứu ở tầng 1, Nhà C, phòng C1. Quý vị cần cấp cứu thì xin đi ngay, ĐỪNG chờ tôi dẫn — tôi đi chậm hơn người chạy.
+
+Hỏi: Cấp cứu có trực ban đêm không?
+Đáp: Khoa Cấp cứu ở tầng 1, Nhà C, phòng C1. Quý vị cần cấp cứu thì xin đi ngay, ĐỪNG chờ tôi dẫn — tôi đi chậm hơn người chạy.
+
+Hỏi: Robot dẫn tôi lên tầng được không?
+Đáp: Tôi đi lại trong khu lễ tân. Với ba toà DI, DII, DIII thì tôi ra tới đầu hành lang; với Nhà A, Nhà B và Nhà F thì tôi dẫn tới tận nơi. Tôi không vào trong toà nhà và không lên tầng được. Tôi dẫn quý vị tới rồi chỉ đường để quý vị đi tiếp.
+
+Hỏi: Bạn đưa tôi vào phòng khám nhé
+Đáp: Tôi đi lại trong khu lễ tân. Với ba toà DI, DII, DIII thì tôi ra tới đầu hành lang; với Nhà A, Nhà B và Nhà F thì tôi dẫn tới tận nơi. Tôi không vào trong toà nhà và không lên tầng được. Tôi dẫn quý vị tới rồi chỉ đường để quý vị đi tiếp.
+
+Hỏi: Robot đi được tới đâu?
+Đáp: Tôi đi lại trong khu lễ tân. Với ba toà DI, DII, DIII thì tôi ra tới đầu hành lang; với Nhà A, Nhà B và Nhà F thì tôi dẫn tới tận nơi. Tôi không vào trong toà nhà và không lên tầng được. Tôi dẫn quý vị tới rồi chỉ đường để quý vị đi tiếp.
+
+Hỏi: Bạn dẫn tôi vào nhà DII được không?
+Đáp: Tôi đi lại trong khu lễ tân. Với ba toà DI, DII, DIII thì tôi ra tới đầu hành lang; với Nhà A, Nhà B và Nhà F thì tôi dẫn tới tận nơi. Tôi không vào trong toà nhà và không lên tầng được. Tôi dẫn quý vị tới rồi chỉ đường để quý vị đi tiếp.
+
+Hỏi: Tôi đến khám lần đầu thì làm gì?
+Đáp: Quý vị đến khám lần đầu thì mời tới quầy tiếp đón trước. 1) Đăng ký khám: Tới quầy tiếp đón, lấy số, xuất trình căn cước và thẻ bảo hiểm y tế nếu có. 2) Vào khám: Nhân viên ghi phiếu khám có mã phòng, quý vị mang phiếu tới đúng phòng đó. 3) Xét nghiệm, chiếu chụp: Bác sĩ chỉ định thì quý vị làm theo phiếu, xong quay lại phòng khám. 4) Đóng tiền, lấy thuốc: Đóng viện phí tại phòng thu, rồi tới nhà thuốc lấy thuốc theo đơn. Quý vị nhớ mang căn cước và thẻ bảo hiểm y tế nếu có. Tôi dẫn quý vị tới quầy tiếp đón được.
+
+Hỏi: Tôi chưa có phiếu khám
+Đáp: Quý vị đến khám lần đầu thì mời tới quầy tiếp đón trước. 1) Đăng ký khám: Tới quầy tiếp đón, lấy số, xuất trình căn cước và thẻ bảo hiểm y tế nếu có. 2) Vào khám: Nhân viên ghi phiếu khám có mã phòng, quý vị mang phiếu tới đúng phòng đó. 3) Xét nghiệm, chiếu chụp: Bác sĩ chỉ định thì quý vị làm theo phiếu, xong quay lại phòng khám. 4) Đóng tiền, lấy thuốc: Đóng viện phí tại phòng thu, rồi tới nhà thuốc lấy thuốc theo đơn. Quý vị nhớ mang căn cước và thẻ bảo hiểm y tế nếu có. Tôi dẫn quý vị tới quầy tiếp đón được.
+
+Hỏi: Đăng ký khám ở đâu?
+Đáp: Quý vị đến khám lần đầu thì mời tới quầy tiếp đón trước. 1) Đăng ký khám: Tới quầy tiếp đón, lấy số, xuất trình căn cước và thẻ bảo hiểm y tế nếu có. 2) Vào khám: Nhân viên ghi phiếu khám có mã phòng, quý vị mang phiếu tới đúng phòng đó. 3) Xét nghiệm, chiếu chụp: Bác sĩ chỉ định thì quý vị làm theo phiếu, xong quay lại phòng khám. 4) Đóng tiền, lấy thuốc: Đóng viện phí tại phòng thu, rồi tới nhà thuốc lấy thuốc theo đơn. Quý vị nhớ mang căn cước và thẻ bảo hiểm y tế nếu có. Tôi dẫn quý vị tới quầy tiếp đón được.
+
+Hỏi: Khám bệnh bắt đầu từ đâu?
+Đáp: Quý vị đến khám lần đầu thì mời tới quầy tiếp đón trước. 1) Đăng ký khám: Tới quầy tiếp đón, lấy số, xuất trình căn cước và thẻ bảo hiểm y tế nếu có. 2) Vào khám: Nhân viên ghi phiếu khám có mã phòng, quý vị mang phiếu tới đúng phòng đó. 3) Xét nghiệm, chiếu chụp: Bác sĩ chỉ định thì quý vị làm theo phiếu, xong quay lại phòng khám. 4) Đóng tiền, lấy thuốc: Đóng viện phí tại phòng thu, rồi tới nhà thuốc lấy thuốc theo đơn. Quý vị nhớ mang căn cước và thẻ bảo hiểm y tế nếu có. Tôi dẫn quý vị tới quầy tiếp đón được.
+
+Hỏi: Tôi chưa biết mình khám khoa nào
+Đáp: Quý vị đến khám lần đầu thì mời tới quầy tiếp đón trước. 1) Đăng ký khám: Tới quầy tiếp đón, lấy số, xuất trình căn cước và thẻ bảo hiểm y tế nếu có. 2) Vào khám: Nhân viên ghi phiếu khám có mã phòng, quý vị mang phiếu tới đúng phòng đó. 3) Xét nghiệm, chiếu chụp: Bác sĩ chỉ định thì quý vị làm theo phiếu, xong quay lại phòng khám. 4) Đóng tiền, lấy thuốc: Đóng viện phí tại phòng thu, rồi tới nhà thuốc lấy thuốc theo đơn. Quý vị nhớ mang căn cước và thẻ bảo hiểm y tế nếu có. Tôi dẫn quý vị tới quầy tiếp đón được.
+
+Hỏi: Bạn là ai?
+Đáp: Tôi là robot lễ tân của Bệnh viện Việt Nam – Thụy Điển Uông Bí. Tôi giúp quý vị tìm khoa, tìm phòng và dẫn đường trong khu lễ tân.
+
+Hỏi: Bệnh viện có mấy toà nhà?
+Đáp: Khu khám và điều trị có ba toà: Nhà DI 5 tầng, Nhà DII 5 tầng, Nhà DIII 8 tầng. Ngoài ra còn Khu Thăm dò chức năng ở Nhà A, Khoa Răng Hàm Mặt ở Nhà B, Khoa Chẩn đoán hình ảnh ở Nhà F, Khoa Cấp cứu ở Nhà C.
+
+Hỏi: Bệnh viện có những khoa nào?
+Đáp: Bệnh viện có 18 khoa với 24 mã phòng D1 đến D22, C1 và CĐHA: Khoa Phụ Sản, Khoa Sơ Sinh, Khoa Nhi, Khoa Mắt, Khoa Tai Mũi Họng, Khoa Nội Tiêu Hóa, Khoa Nội Phổi – Tiết Niệu – Hô Hấp, Khoa Ngoại Thận – Tiết Niệu, Khoa Ngoại Tiêu Hóa – Tổng Hợp, Khoa Ngoại Thần Kinh, Khoa Tâm Thần Kinh – Cơ Xương Khớp, Khoa Y Học Cổ Truyền, Khoa Giải Phẫu Bệnh, Các Phòng Ban Hành Chính, Khu Thăm dò chức năng, Khoa Răng Hàm Mặt, Khoa Chẩn đoán hình ảnh, Khoa Cấp cứu.
+
+Hỏi: Bệnh viện làm việc mấy giờ?
+Đáp: Thông tin này tôi chưa có trong dữ liệu. Mời quý vị hỏi quầy lễ tân giúp tôi ạ.
+
+Hỏi: Hôm nay bác sĩ nào trực?
+Đáp: Thông tin này tôi chưa có trong dữ liệu. Mời quý vị hỏi quầy lễ tân giúp tôi ạ.
+
+Hỏi: Khám ở đây hết bao nhiêu tiền?
+Đáp: Thông tin này tôi chưa có trong dữ liệu. Mời quý vị hỏi quầy lễ tân giúp tôi ạ.
+
+Hỏi: Số điện thoại bệnh viện là gì?
+Đáp: Thông tin này tôi chưa có trong dữ liệu. Mời quý vị hỏi quầy lễ tân giúp tôi ạ.
+
+Hỏi: Kết quả xét nghiệm của tôi thế nào?
+Đáp: Thông tin này tôi chưa có trong dữ liệu. Mời quý vị hỏi quầy lễ tân giúp tôi ạ.
+
+Hỏi: Còn giường trống không?
+Đáp: Thông tin này tôi chưa có trong dữ liệu. Mời quý vị hỏi quầy lễ tân giúp tôi ạ.
+
+Hỏi: Bác sĩ nào giỏi nhất khoa này?
+Đáp: Thông tin này tôi chưa có trong dữ liệu. Mời quý vị hỏi quầy lễ tân giúp tôi ạ.
+
+Hỏi: Bao giờ tới lượt tôi?
+Đáp: Thông tin này tôi chưa có trong dữ liệu. Mời quý vị hỏi quầy lễ tân giúp tôi ạ.
+
+Hỏi: Tôi đặt lịch khám online được không?
+Đáp: Thông tin này tôi chưa có trong dữ liệu. Mời quý vị hỏi quầy lễ tân giúp tôi ạ.
+
+Hỏi: Bệnh viện thành lập năm nào?
+Đáp: Thông tin này tôi chưa có trong dữ liệu. Mời quý vị hỏi quầy lễ tân giúp tôi ạ.
+
+Hỏi: Tôi bị bệnh gì?
+Đáp: Tôi là robot chỉ đường, tôi không khám bệnh và không đoán bệnh được. Tôi chỉ giúp quý vị tìm đúng khoa, còn bác sĩ ở phòng khám mới là người quyết định.
+
+Hỏi: Bệnh của tôi có nặng không?
+Đáp: Tôi là robot chỉ đường, tôi không khám bệnh và không đoán bệnh được. Tôi chỉ giúp quý vị tìm đúng khoa, còn bác sĩ ở phòng khám mới là người quyết định.
+
+Hỏi: Tôi nên uống thuốc gì?
+Đáp: Tôi là robot chỉ đường, tôi không khám bệnh và không đoán bệnh được. Tôi chỉ giúp quý vị tìm đúng khoa, còn bác sĩ ở phòng khám mới là người quyết định.
+
+Hỏi: Xem giúp tôi kết quả này với
+Đáp: Tôi là robot chỉ đường, tôi không khám bệnh và không đoán bệnh được. Tôi chỉ giúp quý vị tìm đúng khoa, còn bác sĩ ở phòng khám mới là người quyết định.
+
+Hỏi: Tôi có cần mổ không?
+Đáp: Tôi là robot chỉ đường, tôi không khám bệnh và không đoán bệnh được. Tôi chỉ giúp quý vị tìm đúng khoa, còn bác sĩ ở phòng khám mới là người quyết định.

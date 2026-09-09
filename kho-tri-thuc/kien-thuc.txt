@@ -1,0 +1,111 @@
+KIẾN THỨC ROBOT LỄ TÂN — Bệnh viện Việt Nam – Thụy Điển Uông Bí
+======================================================================
+
+Sinh tự động từ du-lieu/app-data.json bởi dung-kho-tri-thuc.py. Đừng sửa tay file này.
+Cập nhật: 08/09/2026
+Nguồn: Tài liệu hướng dẫn robot lễ tân do bệnh viện cung cấp — 10-project/Benh-vien-Uong-Bi/01-khao-sat/
+
+
+PHẠM VI ĐI LẠI CỦA ROBOT
+======================================================================
+
+Với 16 khoa trong ba toà DI, DII và DIII: robot chỉ ra tới đầu hành lang, rồi đứng
+đó chỉ đường bằng lời.
+Với Khu Thăm dò chức năng (Nhà A), Khoa Răng Hàm Mặt (Nhà B) và Khoa Chẩn đoán hình
+ảnh (Nhà F): robot dẫn tới tận nơi, vì bản đồ có điểm riêng cho mấy chỗ này.
+Với Khoa Cấp cứu (Nhà C): robot KHÔNG dẫn — chỉ nói chỗ và giục đi ngay, vì robot
+đi chậm hơn người chạy.
+Robot không vào trong toà nhà, không lên thang máy, không lên tầng.
+
+
+CÁC TOÀ NHÀ
+======================================================================
+
+Nhà DI có 5 tầng.
+Nhà DII có 5 tầng.
+Nhà DIII có 8 tầng.
+Ngoài ra còn Nhà A, Nhà B, Nhà C và Nhà F — mỗi nhà có một khoa nằm ở tầng một.
+
+
+BẢNG KHOA PHÒNG
+======================================================================
+
+Mỗi dòng là một chỗ, đọc theo khuôn: tên khoa, tầng, toà nhà, mã phòng.
+
+- Khoa Phụ Sản: tầng 1, Nhà DI, phòng D1 hoặc D2. (Sản phụ khoa, sinh đẻ)
+- Khoa Phụ Sản: tầng 1, Nhà DII, phòng D11 hoặc D12. (Sản phụ khoa, sinh đẻ)
+- Khoa Phụ Sản: tầng 1, Nhà DIII, phòng D21 hoặc D22. (Sản phụ khoa, sinh đẻ)
+- Khoa Sơ Sinh: tầng 2, Nhà DII, phòng D14. (Chăm sóc trẻ sơ sinh)
+- Khoa Nhi: tầng 2, Nhà DI, phòng D3 hoặc D4. (Nhi khoa, trẻ em)
+- Khoa Nhi: tầng 2, Nhà DII, phòng D13. (Nhi khoa, trẻ em)
+- Khoa Mắt: tầng 5, Nhà DI, phòng D9. (Nhãn khoa)
+- Khoa Tai Mũi Họng: tầng 5, Nhà DI, phòng D10. (Tai, mũi, họng (TMH))
+- Khoa Nội Tiêu Hóa: tầng 4, Nhà DI, phòng D8. (Tiêu hóa nội khoa)
+- Khoa Nội Phổi – Tiết Niệu – Hô Hấp: tầng 4, Nhà DII, phòng D17 hoặc D18. (Hô hấp, phổi, tiết niệu)
+- Khoa Ngoại Thận – Tiết Niệu: tầng 3, Nhà DI, phòng D5. (Phẫu thuật thận, tiết niệu)
+- Khoa Ngoại Tiêu Hóa – Tổng Hợp: tầng 3, Nhà DI, phòng D6. (Ngoại tiêu hóa tổng hợp)
+- Khoa Ngoại Thần Kinh: tầng 3, Nhà DII, phòng D16. (Ngoại thần kinh, não bộ)
+- Khoa Tâm Thần Kinh – Cơ Xương Khớp: tầng 5, Nhà DII, phòng D19 hoặc D20. (Tâm thần, xương khớp)
+- Khoa Y Học Cổ Truyền: tầng 3, Nhà DII, phòng D15. (Y học cổ truyền, châm cứu)
+- Khoa Giải Phẫu Bệnh: tầng 2, Nhà DIII, không có mã phòng riêng. (Giải phẫu, sinh thiết bệnh lý)
+- Các Phòng Ban Hành Chính: tầng 3, Nhà DIII, không có mã phòng riêng. (Kế hoạch tổng hợp, điều dưỡng, chăm sóc khách hàng, marketing, truyền thông)
+- Khu Thăm dò chức năng: tầng 1, Nhà A, không có mã phòng riêng. (Điện tim, siêu âm tim, điện cơ, điện não, nội soi thường)
+- Khoa Răng Hàm Mặt: tầng 1, Nhà B, phòng D7. (Sâu răng, viêm tuỷ, nhổ răng khôn, chỉnh hình hàm mặt)
+- Khoa Chẩn đoán hình ảnh: tầng 1, Nhà F, phòng CĐHA. (X-quang, siêu âm, CT, MRI)
+- Khoa Cấp cứu: tầng 1, Nhà C, phòng C1. (Tiếp nhận, xử trí ban đầu ca nguy kịch — trực 24/7)
+
+
+CÁC CHỖ TRONG KHU LỄ TÂN — ROBOT DẪN THẲNG TỚI NƠI
+======================================================================
+
+- Quầy tiếp đón · Đăng ký khám: Lấy số, xuất trình bảo hiểm, đăng ký khám
+- Phòng thu viện phí: Đóng tiền, thanh toán viện phí, lấy hoá đơn
+- Nhà thuốc bệnh viện: Lấy thuốc theo đơn, mua thuốc
+- Căn tin: Ăn uống, nước, đồ dùng cho người nhà
+- Nhà vệ sinh: Nhà vệ sinh khu lễ tân
+
+
+KHOA CÓ MẶT Ở NHIỀU TOÀ NHÀ
+======================================================================
+
+Gặp mấy khoa này thì PHẢI HỎI LẠI người bệnh đang theo dõi ở toà nào.
+Không được tự chọn một toà.
+
+- Khoa Phụ Sản: tầng 1, Nhà DI, phòng D1 hoặc D2 · tầng 1, Nhà DII, phòng D11 hoặc D12 · tầng 1, Nhà DIII, phòng D21 hoặc D22
+- Khoa Nhi: tầng 2, Nhà DI, phòng D3 hoặc D4 · tầng 2, Nhà DII, phòng D13
+
+
+CẤP CỨU
+======================================================================
+
+Khoa Cấp cứu ở tầng 1, Nhà C, phòng C1. Quý vị cần cấp cứu thì xin đi ngay, ĐỪNG chờ tôi dẫn — tôi đi chậm hơn người chạy.
+
+Robot KHÔNG dẫn người cấp cứu: robot đi 0,5 đến 0,8 mét mỗi giây, chậm hơn người
+đang chạy. Bảo người nhà bệnh nhân đi theo robot là làm chậm họ.
+
+
+KHÁM LẦN ĐẦU, CHƯA CÓ PHIẾU
+======================================================================
+
+1. Đăng ký khám: Tới quầy tiếp đón, lấy số, xuất trình căn cước và thẻ bảo hiểm y tế nếu có.
+2. Vào khám: Nhân viên ghi phiếu khám có mã phòng, quý vị mang phiếu tới đúng phòng đó.
+3. Xét nghiệm, chiếu chụp: Bác sĩ chỉ định thì quý vị làm theo phiếu, xong quay lại phòng khám.
+4. Đóng tiền, lấy thuốc: Đóng viện phí tại phòng thu, rồi tới nhà thuốc lấy thuốc theo đơn.
+
+
+NHỮNG THỨ ROBOT CHƯA CÓ DỮ LIỆU
+======================================================================
+
+Bệnh viện chưa cung cấp, nên robot phải nói thẳng là chưa có và mời hỏi quầy lễ
+tân. TUYỆT ĐỐI KHÔNG ĐOÁN:
+
+giờ làm việc, lịch trực, số điện thoại, giá khám, viện phí, tên bác sĩ, lịch mổ,
+kết quả xét nghiệm, số giường trống, đặt lịch khám, lịch sử bệnh viện.
+
+
+ROBOT KHÔNG PHẢI BÁC SĨ
+======================================================================
+
+Không chẩn đoán, không đoán bệnh, không khuyên dùng thuốc, không nhận xét kết quả
+xét nghiệm. Người bệnh kể triệu chứng thì robot chỉ giúp tìm khoa phù hợp, và nói
+rõ bác sĩ mới là người quyết định.
