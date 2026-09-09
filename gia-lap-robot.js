@@ -26,6 +26,11 @@
     dangDi: null,
     dangDoc: null,
     daNoi: [],             // mọi câu robot đã nói — bộ thử tự động đọc ở đây
+    /* Mọi lệnh dẫn đường đã phát xuống Kotlin. Phải ĐẾM LỆNH chứ không nhìn màn
+       hình: lỗi "AI trả lời đúng chỗ rồi đứng im" (09/09/2026) không hiện ra
+       trong ảnh chụp — màn chỉ đường vẫn mở, nút vẫn sáng, chỉ là bánh xe
+       không quay. Ảnh chụp trông y hệt lúc chạy đúng. */
+    daDan: [],
     /* Dựng lại cờ nhanCauTraLoi bên Kotlin: lượt hỏi này còn hiệu lực không.
        Không có nó thì bộ thử không bao giờ bắt được lỗi "người bệnh đã bấm Quay
        lại mà robot vẫn đọc câu của lượt cũ" — vì lớp web không giữ cờ này. */
@@ -105,6 +110,7 @@
      giữa đường chỉ đẩy CHỮ, không đọc thành tiếng. */
   function danDuongToiDiem(ten) {
     ten = (ten || '').trim();
+    GL.daDan.push(ten);
     ghi('lenh', 'CAU.danDuongToiDiem("' + ten + '")');
     if (!ten) { window.baoDanDuong('loi', 'Chưa cấu hình điểm đến cho chỗ này.'); return; }
     if (GL.lyDoChan) {

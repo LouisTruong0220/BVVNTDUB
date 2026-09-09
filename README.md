@@ -379,9 +379,42 @@ nghe được câu (onASRResult) hoặc gõ chữ (CAU.hoiRobot) — CÙNG MỘT
   → ② hỏi bệnh?        → từ chối, KHÔNG hỏi mô hình
   → ③ chưa có dữ liệu? → nói thẳng chưa có, KHÔNG hỏi mô hình
   → ④ tra bảng khoa phòng tại chỗ, lấy MỨC TIN CẬY
-  → ⑤ dựng prompt kèm ĐÚNG danh sách ứng viên → AgentCore.llm()
-  → ⑥ KIỂM dòng KHOA_ID → mới cho robot mở miệng
+  → ⑤ kho hỏi–đáp chung trong APK khớp chắc? → đọc nguyên văn, KHÔNG hỏi mô hình
+  → ⑥ dựng prompt kèm ĐÚNG danh sách ứng viên → AgentCore.llm()
+  → ⑦ KIỂM dòng KHOA_ID → mới cho robot mở miệng
 ```
+
+Bốn trong bảy bước không hỏi mô hình lần nào. Mỗi câu tự trả lời được là một câu không thể bịa,
+không tốn token, và không chết theo đường truyền.
+
+### Hỏi thì đứng yên, RA LỆNH thì đi thật
+
+Anh Trường báo 09/09/2026: *"AI nhận lệnh dẫn đường rồi mà robot chỉ phản hồi chỉ đường thôi,
+không thực hiện việc dẫn đường."* Đo lại đúng vậy — `goiYTuRobot` chỉ gọi `moChiTiet`, không có
+đường nào tới `CAU.danDuongToiDiem`. Sáu câu hỏi, **không một lệnh dẫn nào được phát**.
+
+Nay app phân biệt hai kiểu câu:
+
+| Người bệnh nói | Robot làm |
+|---|---|
+| "khoa mắt **ở đâu**" — câu hỏi | mở màn chỉ đường, đọc vị trí, **đứng yên** |
+| "**dẫn tôi tới** khoa mắt" — câu lệnh | mở màn, rồi **đi thật** |
+
+⚠ Cố ý không cho câu hỏi tự động đi. Sảnh chỉ có **một** con robot; để nó rời chỗ mỗi lần có
+người hỏi thì cả buổi không ai gặp được nó. Đi là việc phải có người yêu cầu — bằng miệng, hoặc
+bằng nút trên màn hình.
+
+⚠ Hai chốt an toàn nằm ở điều kiện `manDang === 'mh-ct'` trong `goiYTuRobot`:
+**cấp cứu** (`moChiTiet` bật màn đỏ `mh-cc` — robot đi 0,5–0,8 m/s, chậm hơn người chạy, tuyệt đối
+không dẫn) và **khoa ở nhiều toà** (`mh-toa` hỏi lại trước — chưa biết đi đâu thì chưa được đi).
+Câu `dẫn tôi tới phòng C1` là câu **lọt** qua lớp chặn cấp cứu (không có chữ "cấp cứu" nào), nên
+chốt màn hình mới là thứ duy nhất giữ nó lại. Bộ thử có riêng một phép cho câu đó.
+
+⚠ Chữ **"dẫn" nay là từ đệm** (`BO_QUA`). Nó là từ ra lệnh, không đích nào sở hữu nó, mà để
+nguyên thì nó tính vào mẫu số độ phủ và dìm chính câu rõ nhất: *"dẫn tôi tới khoa mắt"* khớp 1
+trên 2 từ = phủ 0,50, dưới sàn 0,55 → tụt từ CHẮC xuống CHƯA CHẮC, app thôi mở màn và robot quay
+ra hỏi lại một câu đã rõ như ban ngày. **Không** lọc `đưa` và `dắt`: `đưa` là từ dẫn của Khoa Nhi
+("đưa con đi khám"), `dắt` của Quầy tiếp đón.
 
 Bước ⑥: mô hình bắt buộc kết thúc bằng `KHOA_ID: <id>` / `KHONG_CO` / `TAM_SU`. Trả id không nằm
 trong danh sách ứng viên, hoặc quên hẳn dòng đó, thì **app vứt cả câu trả lời** và đọc câu từ chối

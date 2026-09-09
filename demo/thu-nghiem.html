@@ -1540,6 +1540,11 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
     dangDi: null,
     dangDoc: null,
     daNoi: [],             // mọi câu robot đã nói — bộ thử tự động đọc ở đây
+    /* Mọi lệnh dẫn đường đã phát xuống Kotlin. Phải ĐẾM LỆNH chứ không nhìn màn
+       hình: lỗi "AI trả lời đúng chỗ rồi đứng im" (09/09/2026) không hiện ra
+       trong ảnh chụp — màn chỉ đường vẫn mở, nút vẫn sáng, chỉ là bánh xe
+       không quay. Ảnh chụp trông y hệt lúc chạy đúng. */
+    daDan: [],
     /* Dựng lại cờ nhanCauTraLoi bên Kotlin: lượt hỏi này còn hiệu lực không.
        Không có nó thì bộ thử không bao giờ bắt được lỗi "người bệnh đã bấm Quay
        lại mà robot vẫn đọc câu của lượt cũ" — vì lớp web không giữ cờ này. */
@@ -1619,6 +1624,7 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
      giữa đường chỉ đẩy CHỮ, không đọc thành tiếng. */
   function danDuongToiDiem(ten) {
     ten = (ten || '').trim();
+    GL.daDan.push(ten);
     ghi('lenh', 'CAU.danDuongToiDiem("' + ten + '")');
     if (!ten) { window.baoDanDuong('loi', 'Chưa cấu hình điểm đến cho chỗ này.'); return; }
     if (GL.lyDoChan) {
@@ -2117,7 +2123,14 @@ function timTheoMa(q){
    vì cụm dựng từ dayTu chứ không từ danh sách này. */
 const BO_QUA = new Set(('toi di o cho la co va can muon xin giup duoc khong the quy vi ' +
   'anh chi em minh cai tim hoi den ra vao len xuong nay do gi ma se bi thi cua nguoi ' +
-  'lam sao bao gio dang khoa ai').split(' '));
+  'lam sao bao gio dang khoa ai dan').split(' '));
+/* ⚠ 'dan' (dẫn) là từ RA LỆNH, không phải từ chỉ đích — không đích nào sở hữu nó.
+   Để nguyên thì nó tính vào mẫu số của độ phủ và dìm chính câu rõ nghĩa nhất:
+   "dẫn tôi tới khoa mắt" khớp 1 trong 2 từ = phủ 0,50, dưới sàn 0,55, nên tụt
+   từ CHẮC xuống CHƯA CHẮC — app thôi mở màn chỉ đường và robot quay ra hỏi lại
+   một câu đã rõ như ban ngày. Đo 09/09/2026.
+   ⚠ KHÔNG lọc 'dua' (đưa) và 'dat' (dắt): 'dua' là từ dẫn của Khoa Nhi ("đưa con
+     đi khám") và 'dat' của Quầy tiếp đón. Hai câu lệnh dùng chúng vốn đã đủ điểm.
 
 /* ═══ CỤM ĐỆM — bỏ khỏi CÂU HỎI trước khi chấm điểm ═══
    "Bệnh viện" là tên của cả toà nhà robot đang đứng trong đó, nên nó không chỉ ra
@@ -3170,6 +3183,37 @@ window.nhanLoiNoi = function(ai, chu, xong){
      lúc mic đang mở, không thì đang nghe mà dải lại bảo "bấm nút micro". */
   if(ai === 'robot' && xong && !micChatMo && !henMoMic) datTrangThaiMic('');
 };
+/* ═══════════ NGHE RA MỘT LỆNH DẪN ĐƯỜNG ═══════════
+   Phân biệt HAI kiểu câu, vì robot phải làm hai việc khác hẳn nhau:
+
+     · CÂU HỎI — "khoa mắt ở đâu"      → mở màn chỉ đường, đọc vị trí, ĐỨNG YÊN.
+     · CÂU LỆNH — "dẫn tôi tới khoa mắt" → mở màn, RỒI ĐI THẬT.
+
+   Trước 09/09/2026 cả hai kiểu đều rơi vào nhánh thứ nhất: `goiYTuRobot` chỉ gọi
+   `moChiTiet` và không có một đường nào tới `CAU.danDuongToiDiem`. Người bệnh nói
+   "dẫn tôi tới nhà thuốc", robot đáp đúng chỗ rồi đứng im — nhìn như máy hỏng.
+   Đo bằng cách móc vào CAU.danDuongToiDiem và đếm: 0 lệnh trên 6 câu hỏi.
+
+   ⚠ Cố ý KHÔNG cho câu hỏi tự động đi. Sảnh bệnh viện chỉ có một con robot; để nó
+     rời chỗ mỗi lần có người hỏi "khoa mắt ở đâu" thì cả buổi không ai gặp được nó.
+     Đi là việc phải có người YÊU CẦU — bằng miệng, hoặc bằng nút trên màn hình.
+
+   ⚠ Nhận dạng trên câu CÒN NGUYÊN DẤU, và phải bỏ "hướng dẫn" trước khi tìm "dẫn":
+     "cho tôi hỏi hướng dẫn làm thủ tục" không phải lệnh bảo robot đi.
+   ⚠ "đưa" phải đi kèm người NÓI, không nhận "đưa" trơn: "tôi muốn đưa con đi khám"
+     là người ta kể việc của mình, không phải sai robot dẫn đường. */
+/* ⚠ Viết thẳng dạng /.../ chứ ĐỪNG dựng bằng new RegExp('...'): trong chuỗi JS thì
+   '\s' không phải lớp khoảng trắng, nó chỉ là chữ 's'. Biểu thức vẫn dịch được, vẫn
+   chạy, chỉ là khớp sai — đúng loại lỗi không có gì báo. Đã dính đúng lần này. */
+const RE_XIN_DAN = /(^|\s)(dẫn|dắt)(\s|$)|đưa\s+(tôi|em|con tôi|chúng tôi|mẹ|bố|ba|bà|ông|vợ|chồng|cháu)|đi\s+cùng\s+(tôi|chúng tôi)/i;
+
+function xinDanDuong(cau){
+  /* "hướng dẫn" chứa nguyên chữ "dẫn" — bỏ cụm đó ra trước, không thì mọi câu hỏi
+     có chữ "hướng dẫn" đều bị hiểu thành lệnh bảo robot lăn bánh. */
+  const s = (cau || '').toLowerCase().replace(/hướng\s*dẫn/g, ' ');
+  return RE_XIN_DAN.test(s);
+}
+
 /* Android gọi lên khi nghe thấy tên một khoa — mở thẳng trang chỉ đường.
    Chỉ mở khi tra cứu CHẮC: mở nhầm trang còn tệ hơn không mở, người bệnh đang
    đứng nhìn màn hình mà nó nhảy sang khoa khác thì rối hơn là để nguyên. */
@@ -3181,10 +3225,28 @@ window.goiYTuRobot = function(cauNoi){
     appTuChuyenMan = true;
     try{ moChiTiet(r.ds[0].id, null, null, true); }
     finally{ appTuChuyenMan = false; }
-    return 1;
+
+    /* Người bệnh RA LỆNH thì đi thật. Điều kiện `manDang === 'mh-ct'` làm luôn hai
+       chốt an toàn mà không cần viết riêng, vì moChiTiet vừa chạy xong đã tự rẽ:
+         · CẤP CỨU  → nó bật màn đỏ 'mh-cc'. Robot TUYỆT ĐỐI KHÔNG DẪN người cấp
+           cứu — robot đi 0,5–0,8 m/s, chậm hơn người đang chạy, bảo người nhà đi
+           theo là làm chậm họ. Không ở 'mh-ct' nghĩa là không đi.
+         · KHOA Ở NHIỀU TOÀ (Phụ Sản, Nhi) mà chưa biết toà nào → nó bật 'mh-toa'
+           hỏi lại. Chưa biết đi đâu thì chưa được đi.
+       Còn robot bận, mất định vị, đích chưa gắn điểm bản đồ thì danDuong() và
+       Cau.danDuongToiDiem đã chặn sẵn — không nhân bản chốt ở đây. */
+    if(xinDanDuong(cauNoi) && manDang === 'mh-ct'){
+      /* KHÔNG gọi thaoTac(): đây là app tự đi theo lời người bệnh, không phải người
+         bệnh bỏ ngang. Gọi vào đó là hạ cờ nhanCauTraLoi, và câu trả lời của mô hình
+         đang trên đường về sẽ bị vứt — robot lăn bánh mà câm. */
+      danDuong();
+      return 2;                 /* 2 = đã mở màn VÀ đã phát lệnh đi */
+    }
+    return 1;                   /* 1 = chỉ mở màn, robot đứng yên */
   }
   return 0;
 };
+
 /* ═══════════ Android gọi xuống để TRA — trả JSON, KHÔNG đọc thành tiếng ═══════════
 
    Trả JSON chứ không trả văn xuôi, vì tầng Android cần đọc được MỨC TIN CẬY bằng máy:

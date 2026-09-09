@@ -415,6 +415,92 @@ await kiem('Nút micro cũng đổi nhãn thành "Đang nghe…"',
     document.querySelector('#nm-chu').textContent)));
 await p.evaluate(() => dongMic());
 
+/* ═══════════════════════════════════════════════════════════════════════
+   I. HỎI BẰNG MIỆNG MÀ RA LỆNH DẪN ĐƯỜNG THÌ ROBOT PHẢI ĐI THẬT
+
+   Lỗi anh Trường báo 09/09/2026: *"AI nhận lệnh dẫn đường rồi mà robot chỉ phản
+   hồi chỉ đường thôi, không thực hiện việc dẫn đường."* Đo lại đúng vậy —
+   goiYTuRobot chỉ gọi moChiTiet, không có một đường nào tới CAU.danDuongToiDiem.
+   Sáu câu hỏi, không lệnh dẫn nào được phát.
+
+   ⚠ Nhóm phép thử này ĐẾM LỆNH GỌI XUỐNG KOTLIN (GIA_LAP.daDan), không nhìn màn
+     hình. Lúc lỗi thì màn chỉ đường vẫn mở, nút vẫn sáng, chữ vẫn to — ảnh chụp
+     giống hệt lúc chạy đúng, chỉ khác mỗi chuyện bánh xe không quay.
+
+   Hai nhóm câu, và ranh giới giữa chúng mới là thứ đáng canh:
+     · CÂU LỆNH ("dẫn tôi tới…") → phải phát lệnh đi.
+     · CÂU HỎI  ("… ở đâu")      → mở màn, đọc vị trí, ĐỨNG YÊN. Sảnh chỉ có một
+       con robot; để nó rời chỗ mỗi lần có người hỏi thì cả buổi không ai gặp được.
+   ═══════════════════════════════════════════════════════════════════════ */
+console.log('\n── I. Ra lệnh bằng miệng thì robot phải lăn bánh ──');
+
+/** Nói một câu qua đúng cửa Kotlin dùng, rồi đếm lệnh dẫn đường đã phát. */
+async function kiemDan(cau, phaiDi, nhan) {
+  await p.evaluate(() => {
+    GIA_LAP.daDan.length = 0; GIA_LAP.daNoi.length = 0;
+    if (window.dungDanDuongNgay) { try { dungDanDuongNgay(); } catch (e) {} }
+    veTrangChu(); moChat();
+  });
+  await p.waitForTimeout(150);
+  await p.evaluate(c => { document.querySelector('#chat-nhap').value = c; guiChat(); }, cau);
+  await cho(async () => (await p.evaluate(() => GIA_LAP.daNoi.length)) > 0, 8000);
+  await p.waitForTimeout(300);
+  const daDan = await p.evaluate(() => GIA_LAP.daDan.slice());
+  const diThat = daDan.length > 0;
+  await kiem(nhan + '  «' + cau + '»', async () => diThat === phaiDi);
+  if (diThat !== phaiDi) {
+    console.log('    lệnh dẫn đã phát: ' + (daDan.join(', ') || '(không có lệnh nào)'));
+    console.log('    màn đang hiện  : ' + (await man()));
+  }
+}
+
+/* ① Câu LỆNH — phải đi, và phải đi tới ĐÚNG điểm bản đồ. */
+await kiemDan('dẫn tôi tới khoa mắt',            true,  'Lệnh dẫn tới khoa trong toà D → đi ra đầu hành lang');
+await kiemDan('đưa tôi tới phòng thu viện phí',  true,  'Lệnh dẫn tới tiện ích trong khu → đi thẳng');
+await kiemDan('dắt tôi ra chỗ chụp x quang',     true,  'Lệnh dẫn tới nhà F → đi tới tận nơi');
+await kiemDan('dẫn tôi ra nhà vệ sinh',          true,  'Lệnh dẫn — cách nói khác');
+
+/* ② Câu HỎI — tuyệt đối không được tự lăn bánh. */
+await kiemDan('khoa mắt ở đâu',                  false, 'Chỉ HỎI thì robot đứng yên');
+await kiemDan('nhà thuốc bệnh viện ở đâu',       false, 'Chỉ HỎI thì robot đứng yên');
+await kiemDan('tôi muốn đưa con đi khám',        false, '"đưa con đi khám" là kể việc, KHÔNG phải lệnh');
+await kiemDan('cho tôi hỏi hướng dẫn làm thủ tục', false, '"hướng dẫn" chứa chữ "dẫn" nhưng không phải lệnh');
+
+/* ③ HAI CHỐT AN TOÀN — quan trọng hơn cả nhóm ①. */
+await kiemDan('dẫn tôi tới khoa cấp cứu',        false,
+  '⚠ CẤP CỨU: dù RA LỆNH cũng TUYỆT ĐỐI KHÔNG DẪN (robot chậm hơn người chạy)');
+/* ⚠ Câu trên do LỚP CHẶN CẤP CỨU giữ — nó có chữ "cấp cứu" nên bị bắt ngay ở lớp 1,
+   không bao giờ đi tới goiYTuRobot. Câu dưới mới là câu ĐI LỌT qua lớp đó: đọc mã
+   phòng C1 thì không có chữ nào khớp TU_CAP_CUU, tra cứu ra Khoa Cấp cứu bằng đường
+   MÃ PHÒNG, và lúc ấy thứ duy nhất chặn robot lăn bánh là chốt manDang === 'mh-ct'
+   trong goiYTuRobot. Thiếu dòng này thì gỡ chốt đó ra bộ thử vẫn xanh. */
+await kiemDan('dẫn tôi tới phòng C1',            false,
+  '⚠ CẤP CỨU đi lối MÃ PHÒNG — lọt lớp chặn cấp cứu, chốt màn hình phải giữ');
+await kiemDan('dẫn tôi tới khoa nhi',            false,
+  '⚠ Khoa ở NHIỀU TOÀ: phải hỏi lại toà nào trước, chưa biết đi đâu thì chưa đi');
+
+/* ④ Nhận dạng ý định — kiểm THẲNG hàm xinDanDuong(), không đi vòng qua tra cứu.
+   Vì sao phải kiểm riêng: mấy câu chứa "hướng dẫn" đều tra cứu không ra đích nào,
+   nên chúng dừng lại từ trước, không bao giờ chạm tới nhánh dẫn đường. Kiểm qua
+   đường kia thì phép thử xanh mà chẳng canh gì cả — bỏ hẳn bước loại cụm "hướng
+   dẫn" ra, cả nhóm vẫn xanh. Đã thử ngược đúng như vậy 09/09/2026. */
+const yDinh = cau => p.evaluate(c => xinDanDuong(c), cau);
+for (const [cau, laLenh] of [
+  ['dẫn tôi tới khoa mắt',              true],
+  ['dắt tôi ra ngoài kia',              true],
+  ['đưa tôi đi',                        true],
+  ['đưa mẹ tôi tới khoa tim mạch',      true],
+  ['robot dẫn giúp tôi nhé',            true],
+  ['hướng dẫn tôi cách lấy số',         false],
+  ['cho tôi xin tờ hướng dẫn khám bệnh', false],
+  ['tôi muốn đưa con đi khám',          false],
+  ['khoa mắt ở đâu',                    false],
+  ['tôi cần chụp x quang',              false],
+]) {
+  await kiem('Nhận ra ' + (laLenh ? 'LỆNH DẪN  ' : 'câu thường') + '  «' + cau + '»',
+    async () => (await yDinh(cau)) === laLenh);
+}
+
 if (loi.length) { console.log('\n✗ Lỗi JS bắt được:'); loi.forEach(x => console.log('   ' + x)); hong += loi.length; }
 console.log('\n' + (hong ? '✗ ' + hong + ' phép kiểm KHÔNG đạt' : '✓ Tất cả phép kiểm đều đạt'));
 console.log('Ảnh: ' + RA);
