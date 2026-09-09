@@ -333,6 +333,20 @@ object Cau {
     }
 
     /**
+     * Lớp web đẩy bảng BÍ DANH điểm bản đồ xuống lúc khởi động — những tên KHÁC mà
+     * cùng chỉ một chỗ. Nguồn là BI_DANH_DIEM trong dung-du-lieu.py.
+     *
+     * ⚠ Có bảng này vì bộ dò mềm của RobotHelper chỉ bỏ DẤU, không sửa CHÍNH TẢ.
+     *   Bản đồ bệnh viện đặt "Khoa chuẩn đoán hình ảnh" trong khi app hỏi
+     *   "Khoa chan doan hinh anh" — bỏ dấu xong vẫn khác nhau, robot đứng im.
+     *   Xem RobotHelper.tenDiemThat.
+     */
+    @JavascriptInterface
+    fun datBiDanhDiem(json: String?) {
+        RobotHelper.napBiDanh(json)
+    }
+
+    /**
      * Vì sao chưa dẫn đường được — trả chuỗi rỗng nghĩa là sẵn sàng.
      * Web dùng để hiện lời nhắc ngay dưới nút, thay vì giấu nút đi cho người dân khỏi thấy.
      */

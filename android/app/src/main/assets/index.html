@@ -692,52 +692,77 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
   "tiep-don": {
    "ten": "Quầy tiếp đón · Đăng ký khám",
    "diem_ban_do": "Tiep don",
-   "mau": "#B5651D"
+   "mau": "#B5651D",
+   "bi_danh": []
   },
   "vien-phi": {
    "ten": "Phòng thu viện phí",
    "diem_ban_do": "Vien phi",
-   "mau": "#B8860B"
+   "mau": "#B8860B",
+   "bi_danh": []
   },
   "nha-thuoc": {
    "ten": "Nhà thuốc bệnh viện",
    "diem_ban_do": "Nha thuoc",
-   "mau": "#1F6F5C"
+   "mau": "#1F6F5C",
+   "bi_danh": []
   },
   "can-tin": {
    "ten": "Căn tin",
    "diem_ban_do": "Can tin",
-   "mau": "#7A5AA6"
+   "mau": "#7A5AA6",
+   "bi_danh": []
   },
   "nha-ve-sinh": {
    "ten": "Nhà vệ sinh",
    "diem_ban_do": "Nha ve sinh",
-   "mau": "#2B5C9B"
+   "mau": "#2B5C9B",
+   "bi_danh": []
   },
   "truoc-hanh-lang": {
    "ten": "Đầu hành lang",
    "diem_ban_do": "Truoc hanh lang",
-   "mau": "#0E5A63"
+   "mau": "#0E5A63",
+   "bi_danh": []
   },
   "khoa-cap-cuu": {
    "ten": "Khoa Cấp cứu",
    "diem_ban_do": "Khoa cap cuu",
-   "mau": "#7A4B2A"
+   "mau": "#7A4B2A",
+   "bi_danh": [
+    "Cap cuu",
+    "Khoa cap cuu C1",
+    "Phong cap cuu"
+   ]
   },
   "tham-do-cn": {
    "ten": "Khu Thăm dò chức năng",
    "diem_ban_do": "Khu Tham do chuc nang",
-   "mau": "#5A6E8C"
+   "mau": "#5A6E8C",
+   "bi_danh": [
+    "Tham do chuc nang",
+    "Khoa Tham do chuc nang"
+   ]
   },
   "rang-ham-mat": {
    "ten": "Khoa Răng Hàm Mặt",
    "diem_ban_do": "Khoa Rang Ham Mat",
-   "mau": "#3F7A6B"
+   "mau": "#3F7A6B",
+   "bi_danh": [
+    "Rang Ham Mat",
+    "Khoa rang ham mat D7"
+   ]
   },
   "chan-doan-ha": {
    "ten": "Khoa Chẩn đoán hình ảnh",
    "diem_ban_do": "Khoa chan doan hinh anh",
-   "mau": "#6B5B95"
+   "mau": "#6B5B95",
+   "bi_danh": [
+    "Khoa chuan doan hinh anh",
+    "Chan doan hinh anh",
+    "Chuan doan hinh anh",
+    "Khoa CDHA"
+   ]
   }
  },
  "diem_ve_cho": "Sanh cho",
@@ -2834,6 +2859,21 @@ datCoChu(); veLuoi(); capNhatMic();
 /* Tên điểm robot tự về nằm trong dữ liệu, không ghi cứng trong mã Kotlin —
    đổi chỗ đứng của robot chỉ cần sửa app-data.json rồi chạy dung-app.py. */
 try{ if(coCau() && CAU.datDiemVeCho) CAU.datDiemVeCho(D.diem_ve_cho); }catch(e){}
+/* Bảng BÍ DANH điểm bản đồ — những tên KHÁC mà cùng chỉ một chỗ. Đẩy xuống Kotlin
+   một lần lúc khởi động; RobotHelper dùng làm lưới đỡ khi dò tên mềm không ra.
+   Cần nó vì dò mềm chỉ bỏ DẤU chứ không sửa CHÍNH TẢ: bản đồ bệnh viện ghi "Khoa
+   chuẩn đoán hình ảnh", app hỏi "Khoa chan doan hinh anh" — bỏ dấu xong vẫn là hai
+   chuỗi khác nhau, và đó đúng là khoa duy nhất không dẫn đường được (09/09/2026). */
+try{
+  if(coCau() && CAU.datBiDanhDiem){
+    const bd = {};
+    for(const k in D.diem){
+      const d = D.diem[k];
+      if(d.bi_danh && d.bi_danh.length) bd[d.diem_ban_do] = d.bi_danh;
+    }
+    CAU.datBiDanhDiem(JSON.stringify(bd));
+  }
+}catch(e){}
 /* App mở lên là vào màn chờ. Gọi ve() chứ không chỉ dựa vào class "hien" đặt sẵn
    trong HTML — phải qua ve() thì máy phát biểu cảm mới khởi động. */
 ve('mh-cho');

@@ -35,23 +35,68 @@ Khác tám điểm trên ở chỗ robot đi **tới tận nơi**, không dừng
 
 > 💡 **Bốn điểm này app dò tên MỀM.** Từ bản 1.4, trước khi gửi lệnh đi, app hỏi robot
 > danh sách điểm thật rồi tự dò: bỏ dấu, không phân biệt hoa thường, gộp khoảng trắng.
-> Nên `Khoa cap cuu`, `Khoa Cấp cứu` hay `KHOA CAP CUU` đều tìm ra nhau. Tám điểm đầu
-> vẫn nên giữ đúng nguyên văn cho thống nhất.
->
-> ⚠ Dò mềm **không cứu được tên khác nghĩa**: đặt `Cap cuu` (thiếu chữ "Khoa") là app
-> vẫn chịu. Cứ kiểm bằng `CAU.kiemTraBanDo()` cho chắc.
+> Nên `Khoa cap cuu`, `Khoa Cấp cứu` hay `KHOA CAP CUU` đều tìm ra nhau.
+
+### ✅ Đặt tên CÓ DẤU tiếng Việt vẫn chạy
+
+Anh Trường hỏi 09/09/2026. Câu trả lời: **có dấu không sao cả.** App bỏ dấu trước khi so tên,
+nên bản đồ ghi `Khoa Chẩn đoán hình ảnh` mà app hỏi `Khoa chan doan hinh anh` thì vẫn khớp.
+Đã đo cả **12/12 điểm** đặt tên có dấu, không điểm nào trượt.
+
+Cột "gõ đúng từng ký tự" ở hai bảng trên là **khuyến nghị cho thống nhất**, không phải điều kiện
+để chạy. Bản đồ đã đặt tên có dấu thì cứ để nguyên, đừng sửa lại cho mệt.
+
+### ⚠ Thứ dò mềm KHÔNG cứu được: sai CHÍNH TẢ
+
+Bỏ dấu chỉ bỏ **dấu thanh và dấu mũ** — nó không sửa **chữ**. Hai chuỗi này vẫn khác nhau:
+
+```
+bản đồ:  Khoa chuẩn đoán hình ảnh  →  khoa chuan doan hinh anh
+app hỏi: Khoa chan doan hinh anh   →  khoa chan doan hinh anh
+                                          ↑ khác một chữ "u"
+```
+
+Đây đúng là lỗi làm **Khoa Chẩn đoán hình ảnh** không dẫn đường được (09/09/2026) — trong khi
+ba chỗ mới kia chạy bình thường, vì chúng được đặt theo đúng tên app đưa ra. *"Chuẩn đoán"* là
+lỗi chính tả rất phổ biến của *"chẩn đoán"*; từ đúng trong y khoa là **chẩn đoán**.
+
+Từ bản 1.9 app có thêm **bảng bí danh** (`BI_DANH_DIEM` trong `dung-du-lieu.py`) nên nó nhận cả
+`Khoa chuẩn đoán hình ảnh`, `Chẩn đoán hình ảnh` (thiếu chữ "Khoa") và `Khoa CĐHA`. Cài bản 1.9
+là chạy, **không phải sửa gì trên bản đồ**.
+
+> Bí danh là **lưới đỡ**, không phải cách đặt tên. Điểm đặt mới thì cứ đặt đúng tên ở bảng trên.
+
+### ⚠ Sửa tên điểm xong phải KHỞI ĐỘNG LẠI APP — hoặc dùng bản 1.9
+
+App hỏi robot danh sách điểm **lúc khởi động**. Sửa tên hay đặt thêm điểm giữa chừng thì app vẫn
+giữ danh sách cũ, nhìn y hệt *"sửa rồi mà vẫn không dẫn được"* — và người ta sẽ đi sửa thêm lần
+nữa. Từ bản 1.9, dò tên không ra thì app **tự hỏi lại robot** rồi thử tiếp, nên không cần tắt mở
+app nữa.
+
+⚠ Dò mềm và bí danh **không cứu được tên khác nghĩa**. Cứ kiểm bằng `CAU.kiemTraBanDo()` cho chắc,
+đừng tin bằng mắt.
 
 ⚠ **Robot đi thật tới bốn chỗ này**, nên quãng đường tới đó phải đạt điều kiện của máy
 trong nhà — giống hệt phần khảo sát `Truoc hanh lang` bên dưới: bậc ≤ 2 cm, dốc ≤ 5°,
 sàn phẳng liền mạch, có mái che. Chỗ nào không đạt thì **báo lại**, đừng đặt điểm rồi
 để robot tự đi ra ngoài trời.
 
-**Bốn điều tuyệt đối phải giữ:**
+**Điều DUY NHẤT tuyệt đối phải giữ: đúng CHỮ.**
 
-1. **Không dấu tiếng Việt.** `Tiep don`, KHÔNG phải `Tiếp đón`.
-2. **Đúng hoa/thường.** Chữ cái đầu viết hoa, phần còn lại viết thường. `Nha thuoc` ≠ `Nha Thuoc`.
-3. **Đúng một dấu cách** giữa các chữ. `Truoc hanh lang` có ba chữ, hai dấu cách.
-4. **Không thêm gì phía sau.** `Vien phi` ≠ `Vien phi - Tang 1`.
+`Vien phi` ≠ `Vien phi - Tang 1`, và `chuan doan` ≠ `chan doan`. Thêm chữ, thiếu chữ, hay sai
+chính tả là robot không tìm ra điểm.
+
+Ba thứ dưới đây app **tự lo được**, ghi ra để khỏi ai mất công:
+
+| Khác nhau ở | App có nhận không |
+|---|---|
+| Dấu tiếng Việt — `Tiếp đón` ↔ `Tiep don` | ✅ nhận |
+| Hoa/thường — `Nha thuoc` ↔ `NHA THUOC` | ✅ nhận |
+| Khoảng trắng thừa — `Truoc  hanh lang ` | ✅ nhận |
+| **Sai một chữ** — `Khoa chuẩn đoán…` ↔ `Khoa chẩn đoán…` | ❌ **không**, trừ khi khai bí danh |
+
+Vẫn khuyên đặt **không dấu, đúng như bảng trên** cho thống nhất và dễ đọc lại về sau — nhưng
+bản đồ đã lỡ đặt có dấu thì **đừng sửa**, nó chạy bình thường.
 
 Muốn dùng tên khác thì **không sửa mã Kotlin** — sửa trường `diem_ban_do` trong
 `dung-du-lieu.py`, chạy `python dung-du-lieu.py` rồi `python dung-app.py`, build lại APK.

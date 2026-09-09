@@ -501,6 +501,98 @@ for (const [cau, laLenh] of [
     async () => (await yDinh(cau)) === laLenh);
 }
 
+/* ═══════════════════════════════════════════════════════════════════════
+   J. TÊN ĐIỂM BẢN ĐỒ LỆCH CHÍNH TẢ
+
+   Anh Trường báo 09/09/2026: mọi khoa dẫn đường được, RIÊNG Khoa Chẩn đoán hình
+   ảnh thì không. Đó là điểm DUY NHẤT đã có sẵn trên bản đồ từ trước — ba điểm kia
+   bệnh viện mới đặt theo đúng tên app đưa ra. Bản đồ ghi "Khoa chuẩn đoán hình
+   ảnh" ("chuẩn đoán" là lỗi chính tả rất phổ biến của "chẩn đoán"), app hỏi
+   "Khoa chan doan hinh anh".
+
+   ⚠ Bộ dò mềm chỉ bỏ DẤU và hạ chữ thường — nó KHÔNG sửa CHÍNH TẢ:
+        "khoa chuan doan hinh anh"  ≠  "khoa chan doan hinh anh"
+     Robot ném ERROR_DESTINATION_NOT_EXIST rồi đứng im. Nhìn từ ngoài y hệt máy
+     hỏng, mà lại chỉ hỏng đúng một khoa nên rất khó lần ra.
+
+   Nhóm phép thử này dựng lại BẢN ĐỒ THẬT ngoài bệnh viện rồi bắt app đi. Nó là
+   thứ duy nhất trong cả bộ kiểm được lớp khớp tên điểm — trước đây giả lập bỏ hẳn
+   bước dò tên, nên loại lỗi này không bao giờ lộ ra trên máy tính.
+   ═══════════════════════════════════════════════════════════════════════ */
+console.log('\n── J. Tên điểm trên bản đồ lệch chính tả ──');
+
+/* Bản đồ y như ngoài hiện trường: CĐHA viết "chuẩn đoán", cấp cứu còn nguyên dấu. */
+const BAN_DO_THAT = ['Tiep don', 'Vien phi', 'Nha thuoc', 'Can tin', 'Nha ve sinh',
+  'Truoc hanh lang', 'Sanh cho', 'Tram sac', 'Khoa cấp cứu',
+  'Khu Tham do chuc nang', 'Khoa Rang Ham Mat', 'Khoa chuẩn đoán hình ảnh'];
+
+/** Đặt bản đồ giả lập rồi bắt app dẫn tới một điểm; trả true nếu robot lăn bánh. */
+async function thuDiemTrenBanDo(tenAppHoi, banDo) {
+  return p.evaluate(([ten, ds]) => {
+    GIA_LAP.diemTrenBanDo = ds;
+    GIA_LAP.daNoi.length = 0;
+    CAU.danDuongToiDiem(ten);
+    const im = GIA_LAP.daNoi.join(' ').indexOf('chưa có điểm tên') >= 0;
+    CAU.dungDanDuong();
+    return !im;
+  }, [tenAppHoi, banDo]);
+}
+
+/* Nạp bảng bí danh đúng cách app làm lúc khởi động. */
+await p.evaluate(() => {
+  const bd = {};
+  for (const k in DU_LIEU.diem) {
+    const d = DU_LIEU.diem[k];
+    if (d.bi_danh && d.bi_danh.length) bd[d.diem_ban_do] = d.bi_danh;
+  }
+  CAU.datBiDanhDiem(JSON.stringify(bd));
+});
+
+await kiem('Bản đồ ghi "Khoa chuẩn đoán hình ảnh" → BÍ DANH cứu, robot vẫn đi',
+  async () => await thuDiemTrenBanDo('Khoa chan doan hinh anh', BAN_DO_THAT));
+await kiem('Bản đồ ghi "Khoa cấp cứu" (còn dấu) → dò mềm lo được',
+  async () => await thuDiemTrenBanDo('Khoa cap cuu', BAN_DO_THAT));
+await kiem('Điểm đặt đúng tên thì đương nhiên chạy',
+  async () => await thuDiemTrenBanDo('Khoa Rang Ham Mat', BAN_DO_THAT));
+await kiem('Bản đồ ghi thiếu chữ "Khoa" → bí danh vẫn nhận',
+  async () => await thuDiemTrenBanDo('Khoa chan doan hinh anh',
+    BAN_DO_THAT.map(x => x === 'Khoa chuẩn đoán hình ảnh' ? 'Chan doan hinh anh' : x)));
+
+/* ⚠ Chốt ngược: bản đồ THIẾU HẲN điểm thì phải báo lỗi, TUYỆT ĐỐI không im lặng
+   coi như thành công. Không có phép này thì một hàm dò tên luôn trả "khớp" cũng
+   làm ba phép trên xanh. */
+await kiem('Bản đồ KHÔNG có điểm nào giống → phải báo lỗi, không được lờ đi',
+  async () => !(await thuDiemTrenBanDo('Khoa chan doan hinh anh',
+    BAN_DO_THAT.filter(x => x !== 'Khoa chuẩn đoán hình ảnh'))));
+
+/* ── Đặt tên điểm CÓ DẤU tiếng Việt — anh Trường hỏi 09/09/2026 ──────────
+   Bệnh viện đặt tên điểm có dấu ("Khoa Chẩn đoán hình ảnh") trong khi app khai
+   tên không dấu. Quét cả mười hai điểm để chốt: dấu KHÔNG phải vấn đề, bộ dò mềm
+   bỏ dấu trước khi so. Đây cũng là bằng chứng khoanh vùng — nếu dấu là nguyên
+   nhân thì cả bốn chỗ mới đều hỏng, chứ không riêng một khoa. */
+const BAN_DO_CO_DAU = {
+  'Tiep don': 'Tiếp đón', 'Vien phi': 'Viện phí', 'Nha thuoc': 'Nhà thuốc',
+  'Can tin': 'Căn tin', 'Nha ve sinh': 'Nhà vệ sinh', 'Truoc hanh lang': 'Trước hành lang',
+  'Sanh cho': 'Sảnh chờ', 'Tram sac': 'Trạm sạc', 'Khoa cap cuu': 'Khoa Cấp cứu',
+  'Khu Tham do chuc nang': 'Khu Thăm dò chức năng',
+  'Khoa Rang Ham Mat': 'Khoa Răng Hàm Mặt',
+  'Khoa chan doan hinh anh': 'Khoa Chẩn đoán hình ảnh',
+};
+const dsCoDau = Object.values(BAN_DO_CO_DAU);
+let dauHong = [];
+for (const [appHoi, tren] of Object.entries(BAN_DO_CO_DAU)) {
+  if (!(await thuDiemTrenBanDo(appHoi, dsCoDau))) dauHong.push(tren);
+}
+await kiem('Cả 12 điểm đặt tên CÓ DẤU đều dẫn được (dấu không phải vấn đề)',
+  async () => dauHong.length === 0);
+if (dauHong.length) console.log('    điểm không khớp: ' + dauHong.join(' · '));
+
+/* Trả bản đồ về mặc định cho phần sau của bộ thử. */
+await p.evaluate(() => { GIA_LAP.diemTrenBanDo = null; });
+await p.evaluate(() => { GIA_LAP.diemTrenBanDo = ['Tiep don','Vien phi','Nha thuoc','Can tin',
+  'Nha ve sinh','Truoc hanh lang','Sanh cho','Tram sac','Khoa cap cuu',
+  'Khu Tham do chuc nang','Khoa Rang Ham Mat','Khoa chan doan hinh anh']; });
+
 if (loi.length) { console.log('\n✗ Lỗi JS bắt được:'); loi.forEach(x => console.log('   ' + x)); hong += loi.length; }
 console.log('\n' + (hong ? '✗ ' + hong + ' phép kiểm KHÔNG đạt' : '✓ Tất cả phép kiểm đều đạt'));
 console.log('Ảnh: ' + RA);

@@ -313,42 +313,71 @@ ba toà nhà một quãng — <b>không</b> vào trong toà nhà, <b>không</b> 
     <div class="mo">Nhà F, tầng 1. X-quang, siêu âm, CT, MRI.</div></div></div>
 </div>
 
-<div class="hop xanh">
-  <b>💡 Bốn điểm này app dò tên MỀM</b>
-  Từ bản 1.4, trước khi gửi lệnh đi, app hỏi robot danh sách điểm thật rồi tự dò:
-  bỏ dấu, không phân biệt hoa thường, gộp khoảng trắng. Nên <code>Khoa cap cuu</code>,
-  <code>Khoa Cấp cứu</code> hay <code>KHOA CAP CUU</code> đều tìm ra nhau.
-  Nhưng dò mềm <b>không cứu được tên khác nghĩa</b> — đặt <code>Cap cuu</code> (thiếu chữ
-  “Khoa”) là app vẫn chịu. Cứ kiểm bằng <code>CAU.kiemTraBanDo()</code> cho chắc.
+<div class="hop luc">
+  <b>✅ Đặt tên CÓ DẤU tiếng Việt vẫn chạy — anh Trường hỏi 09/09/2026</b>
+  App hỏi robot danh sách điểm thật rồi tự dò: <b>bỏ dấu</b>, không phân biệt hoa thường, gộp
+  khoảng trắng thừa. Bản đồ ghi <code>Khoa Chẩn đoán hình ảnh</code> mà app hỏi
+  <code>Khoa chan doan hinh anh</code> thì vẫn khớp. Đã đo <b>12/12 điểm</b> đặt tên có dấu,
+  không điểm nào trượt. Bản đồ đã đặt có dấu thì cứ để nguyên, đừng sửa lại cho mệt.
 </div>
 
-<div class="hop cam">
-  <b>⚠ Robot đi THẬT tới bốn chỗ này</b>
-  Nên quãng đường tới đó phải đạt điều kiện của máy trong nhà, giống hệt phần khảo sát
-  <code>Truoc hanh lang</code> ở mục 4: bậc ≤ 2 cm · dốc ≤ 5° · sàn phẳng liền mạch · có mái che.
-  Chỗ nào không đạt thì <b>báo lại</b>, đừng đặt điểm rồi để robot tự đi ra ngoài trời.
+<div class="hop do">
+  <b>⚠ Thứ dò mềm KHÔNG cứu được: sai CHÍNH TẢ</b>
+  Bỏ dấu chỉ bỏ dấu thanh và dấu mũ — nó không sửa <b>chữ</b>:
+  <pre style="margin:.6rem 0">bản đồ:  Khoa chuẩn đoán hình ảnh  →  khoa chuan doan hinh anh
+app hỏi: Khoa chan doan hinh anh   →  khoa chan doan hinh anh
+                                          ↑ khác một chữ "u"</pre>
+  Đây đúng là lỗi làm <b>Khoa Chẩn đoán hình ảnh</b> không dẫn đường được (09/09/2026), trong khi
+  ba chỗ mới kia chạy bình thường vì được đặt theo đúng tên app đưa ra. <i>"Chuẩn đoán"</i> là lỗi
+  chính tả rất phổ biến của <i>"chẩn đoán"</i>; từ đúng trong y khoa là <b>chẩn đoán</b>.
+  <br><br>
+  Từ bản <b>1.9</b> app có bảng <b>bí danh</b> nên nhận cả <code>Khoa chuẩn đoán hình ảnh</code>,
+  <code>Chẩn đoán hình ảnh</code> (thiếu chữ "Khoa") và <code>Khoa CĐHA</code>. Cài bản 1.9 là
+  chạy, <b>không phải sửa gì trên bản đồ</b>. Bí danh là lưới đỡ, không phải cách đặt tên —
+  điểm đặt mới thì cứ đặt đúng tên ở bảng trên.
 </div>
 
-<h3>Bốn điều tuyệt đối phải giữ</h3>
+<div class="hop do">
+  <b>⚠ Sửa tên điểm xong phải KHỞI ĐỘNG LẠI APP — hoặc dùng bản 1.9</b>
+  App hỏi robot danh sách điểm <b>lúc khởi động</b>. Sửa tên hay đặt thêm điểm giữa chừng thì app
+  vẫn giữ danh sách cũ, nhìn y hệt <i>"sửa rồi mà vẫn không dẫn được"</i> — và người ta sẽ đi sửa
+  thêm lần nữa. Từ bản 1.9, dò không ra thì app tự hỏi lại robot rồi thử tiếp.
+  <br><br>
+  Dò mềm và bí danh <b>không cứu được tên khác nghĩa</b>. Cứ kiểm bằng
+  <code>CAU.kiemTraBanDo()</code> cho chắc, đừng tin bằng mắt.
+</div>
+
+<h3>Điều DUY NHẤT tuyệt đối phải giữ: đúng CHỮ</h3>
+
 <div class="ds-ds">
   <div class="cot dung">
-    <h4>✓ ĐÚNG</h4>
+    <h4>✓ App TỰ LO ĐƯỢC</h4>
     <ul>
-      <li>Tiep don</li>
-      <li>Nha ve sinh</li>
-      <li>Truoc hanh lang</li>
-      <li>Vien phi</li>
+      <li>Tiếp đón <small>← còn dấu tiếng Việt</small></li>
+      <li>Nha Ve Sinh <small>← viết hoa khác</small></li>
+      <li>Truoc  hanh  lang <small>← hai dấu cách</small></li>
+      <li>KHOA CAP CUU <small>← hoa hết</small></li>
     </ul>
   </div>
   <div class="cot sai">
-    <h4>✕ SAI — robot sẽ đứng im</h4>
+    <h4>✕ SAI CHỮ — robot sẽ đứng im</h4>
     <ul>
-      <li>Tiếp đón <small>← còn dấu tiếng Việt</small></li>
-      <li>Nha Ve Sinh <small>← viết hoa sai</small></li>
-      <li>Truoc  hanh  lang <small>← hai dấu cách</small></li>
       <li>Vien phi - Tang 1 <small>← thêm chữ phía sau</small></li>
+      <li>Cap cuu <small>← thiếu chữ "Khoa"</small></li>
+      <li>Khoa chuẩn đoán hình ảnh <small>← sai chính tả: chuẩn ≠ chẩn</small></li>
+      <li>Quay le tan <small>← khác hẳn tên app hỏi</small></li>
     </ul>
   </div>
+</div>
+
+<div class="hop luc">
+  <b>Vẫn nên đặt không dấu như bảng trên</b>
+  Cho thống nhất và dễ đọc lại về sau. Nhưng đó là <b>khuyến nghị</b>, không phải điều kiện để
+  chạy — bản đồ đã lỡ đặt có dấu thì đừng sửa, nó chạy bình thường.
+  <br><br>
+  Mấy tên ở cột phải thì bản <b>1.9</b> nhận được nhờ bảng <b>bí danh</b>
+  (<code>BI_DANH_DIEM</code> trong <code>dung-du-lieu.py</code>) — nhưng chỉ những tên đã khai
+  sẵn ở đó. Tên lạ hoàn toàn thì vẫn phải sửa trên bản đồ, hoặc khai thêm bí danh rồi build lại.
 </div>
 
 <div class="hop xanh">

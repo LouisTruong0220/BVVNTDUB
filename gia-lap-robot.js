@@ -51,6 +51,39 @@
                   'Khoa cap cuu', 'Khu Tham do chuc nang',
                   'Khoa Rang Ham Mat', 'Khoa chan doan hinh anh'];
 
+  /* Bản đồ mà robot giả lập ĐANG GIỮ. Bộ thử ghi đè mảng này để dựng lại bản đồ
+     thật ngoài bệnh viện — nơi tên điểm do kỹ thuật viên gõ tay và có thể lệch
+     chính tả so với tên app khai. Mặc định là bản đồ đặt đúng. */
+  GL.diemTrenBanDo = DIEM_GIA.slice();
+  GL.biDanh = {};
+
+  /* Dựng lại RobotHelper.chuanHoa bên Kotlin: bỏ dấu, hạ chữ thường, gộp khoảng trắng.
+     ⚠ Nó KHÔNG sửa chính tả — "chuan doan" và "chan doan" vẫn là hai chuỗi khác nhau.
+       Đó đúng là lỗi làm Khoa Chẩn đoán hình ảnh không dẫn được (09/09/2026). */
+  function chuanHoaTen(s) {
+    return String(s || '').toLowerCase()
+      .replace(/đ/g, 'd')
+      .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9]+/g, ' ').trim();
+  }
+
+  /* Dựng lại RobotHelper.tenDiemThat: khớp đúng → khớp mềm → khớp qua BÍ DANH.
+     Trả null nghĩa là bản đồ không có chỗ nào khớp — trên máy thật robot ném
+     ERROR_DESTINATION_NOT_EXIST rồi đứng im. */
+  function tenDiemThat(tenKhai) {
+    var ds = GL.diemTrenBanDo || [];
+    var i;
+    for (i = 0; i < ds.length; i++) if (ds[i] === tenKhai) return ds[i];
+    var can = chuanHoaTen(tenKhai);
+    for (i = 0; i < ds.length; i++) if (chuanHoaTen(ds[i]) === can) return ds[i];
+    var bd = GL.biDanh[can] || [];
+    for (var j = 0; j < bd.length; j++) {
+      var canBd = chuanHoaTen(bd[j]);
+      for (i = 0; i < ds.length; i++) if (chuanHoaTen(ds[i]) === canBd) return ds[i];
+    }
+    return null;
+  }
+
   /* ── Ghi nhật ký ra bảng điều khiển ───────────────────────────────── */
   function ghi(loai, chu) {
     var o = document.getElementById('gl-log');
@@ -113,6 +146,20 @@
     GL.daDan.push(ten);
     ghi('lenh', 'CAU.danDuongToiDiem("' + ten + '")');
     if (!ten) { window.baoDanDuong('loi', 'Chưa cấu hình điểm đến cho chỗ này.'); return; }
+
+    /* Dò sang tên THẬT trên bản đồ, y như RobotHelper làm trước mỗi lệnh đi.
+       Bản trước của giả lập bỏ hẳn bước này, nên nó KHÔNG BAO GIỜ tái hiện được
+       lỗi tên điểm lệch — đúng loại lỗi duy nhất chỉ máy thật mới lộ ra. */
+    var that = tenDiemThat(ten);
+    if (that === null) {
+      var loi = 'Trên bản đồ chưa có điểm tên "' + ten + '".';
+      ghi('loi', '✗ ' + loi + ' Bản đồ đang có: ' + (GL.diemTrenBanDo || []).join(' · '));
+      window.baoDanDuong('loi', loi);
+      doc(loi);
+      return;
+    }
+    if (that !== ten) ghi('ok', 'Điểm "' + ten + '" khớp với "' + that + '" trên bản đồ');
+    ten = that;
     if (GL.lyDoChan) {
       window.baoDanDuong('loi', GL.lyDoChan);
       doc(GL.lyDoChan);
@@ -261,6 +308,15 @@
     danDuongToiDiem: danDuongToiDiem,
     dungDanDuong: function () { dungDanDuong(false); },
     veCho: veCho,
+    datBiDanhDiem: function (json) {
+      var m = {};
+      try {
+        var o = JSON.parse(json || '{}');
+        for (var k in o) if (o[k] && o[k].length) m[chuanHoaTen(k)] = o[k];
+      } catch (e) {}
+      GL.biDanh = m;
+      ghi('lenh', 'CAU.datBiDanhDiem(' + Object.keys(m).length + ' điểm có bí danh)');
+    },
     datDiemVeCho: function (t) {
       GL.diemVeCho = (t || '').trim() || '(chưa đặt)';
       ghi('lenh', 'CAU.datDiemVeCho("' + GL.diemVeCho + '")');

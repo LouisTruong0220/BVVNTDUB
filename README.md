@@ -9,11 +9,11 @@ tìm đúng khoa theo cách họ tự mô tả, và **dẫn đường** tới n�
 
 **Chỉ cần cài lên robot, không cần build:**
 
-1. Tải `apk/le-tan-benh-vien-uong-bi-v1.8.apk`
+1. Tải `apk/le-tan-benh-vien-uong-bi-v1.9.apk`
 2. Nối cáp USB vào **đầu robot**, dùng **adb 1.0.41** của Android SDK
    (⚠ **không** dùng `C:\Windows\adb.exe` bản 1.0.39 của PUDU — hai bản giết tiến trình của nhau)
    ```powershell
-   adb install -r le-tan-benh-vien-uong-bi-v1.8.apk
+   adb install -r le-tan-benh-vien-uong-bi-v1.9.apk
    ```
 3. **Mở app từ RobotOS Home**, tuyệt đối không dùng `am start` — dùng `am start` thì `RobotApi`
    trả `handleApiDisabled`, mất cả dẫn đường lẫn giọng nói mà app không báo lỗi gì.
@@ -38,7 +38,7 @@ Hồ sơ dự án đầy đủ nằm trong workspace nội bộ của Roboworld,
 | | |
 |---|---|
 | Trạng thái | **Bản demo HTML xong, APK build xong. Chưa chạy trên robot thật, chưa khảo sát mặt bằng.** |
-| APK | `apk/le-tan-benh-vien-uong-bi-v1.8.apk` — appId riêng · ba toà D dừng ở đầu hành lang · nhà A/B/F dẫn tới tận nơi |
+| APK | `apk/le-tan-benh-vien-uong-bi-v1.9.apk` — appId riêng · ba toà D dừng ở đầu hành lang · nhà A/B/F dẫn tới tận nơi |
 | **Bản thử trên máy tính** | **`demo/thu-nghiem.html`** — có giả lập robot, bấm được nút dẫn đường. Đọc [HUONG-DAN-THU-NGHIEM.md](HUONG-DAN-THU-NGHIEM.md) |
 | Demo bản sạch | `demo/index.html` — giống hệt cái nằm trong APK |
 | Package | `vn.roboworld.benhvien` |
@@ -422,6 +422,37 @@ của mình. Sai thì sai theo hướng im lặng.
 
 Mô hình chỉ soạn **câu dẫn**; tên khoa, số tầng, mã phòng do app đọc nguyên văn từ bảng khoa phòng
 bệnh viện cung cấp. Con số không đi qua mô hình lần nào.
+
+### Tên điểm bản đồ lệch chính tả — bí danh
+
+Anh Trường báo 09/09/2026: mọi khoa dẫn đường được, **riêng Khoa Chẩn đoán hình ảnh thì không.**
+Đó là điểm **duy nhất** đã có sẵn trên bản đồ từ trước; ba chỗ mới kia bệnh viện đặt theo đúng
+tên app đưa ra.
+
+Bản đồ bệnh viện đặt tên **có dấu**, và **dấu không phải vấn đề** — bộ dò mềm bỏ dấu trước khi so,
+đã đo cả 12/12 điểm có dấu đều khớp. Thứ nó **không** làm được là sửa chính tả:
+
+```
+bản đồ:  Khoa chuẩn đoán hình ảnh  →  khoa chuan doan hinh anh
+app hỏi: Khoa chan doan hinh anh   →  khoa chan doan hinh anh
+                                          ↑ khác một chữ "u"
+```
+
+Robot ném `ERROR_DESTINATION_NOT_EXIST` rồi đứng im — nhìn y hệt máy hỏng, mà lại chỉ hỏng đúng
+một khoa nên rất khó lần ra. *"Chuẩn đoán"* là lỗi chính tả rất phổ biến của *"chẩn đoán"*.
+
+Từ v1.9 có bảng **bí danh** (`BI_DANH_DIEM` trong `dung-du-lieu.py` → `app-data.json` →
+`CAU.datBiDanhDiem` → `RobotHelper.napBiDanh`). `tenDiemThat` dò ba nấc: khớp đúng → khớp mềm
+(bỏ dấu, hạ chữ thường) → khớp qua bí danh. Chữa được bằng cách cài lại app, **không phải cử
+người ra hiện trường sửa bản đồ**.
+
+⚠ Danh sách điểm trước đây chỉ nạp **một lần** lúc nối RobotOS, nên kỹ thuật viên vừa sửa tên
+trên bản đồ thì app vẫn giữ danh sách cũ tới khi có người tắt mở lại app — ngoài hiện trường việc
+đó trông y hệt *"sửa rồi mà vẫn không dẫn được"*. Nay dò không ra thì app **tự hỏi lại robot** rồi
+thử một lần nữa; lần dẫn bình thường không tốn thêm gì.
+
+⚠ Bí danh là **lưới đỡ**, không phải cách đặt tên. Điểm đặt mới thì cứ đặt đúng
+`diem_ban_do` — xem [`huong-dan-dat-ten-diem-ban-do.md`](huong-dan-dat-ten-diem-ban-do.md).
 
 ### Ngưỡng tuyệt đối khi tra cứu
 

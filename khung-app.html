@@ -2007,6 +2007,21 @@ datCoChu(); veLuoi(); capNhatMic();
 /* Tên điểm robot tự về nằm trong dữ liệu, không ghi cứng trong mã Kotlin —
    đổi chỗ đứng của robot chỉ cần sửa app-data.json rồi chạy dung-app.py. */
 try{ if(coCau() && CAU.datDiemVeCho) CAU.datDiemVeCho(D.diem_ve_cho); }catch(e){}
+/* Bảng BÍ DANH điểm bản đồ — những tên KHÁC mà cùng chỉ một chỗ. Đẩy xuống Kotlin
+   một lần lúc khởi động; RobotHelper dùng làm lưới đỡ khi dò tên mềm không ra.
+   Cần nó vì dò mềm chỉ bỏ DẤU chứ không sửa CHÍNH TẢ: bản đồ bệnh viện ghi "Khoa
+   chuẩn đoán hình ảnh", app hỏi "Khoa chan doan hinh anh" — bỏ dấu xong vẫn là hai
+   chuỗi khác nhau, và đó đúng là khoa duy nhất không dẫn đường được (09/09/2026). */
+try{
+  if(coCau() && CAU.datBiDanhDiem){
+    const bd = {};
+    for(const k in D.diem){
+      const d = D.diem[k];
+      if(d.bi_danh && d.bi_danh.length) bd[d.diem_ban_do] = d.bi_danh;
+    }
+    CAU.datBiDanhDiem(JSON.stringify(bd));
+  }
+}catch(e){}
 /* App mở lên là vào màn chờ. Gọi ve() chứ không chỉ dựa vào class "hien" đặt sẵn
    trong HTML — phải qua ve() thì máy phát biểu cảm mới khởi động. */
 ve('mh-cho');

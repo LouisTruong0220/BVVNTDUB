@@ -58,8 +58,51 @@ DIEM = {
     "khoa-cap-cuu":   {"ten": "Khoa Cấp cứu",             "diem_ban_do": "Khoa cap cuu",              "mau": "#7A4B2A"},
     "tham-do-cn":     {"ten": "Khu Thăm dò chức năng",    "diem_ban_do": "Khu Tham do chuc nang",     "mau": "#5A6E8C"},
     "rang-ham-mat":   {"ten": "Khoa Răng Hàm Mặt",        "diem_ban_do": "Khoa Rang Ham Mat",         "mau": "#3F7A6B"},
+    # ⚠ "chuẩn đoán" là lỗi chính tả rất phổ biến của "chẩn đoán" — và đó chính là
+    #   tên đang đặt trên bản đồ bệnh viện. Dò mềm chỉ bỏ DẤU, không sửa CHÍNH TẢ:
+    #   "chuan doan" và "chan doan" là hai chuỗi khác nhau. Xem BI_DANH_DIEM.
     "chan-doan-ha":   {"ten": "Khoa Chẩn đoán hình ảnh",  "diem_ban_do": "Khoa chan doan hinh anh",   "mau": "#6B5B95"},
 }
+
+# ═══════════════════════════════════════════════════════════════════════
+#  BÍ DANH ĐIỂM BẢN ĐỒ — những tên KHÁC mà cùng chỉ một chỗ
+#
+#  ⚠ VÌ SAO CẦN (09/09/2026): anh Trường báo mọi khoa dẫn đường được, riêng Khoa
+#    Chẩn đoán hình ảnh thì không. Đó là điểm DUY NHẤT đã có sẵn trên bản đồ từ
+#    trước — ba điểm kia bệnh viện mới đặt theo tên app đưa ra.
+#
+#    Bản đồ bệnh viện đặt tên CÓ DẤU, và dấu KHÔNG phải vấn đề: bộ dò mềm của
+#    RobotHelper bỏ dấu trước khi so, đã đo cả 12 điểm đều khớp. Thứ nó KHÔNG làm
+#    được là sửa CHÍNH TẢ:
+#        "khoa chuan doan hinh anh"  ≠  "khoa chan doan hinh anh"
+#    Robot nhận lệnh rồi ném ERROR_DESTINATION_NOT_EXIST và đứng im — nhìn từ ngoài
+#    y hệt máy hỏng, mà lại chỉ hỏng đúng một khoa nên rất khó lần ra.
+#
+#  Khai bí danh ở đây thì app chạy được với CẢ HAI cách viết, không phải nhờ ai ra
+#  hiện trường sửa lại bản đồ. Viết bí danh y như nó nằm trên bản đồ; so khớp vẫn
+#  bỏ dấu và không phân biệt hoa thường nên không cần khai đủ mọi biến thể.
+#
+#  ⚠ Bí danh là cái LƯỚI ĐỠ, không phải cách đặt tên. Bản đồ mới thì cứ đặt đúng
+#    tên ở cột diem_ban_do — xem huong-dan-dat-ten-diem-ban-do.md.
+# ═══════════════════════════════════════════════════════════════════════
+BI_DANH_DIEM = {
+    "chan-doan-ha": [
+        "Khoa chuan doan hinh anh",   # lỗi chính tả phổ biến, đang dùng trên bản đồ BV
+        "Chan doan hinh anh",         # thiếu chữ "Khoa"
+        "Chuan doan hinh anh",
+        "Khoa CDHA",
+    ],
+    "khoa-cap-cuu": ["Cap cuu", "Khoa cap cuu C1", "Phong cap cuu"],
+    "tham-do-cn":   ["Tham do chuc nang", "Khoa Tham do chuc nang"],
+    "rang-ham-mat": ["Rang Ham Mat", "Khoa rang ham mat D7"],
+}
+for _k, _bd in BI_DANH_DIEM.items():
+    if _k not in DIEM:
+        print("   ! BI_DANH_DIEM khai điểm '%s' không có trong DIEM" % _k)
+        raise SystemExit(1)
+    DIEM[_k]["bi_danh"] = _bd
+for _k in DIEM:
+    DIEM[_k].setdefault("bi_danh", [])
 DIEM_VE_CHO = "Sanh cho"   # chỗ robot tự quay về sau khi dẫn xong
 
 # ═══════════════════════════════════════════════════════════════════════

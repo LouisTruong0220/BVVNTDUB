@@ -217,8 +217,54 @@ object RobotHelper {
             Log.d(TAG, "Điểm '$tenKhai' khớp mềm với '$khop' trên bản đồ")
             return khop
         }
+
+        /* ── Lưới đỡ cuối: BÍ DANH ───────────────────────────────────────────
+         * Dò mềm ở trên chỉ bỏ DẤU và hạ chữ thường — nó KHÔNG sửa CHÍNH TẢ.
+         * Lỗi thật gặp 09/09/2026: bản đồ bệnh viện đặt tên "Khoa chuẩn đoán hình
+         * ảnh" (chuẩn đoán là lỗi chính tả rất phổ biến của chẩn đoán), app hỏi
+         * "Khoa chan doan hinh anh". Bỏ dấu xong vẫn là hai chuỗi khác nhau, robot
+         * ném ERROR_DESTINATION_NOT_EXIST rồi đứng im — nhìn y hệt máy hỏng, và đó
+         * là khoa DUY NHẤT không dẫn được nên rất khó đoán ra nguyên nhân.
+         *
+         * Bảng bí danh khai trong dữ liệu (BI_DANH_DIEM ở dung-du-lieu.py), lớp web
+         * đẩy xuống lúc khởi động. Nhờ vậy chữa được bằng cách cài lại app, không
+         * phải cử người ra hiện trường sửa tên trên bản đồ.
+         */
+        for (bd in biDanhCua(tenKhai)) {
+            val canBd = chuanHoa(bd)
+            val k2 = tenDiemTrenBanDo.firstOrNull { chuanHoa(it) == canBd }
+            if (k2 != null) {
+                Log.d(TAG, "Điểm '$tenKhai' khớp qua BÍ DANH '$bd' → '$k2' trên bản đồ")
+                return k2
+            }
+        }
+
         Log.w(TAG, "KHÔNG có điểm nào khớp '$tenKhai'. Bản đồ đang có: $tenDiemTrenBanDo")
         return tenKhai
+    }
+
+    /* Bí danh theo tên điểm khai trong app. Khoá đã chuẩn hoá sẵn để tra cho nhanh. */
+    @Volatile private var biDanh: Map<String, List<String>> = emptyMap()
+
+    private fun biDanhCua(tenKhai: String): List<String> = biDanh[chuanHoa(tenKhai)] ?: emptyList()
+
+    /**
+     * Nạp bảng bí danh từ lớp web. JSON dạng {"Khoa chan doan hinh anh": ["Khoa chuan doan hinh anh", …]}.
+     * Gọi một lần lúc khởi động, xem Cau.datBiDanhDiem.
+     */
+    fun napBiDanh(json: String?) {
+        if (json.isNullOrBlank()) return
+        val m = HashMap<String, List<String>>()
+        runCatching {
+            val o = org.json.JSONObject(json)
+            for (k in o.keys()) {
+                val arr = o.optJSONArray(k) ?: continue
+                val ds = (0 until arr.length()).mapNotNull { arr.optString(it).takeIf { t -> t.isNotBlank() } }
+                if (ds.isNotEmpty()) m[chuanHoa(k)] = ds
+            }
+        }.onFailure { Log.w(TAG, "Không đọc được bảng bí danh: ${it.message}") }
+        biDanh = m
+        Log.d(TAG, "Đã nạp bí danh cho ${m.size} điểm")
     }
 
     // ───────────────────────── Dẫn đường ─────────────────────────
@@ -239,8 +285,34 @@ object RobotHelper {
     ) {
         if (!sanSang()) { main.post { khiLoi("Robot chưa sẵn sàng — chưa kết nối RobotOS.") }; return }
 
-        // Dò sang tên THẬT trên bản đồ. Chưa nạp được danh sách thì dùng nguyên
-        // tên khai — không tệ hơn cách cũ, và log sẽ nói rõ đã gửi tên nào.
+        /* Dò sang tên THẬT trên bản đồ. Chưa nạp được danh sách thì dùng nguyên tên
+           khai — không tệ hơn cách cũ, và log sẽ nói rõ đã gửi tên nào.
+
+           ⚠ Dò KHÔNG RA thì HỎI LẠI ROBOT rồi thử một lần nữa. Danh sách điểm trước
+             đây chỉ nạp đúng một lần lúc nối RobotOS, nên kỹ thuật viên vừa đặt thêm
+             điểm hoặc vừa sửa tên trên bản đồ thì app vẫn giữ danh sách cũ cho tới
+             khi có người tắt mở lại app. Ngoài hiện trường thì việc đó trông y hệt
+             "sửa tên rồi mà vẫn không dẫn được" — và người ta sẽ đi sửa tên lần nữa.
+             Chỉ hỏi lại khi dò trượt, nên lần dẫn bình thường không tốn thêm gì. */
+        if (khongDoRa(tenDiem)) {
+            Log.d(TAG, "Dò '$tenDiem' không ra — hỏi lại robot danh sách điểm rồi thử lần nữa")
+            napDanhSachDiem { goiLenhDi(tenDiem, khiToiNoi, khiLoi, khiCapNhat) }
+            return
+        }
+        goiLenhDi(tenDiem, khiToiNoi, khiLoi, khiCapNhat)
+    }
+
+    /** Tên khai không khớp điểm nào trên bản đồ — kể cả sau khi dò mềm và dò bí danh. */
+    private fun khongDoRa(tenKhai: String): Boolean =
+        tenDiemTrenBanDo.isNotEmpty() && tenDiemThat(tenKhai) == tenKhai &&
+        tenDiemTrenBanDo.none { chuanHoa(it) == chuanHoa(tenKhai) }
+
+    private fun goiLenhDi(
+        tenDiem: String,
+        khiToiNoi: () -> Unit,
+        khiLoi: (String) -> Unit,
+        khiCapNhat: (String) -> Unit
+    ) {
         val ten = tenDiemThat(tenDiem)
 
         // coordinateDeviation 0.2 m và time 30 s là giá trị tài liệu hãng khuyến nghị.
