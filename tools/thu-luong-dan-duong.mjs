@@ -614,6 +614,60 @@ await p.evaluate(() => { GIA_LAP.diemTrenBanDo = ['Tiep don','Vien phi','Nha thu
   'Nha ve sinh','Truoc hanh lang','Sanh cho','Tram sac','Khoa cap cuu',
   'Khu Tham do chuc nang','Khoa Rang Ham Mat','Khoa chan doan hinh anh']; });
 
+/* ═══════════════════════════════════════════════════════════════════════
+   K. MIC CHẾT TRÊN MÁY THẬT — anh Trường báo 11/09/2026
+
+   "Vào app thì mất nút mic, đợi một lúc sau mới hiện, bấm vào nói thì robot không
+   nhận." Máy ở bệnh viện, không cắm được cáp — nên app phải tự khai ra nguyên nhân.
+   Nhóm này canh hai thứ: mic hết giờ mà không nghe được chữ nào thì PHẢI nói thẳng
+   ra (bản trước tắt im lặng), và bảng tự chẩn đoán chỉ đúng từng kiểu hỏng.
+   ═══════════════════════════════════════════════════════════════════════ */
+console.log('\n── K. Mic mở mà không nghe được · bảng tự chẩn đoán ──');
+await p.evaluate(() => { GIA_LAP.aiSanSang = true; veTrangChu(); moChat(); });
+await p.waitForTimeout(250);
+await p.evaluate(() => window.baoMicKhongNgheDuoc());
+await kiem('Mic hết giờ mà KHÔNG nghe được chữ nào → dải hướng dẫn nói thẳng ra',
+  async () => /chưa nghe được/i.test(await p.evaluate(() =>
+    document.querySelector('#hd-chu').textContent)), '12-mic-khong-nghe');
+await kiem('… và dải chuyển sang màu cảnh báo',
+  async () => await p.evaluate(() =>
+    document.querySelector('#chat-huong-dan').classList.contains('khong')));
+
+const bangHien = () => p.evaluate(() =>
+  getComputedStyle(document.querySelector('#phu-chan-doan')).display !== 'none');
+async function chanDoan(tt) {
+  await p.evaluate(o => { Object.assign(GIA_LAP, o); moChanDoan(); }, tt);
+  return p.evaluate(() => document.querySelector('#chan-doan').textContent);
+}
+
+/* Bấm một cái KHÔNG được mở — người bệnh chạm nhầm tiêu đề là chuyện thường. */
+await p.dispatchEvent('#mh-chat .cd-ten', 'mousedown');
+await p.waitForTimeout(300);
+await p.dispatchEvent('#mh-chat .cd-ten', 'mouseup');
+await p.waitForTimeout(1300);
+await kiem('Chạm nhanh tiêu đề thì bảng chẩn đoán KHÔNG mở', async () => !(await bangHien()));
+await p.dispatchEvent('#mh-chat .cd-ten', 'mousedown');
+await p.waitForTimeout(1500);
+await kiem('Bấm GIỮ tiêu đề 1,2 giây thì bảng chẩn đoán mở', async () => await bangHien());
+await p.dispatchEvent('#mh-chat .cd-ten', 'mouseup');
+
+let cd = await chanDoan({ mang: '4g', micHeThong: 1, aiSanSang: true, loiAI: '' });
+await p.screenshot({ path: join(RA, '13-chan-doan.png') });
+await kiem('Robot chạy 4G → bảng bảo nối lại Wi-Fi', async () => /4G/.test(cd) && /Nối lại Wi-Fi/.test(cd));
+cd = await chanDoan({ mang: 'mat', micHeThong: 1, aiSanSang: false, loiAI: '' });
+await kiem('Mất mạng → bảng nói thẳng MẤT MẠNG', async () => /MẤT MẠNG/.test(cd));
+cd = await chanDoan({ mang: 'wifi', micHeThong: 0, aiSanSang: true, loiAI: '' });
+await kiem('Micro của máy TẮT → bảng chỉ đúng lệnh bật lại', async () => /microphone 1/.test(cd));
+cd = await chanDoan({ mang: 'wifi', micHeThong: 1, aiSanSang: false, loiAI: 'status=2 · lỗi=quota' });
+await kiem('AI chưa thông → bảng in NGUYÊN VĂN lỗi của máy chủ', async () => /status=2 · lỗi=quota/.test(cd));
+cd = await chanDoan({ mang: 'wifi', micHeThong: 1, aiSanSang: true, loiAI: '' });
+await kiem('Mạng ổn, AI thông mà chưa nghe câu nào → nhắc đứng trước camera + mở từ RobotOS',
+  async () => /camera/i.test(cd) && /RobotOS/.test(cd));
+await p.evaluate(() => { veTrangChu(); });
+await kiem('Đổi màn thì bảng chẩn đoán tự đóng, không đè lên màn khác',
+  async () => !(await bangHien()));
+await p.evaluate(() => { Object.assign(GIA_LAP, { mang: 'wifi', micHeThong: 1, loiAI: '' }); });
+
 if (loi.length) { console.log('\n✗ Lỗi JS bắt được:'); loi.forEach(x => console.log('   ' + x)); hong += loi.length; }
 console.log('\n' + (hong ? '✗ ' + hong + ' phép kiểm KHÔNG đạt' : '✓ Tất cả phép kiểm đều đạt'));
 console.log('Ảnh: ' + RA);

@@ -69,6 +69,17 @@ class MainApplication : Application() {
          */
         @Volatile private var dangChoNghe = false
 
+        /* ── CHẨN ĐOÁN — để app tự khai ra được vì sao mic chết ──────────────────
+         * Thêm 11/09/2026: anh Trường báo vào app thì mất nút mic, đợi một lúc mới
+         * hiện, bấm nói thì robot không nhận. Không cắm được máy để đọc log, nên app
+         * phải tự trả lời được bốn câu: mạng gì · micro của máy bật hay tắt · AI hỏng
+         * vì lỗi gì · lần cuối nghe được chữ là bao giờ. Xem thongTinAI(). */
+        @Volatile private var loiAICuoi = ""
+        @Volatile private var lanThamDo = 0
+        @Volatile private var lucNgheCuoi = 0L
+        @Volatile private var lucAIThongCuoi = 0L
+        @Volatile private var lucMoMic = 0L
+
         /* ═══════════════════════════════════════════════════════════════
            LƯỢT HỎI — anh Trường chốt 08/09/2026
 
@@ -132,6 +143,7 @@ class MainApplication : Application() {
          *   lúc đó không ai gọi guiCauDaGom, và lần bấm mic sau sẽ xoá nó. */
         fun batMicro() {
             huyHenTatMic(); quenVe()
+            lucMoMic = System.currentTimeMillis()
             daGuiTrongPhien = false      // phiên mới — lại được gửi đúng một câu
             dangChoNghe = true
             datMicro(false)
@@ -232,7 +244,10 @@ class MainApplication : Application() {
                 if (!dangChoNghe) return@Runnable
                 Log.d(TAG, "Mở mic $TRAN_MO_MIC_MS ms mà không nghe được gì — tự tắt")
                 tatMicro()
-                Cau.baoMicTuTat()
+                /* Hết giờ mà từ lúc mở mic CHƯA nghe được chữ nào → nói thẳng ra trên màn
+                   hình (11/09/2026). Có nghe được mẩu nào mà chưa thành câu thì vẫn chỉ
+                   tắt như cũ — trường hợp đó không phải "robot điếc". */
+                if (lucNgheCuoi >= lucMoMic) Cau.baoMicTuTat() else Cau.baoMicKhongNgheDuoc()
             }
             henTatMic = r
             tayCam.postDelayed(r, TRAN_MO_MIC_MS)
@@ -359,19 +374,23 @@ class MainApplication : Application() {
                         // không ở logcat của AgentService. Đây là thứ để gửi cho hãng.
                         Log.d(TAG, "hoiMoHinh: nguyên văn = $result")
                         if (status == 1 && chu.isNotBlank()) {
+                            lucAIThongCuoi = System.currentTimeMillis(); loiAICuoi = ""
                             if (!agentSanSang) { agentSanSang = true; Cau.baoAISanSang(true) }
                             khiXong(chu, null)
-                        } else khiXong(null,
-                            listOfNotNull(
+                        } else {
+                            val loi = listOfNotNull(
                                 "status=$status",
                                 result?.status?.takeIf { it.isNotBlank() }?.let { "trạng thái=$it" },
                                 result?.error?.takeIf { it.isNotBlank() }?.let { "lỗi=$it" },
                                 if (result == null) "không có dữ liệu trả về" else null
-                            ).joinToString(" · "))
+                            ).joinToString(" · ")
+                            loiAICuoi = loi       // giữ nguyên văn cho bảng tự chẩn đoán
+                            khiXong(null, loi)
+                        }
                     }
                 })
             }.isSuccess
-            if (!ok) khiXong(null, "không gọi được mô hình")
+            if (!ok) { loiAICuoi = "không gọi được mô hình"; khiXong(null, loiAICuoi) }
         }
 
         /**
@@ -404,21 +423,71 @@ class MainApplication : Application() {
          * câm suốt hai tuần. **Mọi phép kiểm "có hàm không" đều đánh lừa.**
          */
         private fun thamDoAI() {
-            Handler(Looper.getMainLooper()).postDelayed({
-                hoiMoHinh(listOf(LLMMessage(Role.USER, "Xin chào"))) { chu, loi ->
-                    Log.d(TAG, "Thăm dò AI: ${if (chu != null) "THÔNG — $chu" else "chưa thông — $loi"}")
-                    Cau.baoAISanSang(chu != null)
-                }
-            }, 4_000L)   // chờ Agent SDK bind xong rồi mới thử
+            tayCam.postDelayed({ thamDoMotLan() }, 4_000L)   // chờ Agent SDK bind xong rồi mới thử
         }
+
+        /**
+         * ⚠ THỬ LẠI CHO TỚI KHI THÔNG (sửa 11/09/2026).
+         *
+         * Bản trước thăm dò ĐÚNG MỘT LẦN, bốn giây sau khi mở app. Lúc đó mạng mà còn chậm —
+         * robot vừa khởi động, Wi-Fi chưa nối lại, hay đang chạy 4G — thì lần thử đó hỏng,
+         * cờ agentSanSang nằm im ở false, và NÚT MICRO BIẾN MẤT cho tới khi tình cờ có ai gõ
+         * một câu hỏi làm mô hình trả lời được. Nhìn từ ngoài đúng như anh Trường tả: "vào
+         * app thì mất nút mic, đợi một lúc sau mới hiện".
+         *
+         * Nay hỏng thì hẹn 20 giây thử lại; thông rồi thì thôi, không gọi đám mây nữa.
+         */
+        private fun thamDoMotLan() {
+            if (agentSanSang) return
+            lanThamDo++
+            hoiMoHinh(listOf(LLMMessage(Role.USER, "Xin chào"))) { chu, loi ->
+                Log.d(TAG, "Thăm dò AI lần $lanThamDo: " +
+                           (if (chu != null) "THÔNG — $chu" else "chưa thông — $loi"))
+                Cau.baoAISanSang(chu != null)
+                if (chu == null) tayCam.postDelayed({ thamDoMotLan() }, THAM_DO_LAI_MS)
+            }
+        }
+        private const val THAM_DO_LAI_MS = 20_000L
+
+        /** "wifi" · "4g" · "khac" · "mat" (không có mạng) · "?" (không đọc được). */
+        private fun loaiMang(): String {
+            return runCatching {
+                val cm = boiCanh?.getSystemService(android.content.Context.CONNECTIVITY_SERVICE)
+                        as? android.net.ConnectivityManager ?: return "?"
+                val mang = cm.activeNetwork ?: return "mat"
+                val kn = cm.getNetworkCapabilities(mang) ?: return "?"
+                when {
+                    kn.hasTransport(android.net.NetworkCapabilities.TRANSPORT_WIFI) -> "wifi"
+                    kn.hasTransport(android.net.NetworkCapabilities.TRANSPORT_CELLULAR) -> "4g"
+                    else -> "khac"
+                }
+            }.getOrDefault("?")
+        }
+
+        /**
+         * Công tắc micro CỦA MÁY — Settings.Global "microphone": 1 bật · 0 TẮT · -1 không đọc được.
+         * Đây là thứ bị bẫy isMicrophoneMuted kéo về 0, và cũng là thứ nút micro trên dải trạng
+         * thái của hãng bật/tắt. Về 0 thì app làm gì cũng điếc.
+         */
+        private fun micHeThong(): Int = runCatching {
+            android.provider.Settings.Global.getInt(boiCanh!!.contentResolver, "microphone", -1)
+        }.getOrDefault(-1)
 
         /** Thông tin để tự kiểm lúc lắp đặt, và để lớp web quyết định có hiện nút mic không. */
         fun thongTinAI(): String {
             val appId = runCatching { AgentCore.appId }.getOrNull()
+            val bayGio = System.currentTimeMillis()
+            fun giayTruoc(luc: Long): Long = if (luc == 0L) -1L else (bayGio - luc) / 1000
             return """{"appId":${org.json.JSONObject.quote(appId ?: "")},""" +
                    """"coAgent":${agent != null},""" +
                    """"agentSanSang":$agentSanSang,""" +
-                   """"micDangMo":${micDangMo()}}"""
+                   """"micDangMo":${micDangMo()},""" +
+                   """"mang":"${loaiMang()}",""" +
+                   """"micHeThong":${micHeThong()},""" +
+                   """"loiAI":${org.json.JSONObject.quote(loiAICuoi)},""" +
+                   """"lanThamDo":$lanThamDo,""" +
+                   """"ngheCuoiGiay":${giayTruoc(lucNgheCuoi)},""" +
+                   """"aiThongCuoiGiay":${giayTruoc(lucAIThongCuoi)}}"""
         }
 
         /* ══════════════════════════════════════════════════════════════
@@ -756,6 +825,7 @@ class MainApplication : Application() {
                     override fun onASRResult(t: Transcription): Boolean {
                         val chu = t.text
                         if (chu.isNullOrBlank()) return false
+                        lucNgheCuoi = System.currentTimeMillis()   // cho bảng tự chẩn đoán
 
                         // Nghe được chữ nghĩa là đường dây thật sự thông.
                         if (!agentSanSang) { agentSanSang = true; Cau.baoAISanSang(true) }

@@ -9,11 +9,11 @@ tìm đúng khoa theo cách họ tự mô tả, và **dẫn đường** tới n�
 
 **Chỉ cần cài lên robot, không cần build:**
 
-1. Tải `apk/le-tan-benh-vien-uong-bi-v1.10.apk`
+1. Tải `apk/le-tan-benh-vien-uong-bi-v1.11.apk`
 2. Nối cáp USB vào **đầu robot**, dùng **adb 1.0.41** của Android SDK
    (⚠ **không** dùng `C:\Windows\adb.exe` bản 1.0.39 của PUDU — hai bản giết tiến trình của nhau)
    ```powershell
-   adb install -r le-tan-benh-vien-uong-bi-v1.10.apk
+   adb install -r le-tan-benh-vien-uong-bi-v1.11.apk
    ```
 3. **Mở app từ RobotOS Home**, tuyệt đối không dùng `am start` — dùng `am start` thì `RobotApi`
    trả `handleApiDisabled`, mất cả dẫn đường lẫn giọng nói mà app không báo lỗi gì.
@@ -38,7 +38,7 @@ Hồ sơ dự án đầy đủ nằm trong workspace nội bộ của Roboworld,
 | | |
 |---|---|
 | Trạng thái | **Bản demo HTML xong, APK build xong. Chưa chạy trên robot thật, chưa khảo sát mặt bằng.** |
-| APK | `apk/le-tan-benh-vien-uong-bi-v1.10.apk` — appId riêng · ba toà D dừng ở đầu hành lang · nhà A/B/F dẫn tới tận nơi |
+| APK | `apk/le-tan-benh-vien-uong-bi-v1.11.apk` — appId riêng · ba toà D dừng ở đầu hành lang · nhà A/B/F dẫn tới tận nơi |
 | **Bản thử trên máy tính** | **`demo/thu-nghiem.html`** — có giả lập robot, bấm được nút dẫn đường. Đọc [HUONG-DAN-THU-NGHIEM.md](HUONG-DAN-THU-NGHIEM.md) |
 | Demo bản sạch | `demo/index.html` — giống hệt cái nằm trong APK |
 | Package | `vn.roboworld.benhvien` |
@@ -423,6 +423,40 @@ của mình. Sai thì sai theo hướng im lặng.
 
 Mô hình chỉ soạn **câu dẫn**; tên khoa, số tầng, mã phòng do app đọc nguyên văn từ bảng khoa phòng
 bệnh viện cung cấp. Con số không đi qua mô hình lần nào.
+
+### ⚠ Mất nút micro / bấm mic mà robot không nhận — v1.11
+
+Anh Trường báo 11/09/2026, sau vài ngày chạy ổn: *"vào app thì mất nút mic, đợi một lúc sau mới
+hiện, bấm vào nói thì robot không nhận"*. Ảnh chụp màn hình cho thấy ba điều:
+
+1. Dải hướng dẫn ghi *"Quý vị gõ câu hỏi vào ô bên dưới rồi bấm Gửi"* — đó là câu app hiện khi cờ
+   `agentSanSang` còn **false**, tức AI đám mây chưa trả lời được lần nào. Nút mic của app vì thế bị giấu.
+2. Thứ ở góc trái dưới — quả cầu xanh kèm chữ **"Nghe"** — **không có trong mã của app**. Nút của
+   app mang chữ *"Bấm để nói"* và biểu tượng 🎙️. Đó là giao diện nghe của hãng.
+3. Dải trạng thái trên cùng ghi **4G** — robot đang chạy dữ liệu di động, không phải Wi-Fi.
+
+**Lỗi trong mã, đã sửa:** `thamDoAI()` chỉ thăm dò **đúng một lần**, bốn giây sau khi mở app. Lúc
+đó mạng mà chậm thì lần thử hỏng, cờ nằm im ở false, và nút mic biến mất cho tới khi tình cờ có ai
+gõ một câu hỏi làm mô hình trả lời được — khớp đúng triệu chứng. Nay hỏng thì **20 giây thử lại**.
+
+**Lỗi thứ hai, đã sửa:** mic mở đủ 15 giây mà không nghe được chữ nào thì app **tắt im lặng** —
+người bệnh không biết robot có nghe không. Nay dải hướng dẫn chuyển đỏ: *"Tôi chưa nghe được gì.
+Quý vị đứng đối diện màn hình, nói to và rõ — hoặc gõ câu hỏi bên dưới"*.
+
+**Bảng tự chẩn đoán — bấm GIỮ tiêu đề "Trò chuyện với robot" 1,2 giây.** Máy ở bệnh viện, không
+cắm cáp được để đọc log, nên app tự khai: mạng gì (Wi-Fi / 4G / mất mạng) · công tắc micro của
+máy bật hay tắt · AI đã thông chưa kèm lỗi nguyên văn · số lần thăm dò · lần cuối nghe được chữ —
+cùng một ô kết luận viết sẵn cách chữa. Chụp một tấm gửi về là biết nguyên nhân.
+
+⚠ **Nguyên nhân gốc nhiều khả năng KHÔNG nằm trong mã** — sửa mã chỉ giúp app tự hồi phục và tự
+khai. Bốn thứ phải kiểm tại chỗ, theo thứ tự khả năng:
+
+| # | Nghi vấn | Kiểm thế nào | Chữa |
+|---|---|---|---|
+| 1 | Robot rớt Wi-Fi, đang chạy 4G | Nhìn dải trạng thái trên cùng, hoặc bảng chẩn đoán dòng *Mạng* | Nối lại Wi-Fi bệnh viện |
+| 2 | Micro của máy bị tắt | Bảng chẩn đoán dòng *Micro của máy*, hoặc nút mic trên dải trạng thái có gạch chéo | Bấm nút đó, hoặc `adb shell settings put global microphone 1` |
+| 3 | App không được mở từ màn hình chính RobotOS | Có quả cầu "Nghe" của hãng hiện đè lên | Thoát hẳn, mở lại từ Home |
+| 4 | Người nói đứng lệch camera / camera bị che | Bảng chẩn đoán: AI đã thông mà *Nghe được chữ lần cuối* = chưa lần nào | Đứng đối diện màn hình; gỡ vật che camera |
 
 ### ⚠ Tên khoa bị chính lớp chặn nuốt
 

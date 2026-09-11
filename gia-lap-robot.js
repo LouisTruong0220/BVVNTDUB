@@ -345,7 +345,9 @@
         if (!GL.micMo) return;
         ghi('lenh', 'Mở mic 15000 ms mà không nghe được gì — tự tắt');
         GL.micMo = false; veBang();
-        if (window.baoMicTuTat) window.baoMicTuTat();
+        /* Y như Kotlin (11/09/2026): hết giờ mà chưa nghe được chữ nào thì báo thẳng. */
+        if (window.baoMicKhongNgheDuoc) window.baoMicKhongNgheDuoc();
+        else if (window.baoMicTuTat) window.baoMicTuTat();
       }, 15000);
     },
     tatMic: function () {
@@ -409,7 +411,13 @@
     thongTinAI: function () {
       return JSON.stringify({
         appId: 'app_GIA_LAP', coAgent: true,
-        agentSanSang: GL.aiSanSang, micDangMo: GL.micMo
+        agentSanSang: GL.aiSanSang, micDangMo: GL.micMo,
+        /* Các trường chẩn đoán, y như MainApplication.thongTinAI(). Bộ thử đặt
+           GIA_LAP.mang / micHeThong / loiAI để dựng lại từng kiểu hỏng. */
+        mang: GL.mang || 'wifi',
+        micHeThong: GL.micHeThong == null ? 1 : GL.micHeThong,
+        loiAI: GL.loiAI || '', lanThamDo: 1,
+        ngheCuoiGiay: -1, aiThongCuoiGiay: GL.aiSanSang ? 3 : -1
       });
     },
     thuLLM: function (c, k) {

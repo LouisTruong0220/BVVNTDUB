@@ -397,6 +397,21 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
 .chat-huong-dan .hd-icon{font-size:1.6rem;line-height:1;flex:none}
 .chat-huong-dan.nghe{background:#E7F6EE;border-color:#B6E2C4;color:#146B34}
 .chat-huong-dan.cho{background:var(--xanh-nhat);border-color:#CFE6E4;color:var(--xanh-dam)}
+/* Mic hết giờ mà không nghe được chữ nào — màu cảnh báo, để người bệnh biết là
+   robot KHÔNG nghe thấy chứ không phải robot đang nghĩ (11/09/2026). */
+.chat-huong-dan.khong{background:#FDECEA;border-color:#F3C2BC;color:#8A1F14}
+/* Bảng tự chẩn đoán mic + AI — chỉ kỹ thuật viên mở, xem moChanDoan() */
+.chan-doan{background:#fff;border-radius:1.2rem;padding:1.6rem 2rem;width:46rem;max-width:84%;
+  color:#12302F;font-size:1.05rem;line-height:1.5;box-shadow:0 1rem 3rem rgba(0,0,0,.35)}
+.chan-doan h3{margin:0 0 .7rem;font-size:1.4rem}
+.chan-doan .dong{display:flex;justify-content:space-between;padding:.32rem 0;
+  border-bottom:1px solid #E6EEEE}
+.chan-doan .dong span{margin-right:1.5rem;color:#4B6564}
+.chan-doan .xau{color:#B3261E}
+.chan-doan .tot{color:#146B34}
+.chan-doan .ket-luan{margin-top:1rem;padding:.8rem 1rem;border-radius:.8rem;background:#FFF6E0;
+  color:#5A3B00}
+.chan-doan .cd-nut{margin-top:1rem}
 
 .chat-go{display:flex;gap:.8rem;flex:none;align-items:stretch}
 .chat-go input{flex:1;min-width:0;border:.12rem solid var(--vien);outline:0;
@@ -662,6 +677,12 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
       </div>
     </div>
   </div>
+</div>
+
+<!-- Bảng tự chẩn đoán micro + AI. Mở bằng BẤM GIỮ tiêu đề "Trò chuyện với robot"
+     1,2 giây — cố ý giấu để người bệnh không mở nhầm. Thêm 11/09/2026. -->
+<div class="lop-phu" id="phu-chan-doan" onclick="if(event.target===this)dongChanDoan()">
+  <div class="chan-doan" id="chan-doan"></div>
 </div>
 
 <!-- Bàn phím nhập mã phòng -->
@@ -2001,6 +2022,10 @@ function ve(id){
   document.querySelectorAll('.man-hinh').forEach(m=>m.classList.remove('hien'));
   $('#'+id).classList.add('hien');
   manDang = id;
+  /* Bảng tự chẩn đoán không được sống sót qua lần đổi màn — không thì đồng hồ
+     vắng người đưa app về màn chờ mà bảng kỹ thuật vẫn đè trên đó. */
+  const pcd = document.getElementById('phu-chan-doan');
+  if(pcd) pcd.classList.remove('hien');
   /* Chỉ cho video chạy ở đúng màn đang hiện. Để nó chạy ngầm dưới màn menu thì
      máy vẫn giải mã 30 hình/giây suốt ngày — nóng máy, tốn pin. */
   if(id === 'mh-cho')  mayCho.bat();  else mayCho.dung();
@@ -2632,6 +2657,11 @@ const TRANG_THAI_MIC = {
             nut:'Chờ một chút…' },
   'nghe': { lop:'nghe', icon:'🎧', chu:'Tôi đang nghe — quý vị cứ nói, nói xong thì dừng lại',
             nut:'Đang nghe…' },
+  /* Mic hết giờ mà KHÔNG nghe được chữ nào (11/09/2026). Hai lời dặn trong câu này
+     là hai nguyên nhân hay gặp nhất mà người bệnh tự chữa được: đứng lệch khỏi tầm
+     camera (robot coi là tiếng ồn) và nói nhỏ giữa sảnh ồn. */
+  'khong':{ lop:'khong', icon:'⚠️', chu:'Tôi chưa nghe được gì. Quý vị đứng đối diện màn hình, ' +
+            'nói to và rõ — hoặc gõ câu hỏi bên dưới', nut:'Bấm để nói' },
 };
 function datTrangThaiMic(t){
   const c = TRANG_THAI_MIC[t] || TRANG_THAI_MIC[''];
@@ -2700,6 +2730,13 @@ window.baoMicTuTat = function(){
   micChatMo = false;
   veMatNutMic(false);
   if(manDang === 'mh-chat') datTrangThaiMic('');
+};
+
+/** Kotlin báo: mic mở đủ 15 giây mà KHÔNG nghe được chữ nào. Khác hẳn "nói xong" —
+    nói thẳng ra cho người bệnh biết, đừng lặng lẽ tắt như trước (11/09/2026). */
+window.baoMicKhongNgheDuoc = function(){
+  window.baoMicTuTat();
+  if(manDang === 'mh-chat') datTrangThaiMic('khong');
 };
 
 /* Android gọi lên: từng mẩu lời nói đã nghe/đã đọc */
@@ -2871,6 +2908,72 @@ function baoLoi(t){
   const b = $('#canh-bao'); b.textContent = t; b.classList.add('hien');
   clearTimeout(henBao); henBao = setTimeout(()=>b.classList.remove('hien'), 6500);
 }
+
+/* ═══════════ BẢNG TỰ CHẨN ĐOÁN MICRO + AI (11/09/2026) ═══════════
+   Anh Trường báo: vào app thì mất nút mic, đợi một lúc mới hiện, bấm nói thì robot
+   không nhận. Máy ở bệnh viện, không cắm cáp được để đọc log — nên app phải tự khai
+   ra. Bấm GIỮ tiêu đề màn Trò chuyện 1,2 giây là hiện bảng này; chụp một tấm gửi về
+   là biết nguyên nhân, không phải đoán.
+
+   Bốn thứ nó trả lời được, đúng bốn nguyên nhân đã gặp làm mic chết mà KHÔNG báo lỗi:
+     · mạng — AI và nhận giọng nói đều đi qua đám mây, 4G chậm hay mất mạng là chết theo
+     · công tắc micro CỦA MÁY — bẫy isMicrophoneMuted, hoặc ai đó bấm nút trên dải hãng
+     · AI có trả lời được không, và lỗi nguyên văn nếu không
+     · lần cuối nghe được chữ — AI thông mà vẫn chưa nghe câu nào là do đứng lệch camera
+       hoặc app không được mở từ màn hình chính RobotOS */
+function moChanDoan(){
+  let t = {};
+  try{ if(coCau() && CAU.thongTinAI) t = JSON.parse(CAU.thongTinAI()); }catch(e){}
+  const MANG = { wifi:'Wi-Fi', '4g':'4G (dữ liệu di động)', khac:'Mạng khác',
+                 mat:'MẤT MẠNG', '?':'Không đọc được' };
+  const giay = s => (s == null || s < 0) ? 'chưa lần nào'
+                  : (s < 90 ? s + ' giây trước' : Math.round(s / 60) + ' phút trước');
+  const dong = (nhan, gt, lop) => '<div class="dong"><span>' + thoat(nhan) + '</span><b class="' +
+                                  (lop || '') + '">' + thoat(gt) + '</b></div>';
+  const kl = [];
+  if(!coCau()){
+    kl.push('Đang chạy trên máy tính — không có robot để hỏi.');
+  } else {
+    if(t.mang === 'mat') kl.push('Robot MẤT MẠNG. Nối lại Wi-Fi của bệnh viện.');
+    else if(t.mang === '4g') kl.push('Robot đang chạy 4G, không phải Wi-Fi. AI và nhận giọng nói đều ' +
+      'đi qua đám mây, 4G chậm là mic chết theo. Nối lại Wi-Fi.');
+    if(t.micHeThong === 0) kl.push('Công tắc MICRO CỦA MÁY đang TẮT. Bấm nút micro trên dải trạng ' +
+      'thái trên cùng màn hình, hoặc chạy: adb shell settings put global microphone 1');
+    if(!t.agentSanSang) kl.push('AI chưa trả lời được lần nào' + (t.loiAI ? ' — lỗi: ' + t.loiAI : '') +
+      '. App tự thử lại mỗi 20 giây.');
+    if(t.agentSanSang && !(t.ngheCuoiGiay >= 0) && t.micHeThong !== 0) kl.push('AI đã thông nhưng ' +
+      'chưa nghe được câu nào. Người nói phải đứng ĐỐI DIỆN màn hình, trong tầm camera — camera bị ' +
+      'che hay đứng lệch là robot coi như tiếng ồn. Và phải mở app từ màn hình chính RobotOS.');
+    if(!kl.length) kl.push('Mọi thứ bình thường.');
+  }
+  $('#chan-doan').innerHTML = '<h3>🔧 Tự kiểm micro &amp; AI</h3>' +
+    dong('Mạng', MANG[t.mang] || '—', t.mang === 'wifi' ? 'tot' : 'xau') +
+    dong('Micro của máy', t.micHeThong === 1 ? 'Bật' : (t.micHeThong === 0 ? 'TẮT' : 'Không đọc được'),
+         t.micHeThong === 1 ? 'tot' : (t.micHeThong === 0 ? 'xau' : '')) +
+    dong('AI đám mây', t.agentSanSang ? 'Đã thông' : 'Chưa thông', t.agentSanSang ? 'tot' : 'xau') +
+    dong('Số lần thăm dò AI', t.lanThamDo != null ? String(t.lanThamDo) : '—') +
+    dong('Lỗi AI gần nhất', t.loiAI || 'không có') +
+    dong('AI trả lời lần cuối', giay(t.aiThongCuoiGiay)) +
+    dong('Nghe được chữ lần cuối', giay(t.ngheCuoiGiay)) +
+    dong('Micro của app đang mở', t.micDangMo ? 'Có' : 'Không') +
+    dong('appId', t.appId || '—') +
+    '<div class="ket-luan">' + kl.map(thoat).join('<br>') + '</div>' +
+    '<button class="cd-nut dam" onclick="dongChanDoan()">Đóng</button>';
+  $('#phu-chan-doan').classList.add('hien');
+}
+function dongChanDoan(){ $('#phu-chan-doan').classList.remove('hien'); }
+
+/* Bấm GIỮ 1,2 giây mới mở — bấm một cái thì không, để người bệnh không vào nhầm. */
+(function(){
+  const t = document.querySelector('#mh-chat .cd-ten');
+  if(!t) return;
+  let hen = null;
+  const bat = () => { clearTimeout(hen); hen = setTimeout(moChanDoan, 1200); };
+  const tha = () => { clearTimeout(hen); hen = null; };
+  t.addEventListener('touchstart', bat, {passive:true});
+  t.addEventListener('mousedown', bat);
+  ['touchend', 'touchcancel', 'mouseup', 'mouseleave'].forEach(e => t.addEventListener(e, tha));
+})();
 
 /* ═══════════ Khởi động ═══════════ */
 $('#ten-bv').textContent = D.don_vi;

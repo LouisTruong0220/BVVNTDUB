@@ -64,6 +64,19 @@ object Cau {
     }
 
     /**
+     * Mic mở đủ 15 giây mà KHÔNG nghe được một chữ nào — khác hẳn chuyện người bệnh nói
+     * xong. Báo lên để màn hình NÓI THẲNG ra, thay vì lặng lẽ tắt mic như trước.
+     *
+     * ⚠ Thêm 11/09/2026 sau khi anh Trường báo "bấm mic nói mà robot không nhận". Bản
+     *   trước tắt mic im lặng: người bệnh nhìn nút micro quay về "Bấm để nói" mà không
+     *   biết robot có nghe thấy gì không, cứ thế bấm lại, nói lại, bỏ đi.
+     */
+    fun baoMicKhongNgheDuoc() {
+        val w = web ?: return
+        w.post { w.evaluateJavascript("window.baoMicKhongNgheDuoc && window.baoMicKhongNgheDuoc()", null) }
+    }
+
+    /**
      * Kotlin vừa TỰ tắt mic — báo lên để nút micro thôi nhấp nháy.
      *
      * Có hai đường tự tắt, cả hai đều nằm bên Kotlin vì chỉ Kotlin thấy cờ `final` của
