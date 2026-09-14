@@ -258,6 +258,19 @@
     // ③ bệnh viện chưa cung cấp dữ liệu
     if (TU_CHUA_CO.test(cau)) { ghi('loi', '⛔ CHẶN CHƯA CÓ DỮ LIỆU'); noiRaMan(LOI_CHUA_CO); return; }
 
+    /* ③b PHIÊN TRÒ CHUYỆN — y như TraLoi lớp 3b: trí nhớ ngữ cảnh + hỏi xác nhận
+       trước khi dẫn. Gọi TRƯỚC lớp tra kho, vì "đúng rồi" là lời đồng ý chứ không
+       phải một câu hỏi mới. */
+    if (window.xuLyCauNoi) {
+      var v = null;
+      try { v = JSON.parse(window.xuLyCauNoi(cau)); } catch (e) {}
+      if (v && v.xong) {
+        ghi('lenh', 'phiên trò chuyện xử lý: ' + (v.viec || '(không rõ)'));
+        if (v.doc) noiRaMan(v.doc);
+        return;
+      }
+    }
+
     // ④ tra kho khoa phòng — cùng hàm traCuu() mà tầng Android gọi xuống
     var r = window.traCuu ? window.traCuu(cau, 3) : null;
     if (!r || r.muc === 'ma-khong-co') {
@@ -308,6 +321,10 @@
     danDuongToiDiem: danDuongToiDiem,
     dungDanDuong: function () { dungDanDuong(false); },
     veCho: veCho,
+    ketThucPhien: function () {
+      ghi('lenh', 'CAU.ketThucPhien() → xoá lịch sử hội thoại + ngữ cảnh');
+      GL.daKetThucPhien = (GL.daKetThucPhien || 0) + 1;
+    },
     datBiDanhDiem: function (json) {
       var m = {};
       try {

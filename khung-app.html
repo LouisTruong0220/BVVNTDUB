@@ -400,6 +400,17 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
 /* Mic hết giờ mà không nghe được chữ nào — màu cảnh báo, để người bệnh biết là
    robot KHÔNG nghe thấy chứ không phải robot đang nghĩ (11/09/2026). */
 .chat-huong-dan.khong{background:#FDECEA;border-color:#F3C2BC;color:#8A1F14}
+/* Hộp XÁC NHẬN trước khi dẫn đường (14/09/2026). Nổi trên MỌI màn, không nằm trong
+   màn Trò chuyện: lúc hỏi xác nhận app có thể đã nhảy sang màn chỉ đường rồi. */
+.xac-nhan{background:#fff;border-radius:1.4rem;padding:2rem 2.4rem;width:52rem;max-width:86%;
+  text-align:center;box-shadow:0 1rem 3rem rgba(0,0,0,.35)}
+.xac-nhan .xn-chu{display:block;font-size:1.95rem;font-weight:700;color:#12302F;line-height:1.35}
+.xac-nhan .xn-phu{display:block;margin-top:.6rem;font-size:1.15rem;color:#4B6564}
+.xac-nhan .xn-hang{display:flex;gap:1.2rem;margin-top:1.7rem}
+.xac-nhan button{flex:1;border:none;border-radius:1rem;padding:1.15rem 1rem;font-size:1.35rem;
+  font-weight:700;cursor:pointer}
+.xac-nhan .xn-co{background:var(--xanh-dam);color:#fff}
+.xac-nhan .xn-khong{background:#EDF2F2;color:#33504F}
 /* Bảng tự chẩn đoán mic + AI — chỉ kỹ thuật viên mở, xem moChanDoan() */
 .chan-doan{background:#fff;border-radius:1.2rem;padding:1.6rem 2rem;width:46rem;max-width:84%;
   color:#12302F;font-size:1.05rem;line-height:1.5;box-shadow:0 1rem 3rem rgba(0,0,0,.35)}
@@ -683,6 +694,19 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
      1,2 giây — cố ý giấu để người bệnh không mở nhầm. Thêm 11/09/2026. -->
 <div class="lop-phu" id="phu-chan-doan" onclick="if(event.target===this)dongChanDoan()">
   <div class="chan-doan" id="chan-doan"></div>
+</div>
+
+<!-- Hộp XÁC NHẬN trước khi dẫn đường. Anh Trường chốt 14/09/2026:
+     "khi người dùng yêu cầu dẫn đến phòng, hãy hỏi xác nhận lại, nếu đúng hãy dẫn". -->
+<div class="lop-phu" id="phu-xac-nhan">
+  <div class="xac-nhan">
+    <span class="xn-chu" id="xn-chu"></span>
+    <span class="xn-phu">Quý vị bấm nút, hoặc nói “đúng rồi” / “không”.</span>
+    <div class="xn-hang">
+      <button class="xn-co" onclick="chotXacNhan(true)">✓ Đúng, dẫn tôi đi</button>
+      <button class="xn-khong" onclick="chotXacNhan(false)">✕ Không</button>
+    </div>
+  </div>
 </div>
 
 <!-- Bàn phím nhập mã phòng -->
@@ -1206,9 +1230,9 @@ function veManCho(){
   dichDang = null; viTriDang = null;
   $('#o-nhap').value = '';
   veLuoiNhom();
-  /* Xoá ngữ cảnh trong bộ não hãng — chuyện của người trước không được dính sang
-     người sau. Bệnh viện thì đây còn là chuyện riêng tư. */
-  try{ if(window.CAU && CAU.xoaNguCanh) CAU.xoaNguCanh(); }catch(e){}
+  /* Xoá ngữ cảnh trong bộ não hãng VÀ trí nhớ phiên — chuyện của người trước không
+     được dính sang người sau. Bệnh viện thì đây còn là chuyện riêng tư. */
+  ketThucPhien();
   $('#chat-ds').innerHTML = '';
   ve('mh-cho');
 }
@@ -1319,6 +1343,7 @@ let dichDang = null, viTriDang = null, maNhanManh = null;
 function moChiTiet(id, iVt, ma, khongDoc){
   const d = DS.find(x=>x.id === id); if(!d) return;
   dichDang = d; maNhanManh = ma || null;
+  nhoDich(d.id);        // phiên trò chuyện nhớ "đang nói tới chỗ này"
 
   /* Khoa nằm ở nhiều toà mà chưa biết toà nào → hỏi lại trước, đừng đoán.
      Trừ khi người ta gõ hẳn mã phòng — mã phòng đã chỉ đích danh một toà rồi. */
@@ -1436,6 +1461,7 @@ function moChiTiet(id, iVt, ma, khongDoc){
    sang đây, nên cờ phải đi theo, không thì vẫn nghe hai lần. */
 function hoiToa(d, khongDoc){
   dichDang = d;
+  nhoDich(d.id);
   $('#toa-hoi').textContent = d.ten + ' có ở ' + d.vi_tri.length + ' toà nhà. Quý vị đang theo dõi ở toà nào?';
   $('#toa-luoi').innerHTML = d.vi_tri.map((v,i)=>`
     <button class="toa-nut" onclick="moChiTiet(${d.id}, ${i})">
@@ -1707,11 +1733,11 @@ window.robotDocXong = function(){
    ═══════════════════════════════════════════════════════════════════════ */
 let micChatMo = false;
 function moChat(){ ve('mh-chat'); capNhatMic(); datTrangThaiMic(''); }
-function dongChat(){ thaoTac(); dongMicChat(); veLuoiNhom(); }
+function dongChat(){ thaoTac(); dongMicChat(); ketThucPhien(); veLuoiNhom(); }
 function xoaHoiThoai(){
   thaoTac();
   $('#chat-ds').innerHTML = '';
-  try{ if(coCau() && CAU.xoaNguCanh) CAU.xoaNguCanh(); }catch(e){}
+  ketThucPhien();     // xoá luôn trí nhớ phiên, không chỉ xoá chữ trên màn hình
 }
 function themBong(ai, chu){
   const b = document.createElement('div');
@@ -1922,7 +1948,14 @@ window.nhanLoiNoi = function(ai, chu, xong){
 /* ⚠ Viết thẳng dạng /.../ chứ ĐỪNG dựng bằng new RegExp('...'): trong chuỗi JS thì
    '\s' không phải lớp khoảng trắng, nó chỉ là chữ 's'. Biểu thức vẫn dịch được, vẫn
    chạy, chỉ là khớp sai — đúng loại lỗi không có gì báo. Đã dính đúng lần này. */
-const RE_XIN_DAN = /(^|\s)(dẫn|dắt)(\s|$)|đưa\s+(tôi|em|con tôi|chúng tôi|mẹ|bố|ba|bà|ông|vợ|chồng|cháu)|đi\s+cùng\s+(tôi|chúng tôi)/i;
+/* ⚠ MỞ RỘNG 14/09/2026. Bản trước chỉ nhận "dẫn · dắt · đưa tôi", nên "cho tôi đến
+   khoa mắt" và "tôi muốn tới nhà thuốc" — hai cách nói rất thường — không được tính
+   là nhờ dẫn đường, robot chỉ đọc vị trí rồi đứng yên.
+   Mở rộng mà vẫn an toàn là nhờ bước HỎI XÁC NHẬN: nhận nhầm thì người bệnh nói
+   "không" một tiếng, robot chưa hề lăn bánh.
+   ⚠ "muốn ĐƯA" cố ý không nằm trong danh sách: "tôi muốn đưa con đi khám" là kể
+     việc của mình, không phải sai robot dẫn đường. */
+const RE_XIN_DAN = /(^|\s)(dẫn|dắt)(\s|$)|đưa\s+(tôi|em|con tôi|chúng tôi|mẹ|bố|ba|bà|ông|vợ|chồng|cháu)|đi\s+cùng\s+(tôi|chúng tôi)|cho\s+(tôi|em|chúng tôi)\s+(đến|tới|ra|vào|qua|sang)|muốn\s+(đến|tới|đi\s+(đến|tới|ra))/i;
 
 function xinDanDuong(cau){
   /* "hướng dẫn" chứa nguyên chữ "dẫn" — bỏ cụm đó ra trước, không thì mọi câu hỏi
@@ -2056,6 +2089,181 @@ function baoLoi(t){
   const b = $('#canh-bao'); b.textContent = t; b.classList.add('hien');
   clearTimeout(henBao); henBao = setTimeout(()=>b.classList.remove('hien'), 6500);
 }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   PHIÊN TRÒ CHUYỆN — TRÍ NHỚ + XÁC NHẬN TRƯỚC KHI DẪN (14/09/2026)
+
+   Anh Trường báo: đang trò chuyện mà bảo robot dẫn đường thì nó chỉ trả lời bằng
+   giọng nói chứ không đi. Dựng lại trên bản thử: 6 trên 7 cách nói tự nhiên KHÔNG
+   phát được lệnh đi, và câu "vậy dẫn tôi tới đó đi" còn ra NHẦM KHOA (Khu Thăm dò
+   chức năng) vì không ai hiểu chữ "đó" trỏ vào đâu.
+
+   Ba nguyên nhân, sửa cả ba ở đây:
+
+     ① Bản trước chỉ đi khi tra cứu ra mức CHẮC ngay trong chính câu đó. "dẫn tôi
+        tới đó", "dẫn tôi đi" thì không có tên khoa nào trong câu → không tra ra gì
+        → robot đáp "chưa có trong dữ liệu".  → NAY CÓ TRÍ NHỚ PHIÊN.
+     ② Cách nói không có chữ "dẫn" ("cho tôi đến khoa mắt", "tôi muốn tới nhà
+        thuốc") không được tính là lời nhờ dẫn.  → NAY MỞ RỘNG cách nhận dạng.
+     ③ Mở rộng cách nhận dạng thì dễ hiểu nhầm — nên trước khi lăn bánh phải HỎI
+        LẠI cho chắc, đúng như anh Trường yêu cầu.
+
+   Trí nhớ chỉ sống trong MỘT phiên: đóng chat · xoá đoạn chat · về màn chờ là xoá
+   sạch. Ở bệnh viện đây không chỉ là chuyện gọn gàng — bệnh của người trước không
+   được dính sang người sau.
+   ═══════════════════════════════════════════════════════════════════════ */
+let phien = { dichCuoi: null, choXacNhan: null, choChonToa: null };
+
+function nhoDich(id){ if(id != null) phien.dichCuoi = id; }
+
+function ketThucPhien(){
+  phien = { dichCuoi: null, choXacNhan: null, choChonToa: null };
+  const h = document.getElementById('phu-xac-nhan');
+  if(h) h.classList.remove('hien');
+  /* Kotlin giữ lịch sử hội thoại gửi cho mô hình — phải xoá cùng lúc, không thì
+     người sau bước tới là mô hình vẫn nhớ chuyện bệnh của người trước. */
+  try{ if(coCau() && CAU.ketThucPhien) CAU.ketThucPhien(); }catch(e){}
+}
+
+
+/* ⚠ ĐUÔI CÂU HỎI phải bỏ TRƯỚC khi xét từ chối. Người Việt hỏi lịch sự bằng cách
+   thêm "được không", "phải không", "đúng không ạ" vào cuối — mà chữ "không" ở đó
+   KHÔNG có nghĩa phủ định. Không bỏ đuôi thì câu "dẫn tôi đến khoa nhi được không"
+   bị hiểu thành lời từ chối, robot đáp "dạ vâng, quý vị cần hỏi gì thêm" rồi thôi.
+   Đo được 14/09/2026 ngay ở lượt thử đầu. */
+function boDuoiHoi(cau){
+  return (cau || '').replace(/(được|phải|đúng|có|nhé|chứ)\s*không\s*(ạ|nhỉ|nhé)?\s*[?.!]*/gi, ' ');
+}
+
+/* Đồng ý / từ chối. Luôn XÉT TỪ CHỐI TRƯỚC: "dạ không" có cả "dạ" lẫn "không". */
+const RE_TU_CHOI = /(^|\s)(không|ko|thôi|khỏi|đừng|chưa|nhầm|sai)(\s|$|[.,!?])/i;
+const RE_DONG_Y  = /(^|\s)(có|đúng|phải|vâng|dạ|ừ|ờ|ok|okay|được|đồng ý|chuẩn|đi thôi|dẫn đi|làm đi)(\s|$|[.,!?])/i;
+
+/** Câu hỏi xác nhận — CỐ Ý không đọc tầng và mã phòng ở đây.
+    Chỗ đó robot đọc nguyên văn từ dữ liệu sau khi người bệnh đồng ý; nhắc trước là
+    nghe hai lần, mà đọc tắt thì lệch với câu chuẩn. */
+function cauXacNhan(d){ return 'Quý vị muốn tôi dẫn tới ' + d.ten + ', đúng không ạ?'; }
+
+function hienXacNhan(d){
+  $('#xn-chu').textContent = cauXacNhan(d);
+  $('#phu-xac-nhan').classList.add('hien');
+}
+
+/** Người bệnh bấm nút, hoặc nói "đúng"/"không" — cùng một đường. */
+function chotXacNhan(dongY){
+  const cho = phien.choXacNhan;
+  $('#phu-xac-nhan').classList.remove('hien');
+  phien.choXacNhan = null;
+  if(!cho) return '';
+  if(!dongY) return 'Dạ vâng. Quý vị cần hỏi gì thêm, cứ nói với tôi ạ.';
+
+  const d = DS.find(x => x.id === cho.id);
+  if(!d) return KHONG_DAN_DUOC;
+  appTuChuyenMan = true;
+  try{ moChiTiet(d.id, cho.iVt, null, true); }
+  finally{ appTuChuyenMan = false; }
+  /* manDang phải là màn chi tiết mới được đi — cấp cứu (màn đỏ) và khoa nhiều toà
+     (màn hỏi toà) đều rẽ khỏi đó, và cả hai đều KHÔNG được tự lăn bánh. */
+  if(manDang !== 'mh-ct') return '';
+  danDuong();
+  /* Không trả câu nào: Cau.danDuongToiDiem đã đọc "Xin mời đi theo tôi" rồi. */
+  return '';
+}
+const KHONG_DAN_DUOC = 'Xin lỗi quý vị, chỗ này tôi chưa dẫn tới được. Mời quý vị hỏi quầy lễ tân.';
+
+/** Người bệnh vừa chọn toà bằng lời — trả về chỉ số vị trí, hoặc -1. */
+function chonToaTuLoi(d, cau){
+  const kd = khongDau(cau);
+  let thay = -1, demThay = 0;
+  d.vi_tri.forEach((v, i) => {
+    const ten = khongDau(v.toa_ten).replace('nha ', '');      // "di" · "dii" · "diii"
+    const thu = ['dau tien', 'thu hai', 'thu ba'][i] || '';
+    const so  = ['mot', 'hai', 'ba'][i] || '';
+    const mau = new RegExp('(^| )(' + ten + '|toa ' + so + '|' + thu + ')( |$)');
+    if(mau.test(kd)){ thay = i; demThay++; }
+  });
+  return demThay === 1 ? thay : -1;
+}
+
+/* ═══ CỬA VÀO DUY NHẤT cho mọi câu người bệnh nói, gọi TRƯỚC khi tra kho ═══
+   Trả JSON {xong, doc}: `xong` là "việc này lớp phiên lo rồi, Kotlin đừng hỏi mô
+   hình nữa", `doc` là câu robot phải đọc (rỗng thì không đọc gì).
+   Xem TraLoi.xuLy lớp 3b. */
+window.xuLyCauNoi = function(cauNoi){
+  const cau = (cauNoi || '').trim();
+  const tra = (xong, doc, viec) => JSON.stringify({ xong: !!xong, doc: doc || '', viec: viec || '' });
+  /* ⚠ ĐỪNG chặn câu một ký tự ở đây. Người già đồng ý bằng đúng một tiếng: "ừ", "ờ",
+     "dạ". Ngưỡng hai ký tự của bản trước nuốt trọn mấy tiếng đó, và người bệnh gật
+     đầu xong robot vẫn đứng im. Đo được 14/09/2026. */
+  if(!cau) return tra(false);
+
+  /* ① Đang chờ chọn toà (khoa có mặt ở nhiều toà nhà) */
+  if(phien.choChonToa != null){
+    const d = DS.find(x => x.id === phien.choChonToa);
+    const i = d ? chonToaTuLoi(d, cau) : -1;
+    if(i >= 0){
+      phien.choChonToa = null;
+      phien.choXacNhan = { id: d.id, iVt: i };
+      hienXacNhan(d);
+      return tra(true, d.ten + ' ở ' + d.vi_tri[i].toa_ten + '. ' + cauXacNhan(d), 'hoi-xac-nhan');
+    }
+    /* Không nghe ra toà nào → thôi bám, để câu này đi đường thường. */
+    phien.choChonToa = null;
+  }
+
+  /* ② Đang chờ xác nhận dẫn đường */
+  if(phien.choXacNhan != null){
+    const loi = boDuoiHoi(cau);
+    if(RE_TU_CHOI.test(loi)) return tra(true, chotXacNhan(false), 'tu-choi-dan');
+    if(RE_DONG_Y.test(loi))  return tra(true, chotXacNhan(true),  'dan-duong');
+    /* Nói sang chuyện khác — bỏ câu hỏi xác nhận, xử như câu mới. */
+    phien.choXacNhan = null;
+    $('#phu-xac-nhan').classList.remove('hien');
+  }
+
+  /* ③ Câu nhờ dẫn đường */
+  if(xinDanDuong(cau)){
+    let id = null;
+    /* Tra ra mức CHẮC thì theo tra cứu; không thì lấy chỗ vừa nói tới trong phiên.
+       Nhánh thứ hai gánh mọi câu kiểu "dẫn tôi tới đó" · "dẫn tôi đi" — trong câu
+       không có tên khoa nào để mà tra.
+
+       ⚠ Từng có thêm một luật "chữ trỏ ngược (đó · đấy · kia) THẮNG kết quả tra cứu".
+         ĐÃ BỎ 14/09/2026 sau khi THỬ NGƯỢC: gỡ luật ấy ra mà bộ thử vẫn xanh y
+         nguyên. Đo lại mới hiểu vì sao — KHÔNG câu trỏ ngược nào tra ra mức chắc cả
+         (nặng nhất là "vậy dẫn tôi tới đó đi" → chưa chắc, Khu Thăm dò chức năng),
+         mà nhánh chưa-chắc thì vốn đã rơi về trí nhớ phiên rồi. Luật đó chưa từng
+         đổi được kết quả nào.
+         Tệ hơn, giữ lại còn có hại: "dẫn tôi tới đó, chỗ chụp x quang" là người bệnh
+         ĐANG NÓI RÕ chỗ mới, mà luật kia lại ép quay về chỗ cũ. */
+    const r = traCuu(cau, 3);
+    if(r.muc === 'chac' && r.ds.length) id = r.ds[0].id;
+    else if(phien.dichCuoi != null) id = phien.dichCuoi;
+    if(id == null) return tra(false);      // chịu, không biết đi đâu — để đường thường lo
+
+    const d = DS.find(x => x.id === id);
+    if(!d) return tra(false);
+    /* CẤP CỨU: tuyệt đối không dẫn, và cũng không hỏi xác nhận — trả về đường
+       thường để nó bật màn đỏ và giục người ta đi ngay. */
+    if(d.loai === 'cap-cuu') return tra(false);
+
+    if(d.vi_tri.length > 1){
+      phien.choChonToa = d.id;
+      return tra(true, d.ten + ' có ở ' + d.vi_tri.length + ' toà nhà: ' +
+                 d.vi_tri.map(v => v.toa_ten).join(', ') +
+                 '. Quý vị đang theo dõi ở toà nào ạ?', 'hoi-toa');
+    }
+    phien.choXacNhan = { id: d.id, iVt: 0 };
+    hienXacNhan(d);
+    return tra(true, cauXacNhan(d), 'hoi-xac-nhan');
+  }
+
+  /* ④ Không phải việc của lớp này. Nhớ lại đích nếu câu này tra ra chắc chắn — để
+     câu sau nói "dẫn tôi tới đó" là biết đường. */
+  const r = traCuu(cau, 3);
+  if(r.muc === 'chac' && r.ds.length) nhoDich(r.ds[0].id);
+  return tra(false);
+};
 
 /* ═══════════ BẢNG TỰ CHẨN ĐOÁN MICRO + AI (11/09/2026) ═══════════
    Anh Trường báo: vào app thì mất nút mic, đợi một lúc mới hiện, bấm nói thì robot

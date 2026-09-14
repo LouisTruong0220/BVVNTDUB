@@ -65,7 +65,9 @@ object TraLoi {
      */
     fun hoi(cauHoi: String) {
         val cau = cauHoi.trim()
-        if (cau.length < 2) return
+        /* ⚠ Ngưỡng cũ là hai ký tự — nó nuốt mất tiếng "ừ" và "ờ", đúng cách người già
+           đồng ý khi robot hỏi "quý vị muốn tôi dẫn tới … đúng không ạ?". */
+        if (cau.isEmpty()) return
         tho.execute { xuLy(cau) }
     }
 
@@ -78,6 +80,30 @@ object TraLoi {
 
         // ── Lớp 3: những thứ bệnh viện chưa cung cấp (giờ làm việc, giá khám, tên bác sĩ…).
         if (MainApplication.chanChuaCoDuLieuNeuCan(cau)) { ghiNhatKy(cau, "chua-co", "", "", null); return }
+
+        /* ── Lớp 3b: PHIÊN TRÒ CHUYỆN — trí nhớ ngữ cảnh + xác nhận trước khi dẫn ──
+         *
+         * Anh Trường báo 14/09/2026: đang trò chuyện mà bảo robot dẫn đường thì nó chỉ
+         * trả lời bằng giọng nói chứ không đi. Đo lại trên bản thử: 6 trên 7 cách nói
+         * tự nhiên không phát được lệnh đi, vì bản trước chỉ đi khi CHÍNH câu đó tra ra
+         * mức chắc — mà "dẫn tôi tới đó" thì trong câu không có tên khoa nào.
+         *
+         * Lớp này đặt TRƯỚC lớp tra kho, và nó cũng là nơi giữ câu hỏi xác nhận: lời
+         * đáp "đúng rồi" của người bệnh phải được hiểu là ĐỒNG Ý DẪN, chứ không phải
+         * một câu hỏi mới đem đi tra bảng khoa phòng.
+         *
+         * Bộ máy nằm bên lớp web (window.xuLyCauNoi) vì ở đó mới có bảng đích đến, hàm
+         * tra cứu, hàm mở màn và hàm phát lệnh đi. Dựng lại bên Kotlin là có hai bản
+         * luật, mà hai bản luật thì sớm muộn lệch nhau.
+         */
+        val viec = runCatching { JSONObject(Cau.xuLyCauNoi(cau)) }.getOrNull()
+        if (viec != null && viec.optBoolean("xong")) {
+            val doc = viec.optString("doc")
+            if (doc.isNotBlank()) MainApplication.tuDoc(doc)
+            nhoLuot(cau, doc)
+            ghiNhatKy(cau, "phien", viec.optString("viec"), "", null)
+            return
+        }
 
         // ── Lớp 4: tra trong bảng khoa phòng, lấy cả độ tin cậy.
         val kho = runCatching { JSONObject(Cau.traKhoaChoAI(cau)) }.getOrNull()
@@ -154,6 +180,50 @@ object TraLoi {
         }
     }
 
+    /* ══════════════════════════════════════════════════════════════════
+       TRÍ NHỚ TRONG MỘT PHIÊN — anh Trường chốt 14/09/2026
+
+       > "Trong một phiên nói chuyện thì Robot ghi nhớ các dữ liệu, thông tin đã
+       >  trao đổi trong phiên đó, chỉ khi kết thúc mới reset."
+
+       ⚠ Gửi lịch sử dưới dạng CHỮ trong chính tin nhắn người dùng, không dùng thêm
+         vai "trợ lý" của SDK. Lý do thực dụng: bộ vai của Agent SDK 0.4.7 chưa được
+         kiểm trên máy thật, mà đoán sai một hằng số enum là cả lượt gọi hỏng lặng lẽ —
+         đúng kiểu lỗi đã mất nhiều ngày ở app này. Dạng chữ thì chắc chắn chạy.
+
+       ⚠ Chỉ giữ BỐN lượt gần nhất. Người bệnh kể bệnh dài dòng, nhét cả phiên vào mỗi
+         lượt là phình token rất nhanh — bài học hạn mức 8.000 token mỗi phút ở app trước.
+
+       ⚠ XOÁ khi hết phiên (Cau.ketThucPhien). Ở bệnh viện đây không chỉ là chuyện gọn
+         gàng: chuyện bệnh của người trước không được dính sang người sau.
+       ══════════════════════════════════════════════════════════════════ */
+    private const val NHO_MAY_LUOT = 4
+    private val lichSu = java.util.Collections.synchronizedList(ArrayList<Pair<String, String>>())
+
+    /** Lớp web gọi qua Cau.ketThucPhien khi đóng chat · xoá đoạn chat · về màn chờ. */
+    fun xoaLichSu() {
+        val n = lichSu.size
+        lichSu.clear()
+        Log.d(TAG, "Kết thúc phiên — xoá $n lượt trong trí nhớ")
+    }
+
+    private fun nhoLuot(hoi: String, dap: String) {
+        if (hoi.isBlank()) return
+        synchronized(lichSu) {
+            lichSu.add(hoi to dap)
+            while (lichSu.size > NHO_MAY_LUOT) lichSu.removeAt(0)
+        }
+    }
+
+    private fun lichSuChuoi(): String {
+        val ban = synchronized(lichSu) { lichSu.toList() }
+        if (ban.isEmpty()) return ""
+        return "ĐÃ TRAO ĐỔI TRONG PHIÊN NÀY (cũ ở trên, mới ở dưới):\n" +
+               ban.joinToString("\n") { (h, d) ->
+                   "- Người bệnh: $h" + (if (d.isBlank()) "" else "\n  Bạn đã đáp: $d")
+               } + "\n\n"
+    }
+
     /**
      * Dựng danh sách tin nhắn gửi mô hình.
      *
@@ -179,6 +249,7 @@ object TraLoi {
         return listOf(
             LLMMessage(Role.SYSTEM, MainApplication.PERSONA + "\n\n" + MainApplication.LUAT_TRA_LOI),
             LLMMessage(Role.USER,
+                lichSuChuoi() +
                 "DANH SÁCH ỨNG VIÊN (máy vừa tra trong bảng khoa phòng cài sẵn trong robot):\n" +
                 danhSach + "\n\n" + nhac + "\n\n" +
                 "Người bệnh vừa nói: \"" + cau + "\"")
@@ -256,6 +327,7 @@ object TraLoi {
             append(viTri)
         }
         MainApplication.tuDoc(noi)
+        nhoLuot(cau, noi)      // để câu sau nói "dẫn tôi tới đó" là robot biết đường
         ghiNhatKy(cau, muc, ma, "", chuGoc)
     }
 

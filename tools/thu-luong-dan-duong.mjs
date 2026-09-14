@@ -460,7 +460,7 @@ async function kiemDan(cau, phaiDi, nhan) {
   await p.evaluate(() => {
     GIA_LAP.daDan.length = 0; GIA_LAP.daNoi.length = 0;
     if (window.dungDanDuongNgay) { try { dungDanDuongNgay(); } catch (e) {} }
-    veTrangChu(); moChat();
+    veTrangChu(); ketThucPhien(); moChat();   // phiên sạch, không để trí nhớ lượt trước lẫn sang
   });
   await p.waitForTimeout(150);
   await p.evaluate(c => { document.querySelector('#chat-nhap').value = c; guiChat(); }, cau);
@@ -475,11 +475,45 @@ async function kiemDan(cau, phaiDi, nhan) {
   }
 }
 
-/* ① Câu LỆNH — phải đi, và phải đi tới ĐÚNG điểm bản đồ. */
-await kiemDan('dẫn tôi tới khoa mắt',            true,  'Lệnh dẫn tới khoa trong toà D → đi ra đầu hành lang');
-await kiemDan('đưa tôi tới phòng thu viện phí',  true,  'Lệnh dẫn tới tiện ích trong khu → đi thẳng');
-await kiemDan('dắt tôi ra chỗ chụp x quang',     true,  'Lệnh dẫn tới nhà F → đi tới tận nơi');
-await kiemDan('dẫn tôi ra nhà vệ sinh',          true,  'Lệnh dẫn — cách nói khác');
+/* ① Câu LỆNH — từ 14/09/2026 KHÔNG đi ngay nữa mà HỎI XÁC NHẬN trước, rồi người
+      bệnh đồng ý mới lăn bánh. Anh Trường chốt: "khi người dùng yêu cầu dẫn đến
+      phòng, hãy hỏi xác nhận lại, nếu đúng hãy thực hiện dẫn đường".
+      Phép thử vì thế phải đi HAI NHỊP — nhịp một tuyệt đối không được có lệnh đi. */
+async function kiemDanCoXacNhan(cau, dongY, nhan, anh) {
+  await p.evaluate(() => {
+    GIA_LAP.daDan.length = 0; GIA_LAP.daNoi.length = 0;
+    if (window.dungDanDuongNgay) { try { dungDanDuongNgay(); } catch (e) {} }
+    veTrangChu(); ketThucPhien(); moChat();
+  });
+  await p.waitForTimeout(200);
+  await p.evaluate(c => { document.querySelector('#chat-nhap').value = c; guiChat(); }, cau);
+  await cho(async () => (await p.evaluate(() => GIA_LAP.daNoi.length)) > 0, 8000);
+  await p.waitForTimeout(300);
+  const b1 = await p.evaluate(() => ({ dan: GIA_LAP.daDan.slice(), noi: GIA_LAP.daNoi.join(' '),
+    hop: getComputedStyle(document.querySelector('#phu-xac-nhan')).display !== 'none' }));
+  if (anh) await p.screenshot({ path: join(RA, anh + '.png') });
+  await kiem(nhan + ' — nhịp 1: HỎI LẠI, chưa đi  «' + cau + '»',
+    async () => b1.dan.length === 0 && b1.hop && /đúng không ạ/i.test(b1.noi));
+
+  await p.evaluate(x => { GIA_LAP.daDan.length = 0; GIA_LAP.daNoi.length = 0;
+    document.querySelector('#chat-nhap').value = x; guiChat(); }, dongY);
+  await cho(async () => (await p.evaluate(() => GIA_LAP.daDan.length + GIA_LAP.daNoi.length)) > 0, 8000);
+  await p.waitForTimeout(300);
+  const b2 = await p.evaluate(() => ({ dan: GIA_LAP.daDan.slice(),
+    hop: getComputedStyle(document.querySelector('#phu-xac-nhan')).display !== 'none' }));
+  await kiem(nhan + ' — nhịp 2: đồng ý «' + dongY + '» → ĐI THẬT',
+    async () => b2.dan.length > 0 && !b2.hop);
+  if (b2.dan.length === 0) console.log('    lệnh dẫn: (không có)');
+}
+
+await kiemDanCoXacNhan('dẫn tôi tới khoa mắt', 'đúng rồi',
+  'Khoa trong toà D', '14-hoi-xac-nhan');
+await kiemDanCoXacNhan('đưa tôi tới phòng thu viện phí', 'vâng', 'Tiện ích trong khu');
+await kiemDanCoXacNhan('dắt tôi ra chỗ chụp x quang', 'ừ', 'Nhà F — và tiếng "ừ" một chữ vẫn tính là đồng ý');
+await kiemDanCoXacNhan('cho tôi đến nhà thuốc', 'đúng',
+  'Cách nói KHÔNG có chữ "dẫn" cũng phải hiểu là nhờ dẫn');
+await kiemDanCoXacNhan('bạn dẫn tôi đến khoa răng hàm mặt được không', 'vâng ạ',
+  'Đuôi "được không" KHÔNG phải lời từ chối');
 
 /* ② Câu HỎI — tuyệt đối không được tự lăn bánh. */
 await kiemDan('khoa mắt ở đâu',                  false, 'Chỉ HỎI thì robot đứng yên');
@@ -667,6 +701,85 @@ await p.evaluate(() => { veTrangChu(); });
 await kiem('Đổi màn thì bảng chẩn đoán tự đóng, không đè lên màn khác',
   async () => !(await bangHien()));
 await p.evaluate(() => { Object.assign(GIA_LAP, { mang: 'wifi', micHeThong: 1, loiAI: '' }); });
+
+/* ═══════════════════════════════════════════════════════════════════════
+   L. PHIÊN TRÒ CHUYỆN — TRÍ NHỚ NGỮ CẢNH (14/09/2026)
+
+   Anh Trường chốt: "trong một phiên nói chuyện thì Robot ghi nhớ các dữ liệu,
+   thông tin đã trao đổi trong phiên đó, chỉ khi kết thúc mới reset".
+
+   Thứ nhóm này canh, và là thứ đã hỏng thật: câu nói thứ hai trong một phiên
+   thường KHÔNG nhắc lại tên khoa — "dẫn tôi tới đó", "dẫn tôi đi". Bản trước tra
+   cứu từng câu một cách độc lập nên không hiểu chữ "đó", và tệ hơn là đôi khi
+   khớp bừa sang khoa khác: "vậy dẫn tôi tới đó đi" ra Khu Thăm dò chức năng.
+   ═══════════════════════════════════════════════════════════════════════ */
+console.log('\n── L. Phiên trò chuyện: nhớ ngữ cảnh, quên khi hết phiên ──');
+
+async function noiTrongPhien(cacCau) {
+  await p.evaluate(() => {
+    if (window.dungDanDuongNgay) { try { dungDanDuongNgay(); } catch (e) {} }
+    veTrangChu(); ketThucPhien(); moChat();
+  });
+  await p.waitForTimeout(200);
+  const ra = [];
+  for (const c of cacCau) {
+    await p.evaluate(x => { GIA_LAP.daNoi.length = 0; GIA_LAP.daDan.length = 0;
+      document.querySelector('#chat-nhap').value = x; guiChat(); }, c);
+    await cho(async () => (await p.evaluate(() => GIA_LAP.daNoi.length + GIA_LAP.daDan.length)) > 0, 8000);
+    await p.waitForTimeout(300);
+    ra.push(await p.evaluate(() => ({ noi: GIA_LAP.daNoi.join(' '), dan: GIA_LAP.daDan.slice(),
+      hop: getComputedStyle(document.querySelector('#phu-xac-nhan')).display !== 'none' })));
+  }
+  return ra;
+}
+
+let luot = await noiTrongPhien(['khoa mắt ở đâu', 'dẫn tôi tới đó', 'đúng']);
+await kiem('Hỏi "khoa mắt ở đâu" rồi "dẫn tôi tới ĐÓ" → nhớ đúng Khoa Mắt',
+  async () => /Khoa Mắt/i.test(luot[1].noi) && luot[1].hop);
+await kiem('… đồng ý thì robot đi ra đầu hành lang',
+  async () => luot[2].dan.includes('Truoc hanh lang'));
+
+luot = await noiTrongPhien(['tôi bị đau mắt', 'dẫn tôi đi', 'ừ']);
+await kiem('Kể bệnh rồi "dẫn tôi đi" (không nhắc tên khoa) → vẫn nhớ Khoa Mắt',
+  async () => /Khoa Mắt/i.test(luot[1].noi) && luot[2].dan.length > 0);
+
+/* ⚠ Câu này TỪNG ra Khu Thăm dò chức năng ở bản v1.11 — "đó" bỏ dấu thành "do",
+      trùng chữ "dò" trong "thăm dò". Nay trí nhớ phiên đỡ được.
+      (Thứ canh dòng này là TRÍ NHỚ, đã thử ngược: bỏ nhoDich ra là đỏ.) */
+luot = await noiTrongPhien(['tôi bị đau mắt', 'vậy dẫn tôi tới đó đi']);
+await kiem('"vậy dẫn tôi tới đó đi" → đúng Khoa Mắt, KHÔNG lạc sang khoa khác',
+  async () => /Khoa Mắt/i.test(luot[1].noi) && !/Thăm dò/i.test(luot[1].noi));
+
+/* ⚠ ĐUÔI CÂU HỎI khi ĐANG CHỜ XÁC NHẬN — đây mới là chỗ boDuoiHoi có tác dụng.
+      Phép thử cũ đặt câu "…được không" ở lượt ĐẦU, lúc chưa có gì để xác nhận, nên
+      gỡ boDuoiHoi ra nó vẫn xanh. Thử ngược 14/09/2026 bắt được đúng chỗ hổng này. */
+luot = await noiTrongPhien(['dẫn tôi tới khoa mắt', 'đúng rồi, dẫn tôi đi được không']);
+await kiem('Đáp xác nhận bằng câu lịch sự "…được không" → phải hiểu là ĐỒNG Ý, không phải từ chối',
+  async () => luot[1].dan.length > 0);
+
+luot = await noiTrongPhien(['cho tôi đến nhà thuốc', 'thôi không cần']);
+await kiem('Người bệnh từ chối → robot KHÔNG đi, và thôi hỏi lại',
+  async () => luot[1].dan.length === 0 && !luot[1].hop);
+
+luot = await noiTrongPhien(['dẫn tôi tới khoa nhi', 'toà DII', 'đúng rồi']);
+await kiem('Khoa ở NHIỀU TOÀ → hỏi toà trước, chưa hỏi xác nhận vội',
+  async () => luot[0].dan.length === 0 && !luot[0].hop && /toà nào/i.test(luot[0].noi));
+await kiem('… chọn toà bằng lời rồi mới tới bước xác nhận',
+  async () => luot[1].hop && /Nhà DII/i.test(luot[1].noi));
+await kiem('… đồng ý thì mới lăn bánh', async () => luot[2].dan.length > 0);
+
+/* ⚠ CẤP CỨU: không hỏi xác nhận, không dẫn — dù người bệnh nói "dẫn tôi tới". */
+luot = await noiTrongPhien(['dẫn tôi tới khoa cấp cứu']);
+await kiem('CẤP CỨU: không hộp xác nhận, không lệnh đi, giục đi ngay',
+  async () => luot[0].dan.length === 0 && !luot[0].hop && /đi ngay/i.test(luot[0].noi));
+
+/* ⚠ HẾT PHIÊN LÀ QUÊN. Ở bệnh viện đây là chuyện riêng tư, không chỉ gọn gàng. */
+await noiTrongPhien(['khoa mắt ở đâu']);
+luot = await noiTrongPhien(['dẫn tôi tới đó']);
+await kiem('Kết thúc phiên là XOÁ trí nhớ — phiên sau "dẫn tôi tới đó" không còn biết đâu',
+  async () => luot[0].dan.length === 0 && !/Khoa Mắt/i.test(luot[0].noi));
+await kiem('… và Kotlin cũng được báo để xoá lịch sử hội thoại',
+  async () => (await p.evaluate(() => GIA_LAP.daKetThucPhien || 0)) > 0);
 
 if (loi.length) { console.log('\n✗ Lỗi JS bắt được:'); loi.forEach(x => console.log('   ' + x)); hong += loi.length; }
 console.log('\n' + (hong ? '✗ ' + hong + ' phép kiểm KHÔNG đạt' : '✓ Tất cả phép kiểm đều đạt'));

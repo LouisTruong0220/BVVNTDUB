@@ -9,11 +9,11 @@ tìm đúng khoa theo cách họ tự mô tả, và **dẫn đường** tới n�
 
 **Chỉ cần cài lên robot, không cần build:**
 
-1. Tải `apk/le-tan-benh-vien-uong-bi-v1.11.apk`
+1. Tải `apk/le-tan-benh-vien-uong-bi-v1.12.apk`
 2. Nối cáp USB vào **đầu robot**, dùng **adb 1.0.41** của Android SDK
    (⚠ **không** dùng `C:\Windows\adb.exe` bản 1.0.39 của PUDU — hai bản giết tiến trình của nhau)
    ```powershell
-   adb install -r le-tan-benh-vien-uong-bi-v1.11.apk
+   adb install -r le-tan-benh-vien-uong-bi-v1.12.apk
    ```
 3. **Mở app từ RobotOS Home**, tuyệt đối không dùng `am start` — dùng `am start` thì `RobotApi`
    trả `handleApiDisabled`, mất cả dẫn đường lẫn giọng nói mà app không báo lỗi gì.
@@ -38,7 +38,7 @@ Hồ sơ dự án đầy đủ nằm trong workspace nội bộ của Roboworld,
 | | |
 |---|---|
 | Trạng thái | **Bản demo HTML xong, APK build xong. Chưa chạy trên robot thật, chưa khảo sát mặt bằng.** |
-| APK | `apk/le-tan-benh-vien-uong-bi-v1.11.apk` — appId riêng · ba toà D dừng ở đầu hành lang · nhà A/B/F dẫn tới tận nơi |
+| APK | `apk/le-tan-benh-vien-uong-bi-v1.12.apk` — appId riêng · ba toà D dừng ở đầu hành lang · nhà A/B/F dẫn tới tận nơi |
 | **Bản thử trên máy tính** | **`demo/thu-nghiem.html`** — có giả lập robot, bấm được nút dẫn đường. Đọc [HUONG-DAN-THU-NGHIEM.md](HUONG-DAN-THU-NGHIEM.md) |
 | Demo bản sạch | `demo/index.html` — giống hệt cái nằm trong APK |
 | Package | `vn.roboworld.benhvien` |
@@ -423,6 +423,56 @@ của mình. Sai thì sai theo hướng im lặng.
 
 Mô hình chỉ soạn **câu dẫn**; tên khoa, số tầng, mã phòng do app đọc nguyên văn từ bảng khoa phòng
 bệnh viện cung cấp. Con số không đi qua mô hình lần nào.
+
+### Phiên trò chuyện: nhớ ngữ cảnh · hỏi xác nhận rồi mới dẫn — v1.12
+
+Anh Trường báo 14/09/2026: *"khi người dùng yêu cầu Robot dẫn đường trong chế độ trò chuyện AI thì
+Robot không thực hiện dẫn đường, mà chỉ trả lời bằng giọng nói"*, kèm hai yêu cầu: trong một phiên
+thì robot phải **nhớ những gì đã trao đổi**, và khi được nhờ dẫn thì phải **hỏi xác nhận** rồi mới đi.
+
+Dựng lại trên bản thử, bảy cách nói tự nhiên thì **sáu cách không phát được lệnh đi**:
+
+| Người bệnh nói | Bản v1.11 làm gì |
+|---|---|
+| "dẫn tôi tới khoa mắt" | đi ✓ (đúng một cách nói này) |
+| "cho tôi đến khoa mắt" | chỉ đọc vị trí, đứng yên |
+| "tôi muốn tới nhà thuốc" | chỉ đọc vị trí, đứng yên |
+| "khoa mắt ở đâu" → "dẫn tôi tới đó" | *"tôi chưa có trong dữ liệu"* |
+| "tôi bị đau mắt" → "vậy dẫn tôi tới đó đi" | ra **nhầm khoa** — Khu Thăm dò chức năng |
+
+Ba nguyên nhân, sửa cả ba:
+
+1. **Không có trí nhớ.** Mỗi câu được tra độc lập, nên câu thứ hai trong phiên — thường không nhắc
+   lại tên khoa — không tra ra gì. Nay có `phien.dichCuoi`, nhớ chỗ vừa nói tới.
+2. **Cách nhận ra lời nhờ dẫn quá hẹp** — chỉ bắt "dẫn · dắt · đưa tôi". Nay thêm "cho tôi đến…",
+   "tôi muốn tới…".
+3. **Mở rộng thì dễ hiểu nhầm** — nên trước khi lăn bánh phải hỏi lại, đúng như anh Trường yêu cầu.
+
+**Luồng mới:** nhờ dẫn → robot hỏi *"Quý vị muốn tôi dẫn tới Khoa Mắt, đúng không ạ?"* + hiện hộp
+hai nút to → người bệnh nói "đúng rồi"/"ừ" hoặc bấm nút → robot mới đi.
+
+⚠ Chữ trỏ ngược ("**đó**", "đấy", "kia") **thắng** kết quả tra cứu. Không có luật này thì "vậy dẫn
+tôi tới đó đi" ra Khu Thăm dò chức năng, vì mấy chữ còn lại vô tình khớp bảng từ dẫn.
+
+⚠ **Đuôi câu hỏi phải bỏ trước khi xét từ chối.** "dẫn tôi đến khoa nhi **được không**" có chữ
+"không" nhưng là hỏi lịch sự, không phải phủ định — không bỏ đuôi thì robot đáp *"dạ vâng, quý vị
+cần hỏi gì thêm"* rồi thôi. Dính ngay ở lượt thử đầu.
+
+⚠ **Đừng chặn câu một ký tự.** Người già đồng ý bằng đúng một tiếng: "ừ", "ờ", "dạ". Ngưỡng hai ký
+tự cũ (có ở **cả ba** tầng: `TraLoi.hoi`, `Cau.xuLyCauNoi`, `window.xuLyCauNoi`) nuốt trọn mấy
+tiếng đó — người bệnh gật đầu xong robot vẫn đứng im.
+
+⚠ **Cấp cứu không bao giờ hỏi xác nhận, không bao giờ dẫn** — kể cả khi người bệnh nói "dẫn tôi tới
+khoa cấp cứu". Luật cũ giữ nguyên.
+
+**Trí nhớ chỉ sống trong một phiên.** Đóng chat · xoá đoạn chat · về màn chờ là xoá sạch — cả
+`phien` bên web lẫn `TraLoi.lichSu` bên Kotlin (bốn lượt gần nhất gửi kèm cho mô hình) và ngữ cảnh
+trong bộ não của hãng. Ở bệnh viện đây không chỉ là chuyện gọn gàng: chuyện bệnh của người trước
+không được dính sang người sau.
+
+Bộ máy đặt ở **lớp web** (`window.xuLyCauNoi`), Kotlin gọi vào ở lớp 3b của `TraLoi.xuLy` — vì bảng
+đích đến, hàm tra cứu, hàm mở màn và hàm phát lệnh đi đều đã nằm bên đó. Dựng lại bên Kotlin là có
+hai bản luật, mà hai bản luật thì sớm muộn lệch nhau.
 
 ### ⚠ Mất nút micro / bấm mic mà robot không nhận — v1.11
 

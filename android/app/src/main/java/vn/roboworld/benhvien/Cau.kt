@@ -125,7 +125,7 @@ object Cau {
     fun traKhoaChoAI(tuKhoa: String?): String {
         val w = web ?: return ""
         val t = tuKhoa.orEmpty().trim()
-        if (t.length < 2) return ""
+        if (t.isEmpty()) return ""
         if (Looper.myLooper() == Looper.getMainLooper()) {
             Log.w(TAG, "traKhoaChoAI gọi từ luồng chính — bỏ qua để khỏi treo")
             return ""
@@ -231,6 +231,58 @@ object Cau {
     /** Tự kiểm lúc lắp đặt: appId đang chạy, có Agent hay không, mic đang mở hay tắt. */
     @JavascriptInterface
     fun thongTinAI(): String = MainApplication.thongTinAI()
+
+    /**
+     * KẾT THÚC MỘT PHIÊN TRÒ CHUYỆN — lớp web gọi khi người bệnh đóng chat, xoá đoạn
+     * chat, hoặc app tự về màn chờ.
+     *
+     * ⚠ Phải xoá CẢ HAI trí nhớ, thiếu một là hở: lịch sử hội thoại app tự giữ để gửi
+     *   cho mô hình (TraLoi.lichSu) và ngữ cảnh trong bộ não của hãng. Ở bệnh viện đây
+     *   không chỉ là chuyện gọn gàng — chuyện bệnh của người trước không được dính sang
+     *   người sau.
+     */
+    @JavascriptInterface
+    fun ketThucPhien() {
+        TraLoi.xoaLichSu()
+        MainApplication.xoaNguCanh()
+    }
+
+    /**
+     * Hỏi lớp web xem câu vừa nghe có thuộc về BỘ MÁY PHIÊN không — trí nhớ ngữ cảnh
+     * và bước hỏi xác nhận trước khi dẫn đường. Trả JSON {xong, doc, viec}.
+     *
+     * Vì sao để bên web: ở đó đã có bảng đích đến, hàm traCuu, hàm mở màn và hàm phát
+     * lệnh đi. Dựng lại bộ máy ấy bên Kotlin là có hai bản luật, mà hai bản luật thì
+     * sớm muộn lệch nhau.
+     *
+     * ⚠ Cùng cái bẫy của traKhoaChoAI: hàm này CHẶN luồng gọi để chờ WebView, mà việc
+     *   nó chờ lại chạy trên luồng chính — gọi từ luồng chính là tự khoá chính mình.
+     */
+    fun xuLyCauNoi(cauNoi: String?): String {
+        val w = web ?: return ""
+        val t = cauNoi.orEmpty().trim()
+        // Một ký tự vẫn phải cho qua: "ừ" · "ờ" · "dạ" là lời đồng ý, xem window.xuLyCauNoi.
+        if (t.isEmpty()) return ""
+        if (Looper.myLooper() == Looper.getMainLooper()) {
+            Log.w(TAG, "xuLyCauNoi gọi từ luồng chính — bỏ qua để khỏi treo")
+            return ""
+        }
+        var kq = ""
+        val cho = CountDownLatch(1)
+        val js = "window.xuLyCauNoi ? window.xuLyCauNoi(${JSONObject.quote(t)}) : ''"
+        Handler(Looper.getMainLooper()).post {
+            w.evaluateJavascript(js) { raw ->
+                kq = runCatching {
+                    if (raw.isNullOrBlank() || raw == "null") ""
+                    else JSONObject("{\"v\":$raw}").getString("v")
+                }.getOrDefault("")
+                cho.countDown()
+            }
+        }
+        if (!cho.await(1200, TimeUnit.MILLISECONDS)) Log.w(TAG, "xuLyCauNoi quá hạn 1,2 s")
+        Log.d(TAG, "xuLyCauNoi('$t') -> $kq")
+        return kq
+    }
 
     /**
      * Chẩn đoán mô hình — xem MainApplication.thuLLM.
