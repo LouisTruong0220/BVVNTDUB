@@ -37,7 +37,8 @@ Hồ sơ dự án đầy đủ nằm trong workspace nội bộ của Roboworld,
 
 | | |
 |---|---|
-| Trạng thái | **Bản demo HTML xong, APK build xong. Chưa chạy trên robot thật, chưa khảo sát mặt bằng.** |
+| Trạng thái | **Đang chạy trên robot thật tại sảnh bệnh viện (bản v1.12, 14/09/2026).** Còn treo: hướng trái/phải tới nhà A · B · C · F (`HUONG_TOA` để rỗng) |
+| **Tài liệu bàn giao kỹ thuật** | [`tai-lieu/ban-giao-ky-thuat.pdf`](tai-lieu/ban-giao-ky-thuat.pdf) — cấu trúc app, chức năng, và các bài học đã trả giá mới có. **Người tiếp quản đọc file này trước.** |
 | APK | `apk/le-tan-benh-vien-uong-bi-v1.12.apk` — appId riêng · ba toà D dừng ở đầu hành lang · nhà A/B/F dẫn tới tận nơi |
 | **Bản thử trên máy tính** | **`demo/thu-nghiem.html`** — có giả lập robot, bấm được nút dẫn đường. Đọc [HUONG-DAN-THU-NGHIEM.md](HUONG-DAN-THU-NGHIEM.md) |
 | Demo bản sạch | `demo/index.html` — giống hệt cái nằm trong APK |
@@ -89,7 +90,9 @@ phần còn lại của app không đỏ. Đỏ ở đây được giữ riêng 
 ## Dây chuyền dựng
 
 ```powershell
-cd D:\RBW_Claude\11-app-nova\le-tan-benh-vien-uong-bi
+cd <thư mục kho này>
+npm install                 # một lần: Playwright cho ba bộ thử bằng Node
+npx playwright install chromium
 python dung-du-lieu.py      # bảng khoa phòng  → du-lieu/app-data.json     (chỉ khi dữ liệu đổi)
 python dung-app.py          # HTML + JSON      → demo/index.html + rải sang android assets
 python dung-kho-tri-thuc.py # cùng nguồn       → kho-tri-thuc/ cho cổng OrionStar
@@ -111,7 +114,9 @@ thanh robot về chỗ — thử được ngay trên máy tính thay vì phải 
 
 Xong thì copy tay APK sang `apk/le-tan-benh-vien-uong-bi-vX.Y.apk` (script không tự đổi tên).
 
-`tools/soi-man-hinh.mjs` mượn Playwright của `tools/html-video`, không cài riêng. Nó bắt đúng
+Ba bộ thử bằng Node nạp Playwright qua `tools/_playwright.mjs`: trong workspace nội bộ Roboworld
+thì mượn bản có sẵn, còn clone kho về máy khác thì dùng bản `npm install` ở gốc kho.
+`tools/soi-man-hinh.mjs` bắt đúng
 loại lỗi hay dính trên Nova: nút bị co về chiều cao 0, nút lọt khỏi khung 1080, và **nút bị một
 luật CSS khác đè `display:none`** — cả ba đều không báo lỗi gì, chỉ biến mất khỏi màn hình.
 
@@ -355,7 +360,8 @@ Bản 1.1 (17/08/2026) thay toàn bộ tầng AI theo đúng cách app tra cứu
 chạy được từ 11/08/2026. Bốn thứ then chốt:
 
 **1. Agent SDK lấy từ GÓI OFFLINE, không lấy JitPack.** `app/libs/sdk-0.4.7.aar` +
-`agent-base-0.2.10.aar`, nguồn ở `01-source-data/11-orionstar-agent-sdk-047/`.
+`agent-base-0.2.10.aar` — gói offline OrionStar cấp, đã nằm sẵn trong `android/app/libs/`
+(bản gốc lưu trong kho tư liệu nội bộ Roboworld).
 Mọi bản `com.github.orionagent:agent-sdk` trên JitPack (0.2.2 → 0.2.5) đều **ghi cứng sai tên gói
 dịch vụ**, nên `AgentCore.*` lặng lẽ không làm gì — không lỗi, không callback, không log.
 **Đừng quay lại JitPack.** `jitpack.io` đã gỡ khỏi `settings.gradle.kts`.
@@ -364,10 +370,11 @@ dịch vụ**, nên `AgentCore.*` lặng lẽ không làm gì — không lỗi, 
 `status=2, result=null` sau ~355 ms, không lỗi không lý do. Đây là hai ngày đứng hình ở app kia.
 Xem `MainApplication.hoiMoHinh()`.
 
-**3. Bốn công tắc của hãng đều mặc định SAI với app này** — đặt trong `AppAgent.onCreate`:
+**3. Ba công tắc của hãng đều mặc định SAI với app này** — đặt trong `AppAgent.onCreate`:
 `isEnableVoiceBar=false` (thanh thoại hãng đè lên giao diện) · `isDisablePlan=true` (không thì
-AgentOS và app cùng trả lời một câu) · `isMicrophoneMuted=true` · `isEnableWakeFree=false`
-(không thì robot bắt lời người đi ngang giữa lúc đang dẫn người bệnh).
+AgentOS và app cùng trả lời một câu) · `isEnableWakeFree=false` (không thì robot bắt lời người
+đi ngang giữa lúc đang dẫn người bệnh). Công tắc thứ tư `isMicrophoneMuted` **đã gỡ từ v1.5 và
+tuyệt đối không đặt lại** — xem mục "Đã gỡ `isMicrophoneMuted`" phía trên.
 
 **4. Việc an toàn chặn bằng MÃ, không chặn bằng lời dặn trong prompt.** Ở app kia đã dặn rõ
 trong `setObjective` mà mô hình vẫn tự bịa danh sách giấy tờ khai sinh. Ở bệnh viện cái giá cao hơn.
@@ -580,7 +587,8 @@ trên sàn) — bỏ dấu thì "nào" trùng "não". Khoa đó chỉ phủ 1/3 
 
 ### Nút micro vẫn tự ẩn
 
-`MainApplication.thamDoAI()` gọi thử mô hình sau khi khởi động 4 giây; chỉ khi trả về `status=1`
+`MainApplication.thamDoAI()` gọi thử mô hình sau khi khởi động 4 giây (hỏng thì 20 giây thử lại,
+từ v1.11); chỉ khi trả về `status=1`
 (hoặc nghe được một câu ASR thật) mới bật cờ `agentSanSang` → `Cau.baoAISanSang(true)` → lớp web
 hiện nút mic. Giữ lại làm lưới an toàn: appId đã có nhưng chưa chạy thử trên robot thật.
 

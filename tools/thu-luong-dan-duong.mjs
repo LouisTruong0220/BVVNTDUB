@@ -16,10 +16,7 @@ import { pathToFileURL, fileURLToPath } from 'node:url';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const APP = resolve(HERE, '..');
-const PW = join(APP, '..', '..', 'tools', 'html-video', 'packages',
-                'adapter-hyperframes', 'node_modules', 'playwright', 'index.mjs');
-if (!existsSync(PW)) { console.error('Khong thay playwright tai:\n  ' + PW); process.exit(1); }
-const { chromium } = await import(pathToFileURL(PW).href);
+import { chromium } from './_playwright.mjs';
 
 const RA = join(APP, 'demo', 'anh-soi', 'luong-dan-duong');
 mkdirSync(RA, { recursive: true });

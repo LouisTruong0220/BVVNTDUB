@@ -30,3 +30,7 @@ desktop.ini
 # Thư mục Python tự sinh khi chạy script — không phải mã nguồn.
 __pycache__/
 *.pyc
+
+# Playwright cài bằng npm install cho bộ thử — không đẩy lên kho.
+node_modules/
+package-lock.json

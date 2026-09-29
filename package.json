@@ -1,0 +1,14 @@
+{
+  "name": "le-tan-benh-vien-uong-bi-tools",
+  "private": true,
+  "description": "Bo thu tren may tinh cho app robot le tan BV Viet Nam - Thuy Dien Uong Bi. Khong phai ma chay tren robot.",
+  "type": "module",
+  "scripts": {
+    "thu-tim-kiem": "node tools/thu-tim-kiem.mjs",
+    "thu-luong": "node tools/thu-luong-dan-duong.mjs",
+    "soi-man-hinh": "node tools/soi-man-hinh.mjs"
+  },
+  "devDependencies": {
+    "playwright": "^1.47.0"
+  }
+}

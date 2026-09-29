@@ -8,7 +8,7 @@
  * theo CHIỀU CAO — màn robot chỉ 1080px mà nội dung xếp dọc thì nút cuối bị co về
  * height 0 và biến mất, không báo lỗi gì. Chụp đúng 1920×1080 mới thấy.
  *
- * Playwright mượn của tools/html-video (giống tools/render-video.mjs), không cài riêng.
+ * Playwright nạp qua tools/_playwright.mjs (workspace hoặc npm install).
  */
 import { existsSync, mkdirSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
@@ -16,13 +16,7 @@ import { pathToFileURL, fileURLToPath } from 'node:url';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const APP = resolve(HERE, '..');
-const PW = join(APP, '..', '..', 'tools', 'html-video', 'packages',
-                'adapter-hyperframes', 'node_modules', 'playwright', 'index.mjs');
-if (!existsSync(PW)) {
-  console.error(`Khong thay playwright tai:\n  ${PW}\nChay: cd tools/html-video && pnpm install`);
-  process.exit(1);
-}
-const { chromium } = await import(pathToFileURL(PW).href);
+import { chromium } from './_playwright.mjs';
 
 const RA = resolve(process.argv[2] || join(APP, 'demo', 'anh-soi'));
 mkdirSync(RA, { recursive: true });
