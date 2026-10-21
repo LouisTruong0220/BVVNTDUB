@@ -385,6 +385,43 @@ object RobotHelper {
         RobotApi.getInstance().stopNavigation(nextReqId())
     }
 
+    /**
+     * Tự về cọc sạc và cắm vào — lệnh "Về trạm sạc" của phần mềm quản lý (v1.13).
+     *
+     * Dùng startNaviToAutoChargeAction chứ KHÔNG đi tới điểm "Tram sac": đi tới toạ độ chỉ đưa
+     * robot tới GẦN cọc, động tác lùi vào cắm tiếp điểm là việc của API này. Chép từ app
+     * hcc-van-phong (đã chạy máy thật). Hạn 3 phút.
+     */
+    fun veSac(khiXong: (Boolean, String) -> Unit) {
+        lyDoChuaSanSang()?.let { ly -> main.post { khiXong(false, ly) }; return }
+        val daBao = java.util.concurrent.atomic.AtomicBoolean(false)
+        fun bao(ok: Boolean, chu: String) { if (daBao.compareAndSet(false, true)) main.post { khiXong(ok, chu) } }
+        val ma = RobotApi.getInstance().startNaviToAutoChargeAction(
+            nextReqId(), 180_000L,
+            object : ActionListener() {
+                override fun onResult(status: Int, response: String?) {
+                    Log.d(TAG, "veSac onResult: status=$status response=$response")
+                    if (status == Definition.RESULT_OK) bao(true, "Đã về tới trạm sạc.")
+                    else bao(false, "Robot chưa cắm được vào trạm sạc.")
+                }
+                override fun onError(errorCode: Int, errorString: String?) {
+                    Log.w(TAG, "veSac onError: $errorCode $errorString")
+                    bao(false, "Về trạm sạc không thành công (mã $errorCode).")
+                }
+                override fun onStatusUpdate(status: Int, data: String?) {
+                    Log.d(TAG, "veSac onStatusUpdate: status=$status data=$data")
+                }
+            }
+        )
+        Log.d(TAG, "startNaviToAutoChargeAction trả mã = $ma")
+        if (ma < 0) bao(false, "Robot chưa nhận lệnh về sạc (mã $ma).")
+    }
+
+    fun dungVeSac() {
+        if (!sanSang()) return
+        runCatching { RobotApi.getInstance().stopAutoChargeAction(nextReqId(), true) }
+    }
+
     /** Dịch mã lỗi dẫn đường thành câu người thường đọc được. */
     private fun dichMaLoi(code: Int): String = when (code) {
         Definition.ERROR_NOT_ESTIMATE ->

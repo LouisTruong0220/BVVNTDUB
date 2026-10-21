@@ -9,12 +9,15 @@ tìm đúng khoa theo cách họ tự mô tả, và **dẫn đường** tới n�
 
 **Chỉ cần cài lên robot, không cần build:**
 
-1. Tải `apk/le-tan-benh-vien-uong-bi-v1.12.apk`
+1. Tải `apk/le-tan-benh-vien-uong-bi-v1.13.apk`
 2. Nối cáp USB vào **đầu robot**, dùng **adb 1.0.41** của Android SDK
    (⚠ **không** dùng `C:\Windows\adb.exe` bản 1.0.39 của PUDU — hai bản giết tiến trình của nhau)
    ```powershell
-   adb install -r le-tan-benh-vien-uong-bi-v1.12.apk
+   adb install -r le-tan-benh-vien-uong-bi-v1.13.apk
    ```
+   Bản 1.13 thêm **phần mềm quản lý từ xa** — cần nạp thêm tệp cấu hình Roboworld cấp riêng:
+   `python tools/nap-quan-ly.py --cau-hinh <tệp>` (xem mục *Phần mềm quản lý từ xa* bên dưới).
+   Không nạp thì app chạy y như 1.12.
 3. **Mở app từ RobotOS Home**, tuyệt đối không dùng `am start` — dùng `am start` thì `RobotApi`
    trả `handleApiDisabled`, mất cả dẫn đường lẫn giọng nói mà app không báo lỗi gì.
 4. Quét bản đồ và đặt 12 điểm theo **hướng dẫn đặt điểm bản đồ**:
@@ -39,11 +42,45 @@ Hồ sơ dự án đầy đủ nằm trong workspace nội bộ của Roboworld,
 |---|---|
 | Trạng thái | **Đang chạy trên robot thật tại sảnh bệnh viện (bản v1.12, 14/09/2026).** Còn treo: hướng trái/phải tới nhà A · B · C · F (`HUONG_TOA` để rỗng) |
 | **Tài liệu bàn giao kỹ thuật** | [`tai-lieu/ban-giao-ky-thuat.pdf`](tai-lieu/ban-giao-ky-thuat.pdf) — cấu trúc app, chức năng, và các bài học đã trả giá mới có. **Người tiếp quản đọc file này trước.** |
-| APK | `apk/le-tan-benh-vien-uong-bi-v1.12.apk` — appId riêng · ba toà D dừng ở đầu hành lang · nhà A/B/F dẫn tới tận nơi |
+| APK | `apk/le-tan-benh-vien-uong-bi-v1.13.apk` — v1.12 + báo trạng thái/vị trí lên phần mềm quản lý, nhận lệnh từ xa. **v1.13 CHƯA chạy máy thật** |
+| Phần mềm quản lý | https://quan-ly-robot-uong-bi.pages.dev — đăng nhập bằng tài khoản Roboworld cấp |
 | **Bản thử trên máy tính** | **`demo/thu-nghiem.html`** — có giả lập robot, bấm được nút dẫn đường. Đọc [HUONG-DAN-THU-NGHIEM.md](HUONG-DAN-THU-NGHIEM.md) |
 | Demo bản sạch | `demo/index.html` — giống hệt cái nằm trong APK |
 | Package | `vn.roboworld.benhvien` |
 | Ngày | 11/08/2026 · cập nhật 08/09/2026 (bốn phòng mới + micro bấm-mới-nghe) |
+
+---
+
+## Phần mềm quản lý từ xa — v1.13 (21/10/2026)
+
+Bệnh viện yêu cầu (05/10): theo dõi robot đang ở đâu trên bản đồ, pin, và ra lệnh từ xa, từ **máy
+tính có tài khoản đăng nhập**. Robot chạy **SIM 4G**, máy tính dùng **Wi-Fi** — hai mạng không thấy
+nhau, nên cả hai cùng gọi một máy chủ trên Cloudflare: **https://quan-ly-robot-uong-bi.pages.dev**.
+
+Toàn bộ phần robot nằm ở `QuanLyTuXa.kt`:
+
+| | |
+|---|---|
+| Báo lên | 2 giây/lần khi đang đi, 3 giây khi đứng: pin · sạc · mạng · đã định vị chưa · bản đồ · vị trí x/y/hướng · việc đang làm · màn đang hiện · phiên bản app + ROM. Danh sách điểm 1 phút/lần |
+| Bản đồ | Đọc `map.pgm` của OrionStar (PGM P5 + 16 byte đuôi: độ phân giải `double` · gốc x,y `float`, little-endian — theo `MapppUtils` của RobotSample), đổi sang PNG, tải lên khi máy chủ đòi. Đường chính `ShareMemoryApi.getMapPgmPFD`, đường lui `/sdcard/robot/map/<tên>/map.pgm` |
+| Nhận lệnh | `di-toi` · `dung` · `ve-cho` · `ve-sac` (startNaviToAutoChargeAction) · `noi` · `tai-ban-do` |
+| Trên màn robot | Dải chữ đỏ ở đáy "Robot đang di chuyển theo lệnh của bộ phận quản lý" (View Android, không đụng index.html) |
+| Riêng tư | KHÔNG gửi lời nói, câu hỏi, ảnh — chỉ trạng thái máy |
+
+**Cấu hình** ở thẻ nhớ `files/cau-hinh/quan-ly.json` `{"url","robot","khoa"}`.
+⚠ **Kho này PUBLIC — khoá robot không bao giờ được vào mã hay vào kho.** Không có tệp đó thì
+mô-đun đứng im. Nạp bằng `python tools/nap-quan-ly.py --cau-hinh <tệp> [--cai]`, xem bằng `--xem`.
+
+⚠ **Lệnh từ xa thắng lượt dẫn khách** — ba chốt trong `Cau.kt`, đừng gỡ:
+1. Đang dẫn người bệnh mà có lệnh đi → robot xin lỗi, màn hình về trang khoa, rồi mới đi.
+2. **Số lượt `luotDan`**: dừng lượt dẫn thì RobotOS vẫn bắn `onError` về listener CŨ. Không chặn thì
+   `khiLoi` cũ gọi `dungDieuHuong()` → **giết luôn lệnh đi từ xa vừa phát** và robot đọc câu báo lỗi.
+3. `veCho()` bỏ qua khi `QuanLyTuXa.dangTuXa` — lớp web HẸN GIỜ gọi nó sau mỗi lượt dẫn, không chặn thì
+   giữa đường về trạm sạc robot bị kéo về sảnh. Người bệnh bấm dẫn đường lúc đó thì robot xin chờ.
+
+⚠ **Chưa đo máy thật:** đọc PGM qua bộ nhớ chia sẻ · khuôn JSON của `STATUS_BATTERY` (dò khoá có chữ
+"charg") · `theta` là radian. Buổi cài đầu tiên: mở phần mềm quản lý, xem bản đồ có khớp, chấm robot có
+đứng đúng chỗ, mũi tên có đúng hướng không.
 
 ---
 

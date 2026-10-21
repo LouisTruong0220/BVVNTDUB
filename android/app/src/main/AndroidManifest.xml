@@ -2,6 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
     <!-- Để bảng tự chẩn đoán biết robot đang Wi-Fi, 4G hay mất mạng (11/09/2026).
          Quyền thường, máy tự cấp, không hỏi người dùng. -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>

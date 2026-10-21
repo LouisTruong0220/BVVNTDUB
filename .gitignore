@@ -34,3 +34,7 @@ __pycache__/
 # Playwright cài bằng npm install cho bộ thử — không đẩy lên kho.
 node_modules/
 package-lock.json
+
+# Cấu hình phần mềm quản lý từ xa (v1.13) — chứa KHOÁ ROBOT. Kho này PUBLIC.
+quan-ly*.json
+.robot-*.json

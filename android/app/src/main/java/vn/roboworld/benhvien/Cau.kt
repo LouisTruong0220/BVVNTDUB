@@ -324,6 +324,15 @@ object Cau {
             return
         }
 
+        // Robot đang chạy lệnh của bộ phận quản lý (về sạc, đi tới điểm…) — không cho lượt
+        // dẫn khách giật lại, không thì người trực bấm "về sạc" xong robot quay đầu đi dẫn khách.
+        if (QuanLyTuXa.dangTuXa) {
+            val tb = "Tôi đang làm việc bộ phận quản lý giao. Quý vị vui lòng chờ ít phút, hoặc hỏi quầy tiếp đón giúp tôi ạ."
+            guiWeb("loi", tb)
+            RobotHelper.doc(tb) {}
+            return
+        }
+
         val vuong = RobotHelper.lyDoChuaSanSang()
         if (vuong != null) {
             baoDanDuong("loi", vuong)
@@ -332,31 +341,87 @@ object Cau {
         }
 
         dangVeCho = false
+        val luot = ++luotDan
+        dangDanKhach = true
+        QuanLyTuXa.datViec("dan-khach", diem)
         baoDanDuong("bat-dau", "")
         RobotHelper.doc("Xin mời đi theo tôi.") {}
 
+        /* ⚠ Mọi callback kiểm `luot == luotDan`: lệnh từ xa dừng lượt này giữa chừng thì
+           RobotOS vẫn bắn onError về listener CŨ. Không chặn thì khiLoi chạy → gọi
+           dungDieuHuong() → GIẾT LUÔN lệnh đi từ xa vừa phát, và robot đọc câu báo lỗi. */
         RobotHelper.dieuHuongToi(
             diem,
             // Tới nơi: KHÔNG nói gì ở đây. Lớp web tự bật màn chỉ đường và cho robot
             // đọc câu hướng dẫn — nói thêm ở đây là chồng tiếng.
-            khiToiNoi = { baoDanDuong("toi-noi", "") },
+            khiToiNoi = {
+                if (luot == luotDan) { dangDanKhach = false; QuanLyTuXa.datViec("ranh"); baoDanDuong("toi-noi", "") }
+            },
             khiLoi = { loi ->
-                // Dừng hẳn lệnh đi, không để robot kẹt ở trạng thái "đang điều hướng"
-                RobotHelper.dungDieuHuong()
-                baoDanDuong("loi", loi)
-                RobotHelper.doc(loi) {}
+                if (luot == luotDan) {
+                    dangDanKhach = false; QuanLyTuXa.datViec("ranh")
+                    // Dừng hẳn lệnh đi, không để robot kẹt ở trạng thái "đang điều hướng"
+                    RobotHelper.dungDieuHuong()
+                    baoDanDuong("loi", loi)
+                    RobotHelper.doc(loi) {}
+                }
             },
             // Chỉ đẩy chữ lên màn hình, tuyệt đối không gọi RobotHelper.doc ở đây
-            khiCapNhat = { tin -> baoDanDuong("dang-di", tin) }
+            khiCapNhat = { tin -> if (luot == luotDan) baoDanDuong("dang-di", tin) }
         )
     }
 
     /** Dừng dẫn đường giữa chừng — người bệnh đổi ý hoặc bấm quay lại. */
     @JavascriptInterface
     fun dungDanDuong() {
+        if (QuanLyTuXa.dangTuXa) return       // nút của màn dẫn khách không được dừng lệnh từ xa
         dangVeCho = false
+        luotDan++
+        dangDanKhach = false
+        QuanLyTuXa.datViec("ranh")
         RobotHelper.dungDieuHuong()
         baoDanDuong("da-dung", "Tôi dừng lại rồi ạ.")
+    }
+
+    // ───────────────────── Nhường cho lệnh từ xa ─────────────────────
+
+    /** Số lượt dẫn — tăng mỗi lần bắt đầu/dừng để callback của lượt cũ tự bỏ qua. */
+    @Volatile private var luotDan = 0
+    @Volatile private var dangDanKhach = false
+
+    /**
+     * Phần mềm quản lý vừa ra lệnh đi / về sạc / dừng: thôi lượt dẫn khách hoặc chuyến tự
+     * về sảnh đang chạy. Có người bệnh đang đi theo thì báo cho màn hình biết để nó trở về
+     * trang khoa phòng, không treo ở màn "đang dẫn đường" mãi.
+     */
+    fun nhuongChoTuXa() {
+        luotDan++
+        dangVeCho = false
+        if (dangDanKhach) {
+            dangDanKhach = false
+            val tb = "Xin lỗi quý vị, tôi vừa nhận việc gấp từ bộ phận quản lý. Mời quý vị đi theo biển chỉ dẫn hoặc hỏi quầy tiếp đón ạ."
+            guiWeb("da-dung", tb)
+            RobotHelper.doc(tb) {}          // người đang đi theo phải NGHE được, không chỉ màn hình
+        }
+    }
+
+    fun diemVeCho(): String = tenDiemVeCho
+
+    /**
+     * Màn hình đang hiện (biến manDang của lớp web: mh-cho, mh-ct, mh-dan…). Chặn luồng gọi tối
+     * đa [choMs] — CHỈ gọi từ luồng phụ, gọi từ luồng chính là tự khoá chính mình.
+     */
+    fun manDang(choMs: Long): String {
+        val w = web ?: return ""
+        val latch = CountDownLatch(1)
+        var kq = ""
+        w.post {
+            w.evaluateJavascript("(typeof manDang==='string')?manDang:''") { s ->
+                kq = s.orEmpty().trim('"'); latch.countDown()
+            }
+        }
+        latch.await(choMs, TimeUnit.MILLISECONDS)
+        return kq
     }
 
     /* Đang trên đường tự về sảnh. Cờ này để chuyến về KHÔNG báo gì lên giao diện —
@@ -378,12 +443,17 @@ object Cau {
     fun veCho() {
         val diem = tenDiemVeCho
         Log.d(TAG, "Robot tự về '$diem'")
+        // ⚠ Lớp web HẸN GIỜ gọi hàm này sau mỗi lượt dẫn (batDauVeCho). Đang chạy lệnh từ xa mà
+        //   không chặn ở đây thì giữa đường về trạm sạc robot bị kéo về sảnh.
+        if (QuanLyTuXa.dangTuXa) { Log.d(TAG, "Đang chạy lệnh từ xa — bỏ qua tự về sảnh"); return }
         if (diem.isEmpty() || RobotHelper.lyDoChuaSanSang() != null) return
         dangVeCho = true
+        val luot = ++luotDan
+        QuanLyTuXa.datViec("ve-cho", diem)
         RobotHelper.dieuHuongToi(
             diem,
-            khiToiNoi = { dangVeCho = false; Log.d(TAG, "Đã về tới $diem") },
-            khiLoi = { loi -> dangVeCho = false; Log.w(TAG, "Về chỗ không thành: $loi") },
+            khiToiNoi = { if (luot == luotDan) { dangVeCho = false; QuanLyTuXa.datViec("ranh"); Log.d(TAG, "Đã về tới $diem") } },
+            khiLoi = { loi -> if (luot == luotDan) { dangVeCho = false; QuanLyTuXa.datViec("ranh"); Log.w(TAG, "Về chỗ không thành: $loi") } },
             khiCapNhat = { }
         )
     }
@@ -447,6 +517,12 @@ object Cau {
 
     private fun baoDanDuong(trangThai: String, loiNhan: String) {
         if (dangVeCho) return              // chuyến robot tự về sảnh: không báo gì lên màn hình
+        if (QuanLyTuXa.dangTuXa) return    // lệnh từ xa: màn hình chỉ hiện dải chữ của MainActivity
+        guiWeb(trangThai, loiNhan)
+    }
+
+    /** Gửi thẳng lên màn hình, KHÔNG qua hai chốt trên — dùng khi chính chốt đó là lý do phải báo. */
+    private fun guiWeb(trangThai: String, loiNhan: String) {
         val w = web ?: return
         val js = "window.baoDanDuong && window.baoDanDuong(${JSONObject.quote(trangThai)}," +
                  "${JSONObject.quote(loiNhan)})"

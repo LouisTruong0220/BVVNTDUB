@@ -734,6 +734,10 @@ class MainApplication : Application() {
         // Tầng thấp: dẫn đường + đọc thành tiếng. Đây mới là phần app sống bằng.
         RobotHelper.ketNoi(this)
 
+        // Phần mềm quản lý từ xa (v1.13): báo trạng thái + vị trí lên Cloud, nhận lệnh về.
+        // Thiếu files/cau-hinh/quan-ly.json thì tự đứng im — app lễ tân không bị ảnh hưởng.
+        QuanLyTuXa.batDau(this)
+
         // Tầng cao: nghe và gọi mô hình
         agent = object : AppAgent(this) {
 

@@ -5,7 +5,11 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.graphics.Color
+import android.view.Gravity
 import android.view.View
+import android.widget.FrameLayout
+import android.widget.TextView
 import android.webkit.ConsoleMessage
 import android.webkit.WebChromeClient
 import android.webkit.WebSettings
@@ -21,13 +25,28 @@ import androidx.appcompat.app.AppCompatActivity
 class MainActivity : AppCompatActivity() {
 
     private lateinit var web: WebView
+    private lateinit var banner: TextView
 
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         web = WebView(this)
-        setContentView(web)
+        /* Dải chữ đỏ ở đáy màn hình khi robot chạy theo lệnh của phần mềm quản lý (v1.13).
+           Làm bằng View Android chứ không trong index.html: người bệnh thấy robot tự bỏ đi
+           thì phải biết vì sao — và không phải dựng lại giao diện web chỉ vì một dòng chữ. */
+        banner = TextView(this).apply {
+            setBackgroundColor(Color.parseColor("#E6C13F28")); setTextColor(Color.WHITE)
+            textSize = 15f; gravity = Gravity.CENTER; setPadding(24, 14, 24, 14)
+            visibility = View.GONE
+        }
+        setContentView(FrameLayout(this).apply {
+            addView(web, FrameLayout.LayoutParams(-1, -1))
+            addView(banner, FrameLayout.LayoutParams(-1, -2, Gravity.BOTTOM))
+        })
+        QuanLyTuXa.hienBanner = { chu ->
+            runOnUiThread { banner.text = chu.orEmpty(); banner.visibility = if (chu == null) View.GONE else View.VISIBLE }
+        }
         anThanhHeThong()
 
         WebView.setWebContentsDebuggingEnabled(true)   // để soi lỗi bằng chrome://inspect
@@ -90,10 +109,15 @@ class MainActivity : AppCompatActivity() {
      */
     private fun xinQuyenMicro() {
         val q = android.Manifest.permission.RECORD_AUDIO
-        if (checkSelfPermission(q) != PackageManager.PERMISSION_GRANTED) {
-            Log.d("BVWeb", "Chưa có quyền micro — đang xin")
-            requestPermissions(arrayOf(q), 1001)
-        } else {
+        // Đọc thẻ nhớ (v1.13): đường lui đọc /sdcard/robot/map/<tên>/map.pgm cho phần mềm quản lý.
+        // Xin CHUNG một lượt với micro — hai lượt requestPermissions chồng nhau thì lượt sau bị nuốt.
+        val the = android.Manifest.permission.READ_EXTERNAL_STORAGE
+        val thieu = listOf(q, the).filter { checkSelfPermission(it) != PackageManager.PERMISSION_GRANTED }
+        if (thieu.isNotEmpty()) {
+            Log.d("BVWeb", "Đang xin quyền: $thieu")
+            requestPermissions(thieu.toTypedArray(), 1001)
+        }
+        if (checkSelfPermission(q) == PackageManager.PERMISSION_GRANTED) {
             Log.d("BVWeb", "Đã có quyền micro")
             MainApplication.tatMicro()
         }
@@ -104,7 +128,9 @@ class MainActivity : AppCompatActivity() {
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == 1001) {
-            val duoc = grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED
+            val i = permissions.indexOf(android.Manifest.permission.RECORD_AUDIO)
+            if (i < 0) return                       // lượt này chỉ xin quyền thẻ nhớ
+            val duoc = grantResults.size > i && grantResults[i] == PackageManager.PERMISSION_GRANTED
             Log.d("BVWeb", "Kết quả xin quyền micro: $duoc")
             /*
              * Có quyền rồi vẫn TẮT mic — không phải quên.
@@ -152,6 +178,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onDestroy() {
+        QuanLyTuXa.hienBanner = null
         Cau.go()
         RobotHelper.dungDoc()
         web.destroy()
